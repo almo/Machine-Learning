@@ -38,7 +38,11 @@ def analyze_img(image_uri):
             }]
         })
     
-    response = service_request.execute()
+    if service_request is not None:
+        response = service_request.execute()
+    else:
+        response = None
+    
     return response
 
 def get_plus_profile(id):
@@ -46,8 +50,12 @@ def get_plus_profile(id):
   
     service = discovery.build('plus','v1',developerKey=api_key)
     service_request = service.people().get(userId = id)
-  
-    response = service_request.execute()
+    
+    if service_request is not None:
+        response = service_request.execute()
+    else:
+        response = None
+        
     return response
      
 def get_plus_contacts():
@@ -90,7 +98,11 @@ if __name__ == '__main__':
         image_uri = plus_profile['image']['url'].replace("?sz=50","?sz=250")
         
         image_data = analyze_img(image_uri)
-
-        print(image_uri)
-        for label in image_data['responses'][0]['labelAnnotations']:
-            print(label['description'],label['score']) 
+        
+        if image_data is not None:
+            print(image_uri)
+            if 'labelAnnotations' in image_data['responses'][0]:
+                for label in image_data['responses'][0]['labelAnnotations']:
+                    print(label['description'],label['score']) 
+            else:
+                print image_data['responses']
