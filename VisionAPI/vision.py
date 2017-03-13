@@ -1,5 +1,5 @@
 ##--
-##-- almo (c) 2016
+##-- almo (c) 2016, 2017
 ##-- Apache 2.0 http://www.apache.org/licenses/LICENSE-2.0
 ##--
 
@@ -38,6 +38,7 @@ def analyze_img(image_uri):
             }]
         })
     
+    
     if service_request is not None:
         response = service_request.execute()
     else:
@@ -57,37 +58,50 @@ def get_plus_profile(id):
         response = None
         
     return response
+
+def get_plus_activities(id):
+    api_key = json.load(open('/home/almo/dev/keys/ex1/api_key.json'))['api_key']
+  
+    service = discovery.build('plus','v1',developerKey=api_key)
+    request = service.activities().list(userId = id, collection='public', maxResults='100')
+
+    plus_activities=[]
+      
+    while request is not None:
+        response = request.execute()
+        for activity in response['items']:
+            plus_activities.append(activity) 
+        request = service.activities().list_next(request,response)
+
+    return plus_activities
      
 def get_plus_contacts():
-    PEOPLE_API='https://www.googleapis.com/auth/contacts.readonly'
-    flow = flow_from_clientsecrets('/home/almo/dev/keys/ex1/oAuth_key.json',scope=[PEOPLE_API])
-    
     storage = Storage('/home/almo/dev/keys/ex1/oAuth_credentials.dat')    
     credentials = storage.get()
     
     if credentials is None or credentials.invalid:
+        PEOPLE_API='https://www.googleapis.com/auth/contacts.readonly'
+        flow = flow_from_clientsecrets('/home/almo/dev/keys/ex1/oAuth_key.json',scope=[PEOPLE_API], redirect_uri='urn:ietf:wg:oauth:2.0:oob')
         credentials = run_flow(flow, storage)
-        
-    http = httplib2.Http()
-    http = credentials.authorize(http)
 
-    service = build(serviceName='people', version='v1', http=http)
+    http = credentials.authorize(httplib2.Http())
+
+    service = build('people','v1', http=http, discoveryServiceUrl='https://people.googleapis.com/$discovery/rest')
     
     request = service.people().connections().list(resourceName='people/me', pageSize=500)
-    
+        
     plus_contacts=[]
-      
     while request is not None:
         response = request.execute()
         for contact in response['connections']:
             if 'urls' in contact:
                 plus_contacts.append(contact['urls'][0]['metadata']['source']['id'])
- 
         request = service.people().connections().list_next(request,response)
     
     return plus_contacts
 
 if __name__ == '__main__':
+
     plus_contacts = get_plus_contacts()
     
     print "Processing %d contacts" % len(plus_contacts)
@@ -103,6 +117,6 @@ if __name__ == '__main__':
             print(image_uri)
             if 'labelAnnotations' in image_data['responses'][0]:
                 for label in image_data['responses'][0]['labelAnnotations']:
-                    print(label['description'],label['score']) 
+                    print label['description']; label['score']; image_uri 
             else:
                 print image_data['responses']
