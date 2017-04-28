@@ -8,20 +8,16 @@ import urllib
 import base64
 import httplib2
 
-from time import sleep
-
 from googleapiclient import discovery
-from apiclient.discovery import build
 
 from oauth2client.file import Storage
-from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.tools import run_flow
 from oauth2client.client import flow_from_clientsecrets
 
 def analyze_img(image_uri):
     api_key = json.load(open('/home/almo/dev/keys/ex1/api_key.json'))['api_key']
 
-    service = discovery.build('vision','v1',developerKey=api_key)
+    service = discovery.build('vision', 'v1' ,developerKey=api_key)
     
     image= urllib.urlopen(image_uri)
     image_content = base64.b64encode(image.read())
