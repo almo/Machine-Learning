@@ -38,6 +38,9 @@ states, indicating probabilistic transitions.
 
 ### Machine Learning
 
+### Utils
+[JGraphT](https://jgrapht.org/) s a free Java class library that provides mathematical graph-theory objects and algorithms.
+
 ### References
 
 [1] [Kotlin Programming Language](https://kotlinlang.org/)
