@@ -100,6 +100,12 @@ In addition basic inference functions are also implemented:
     &#948; for a probability tree with root n.
   * Function *evaluateOR(&#948;<sub>1</sub>, &#948;<sub>2</sub>)* evaluates the join of the events (min-cuts) 
       &#948;<sub>1</sub> and &#948;<sub>2</sub> for a probability tree with root n.
+  * Function *evaluatePREC(&#948;<sub>c</sub>, &#948;<sub>e</sub>)* evaluates the causal relationship between the events (min-cuts) 
+    cause &#948;<sub>c</sub> and event &#948;<sub>e</sub> for a probability tree with root n.
+    
+NOTE: the specification of the algorithm of the evaluatePREC (figure 4) included in the paper has two bugs: it evaluates the
+cause set of TRUE and FALSE when it should be evaluated the effect. In addition, the results shown in the figure 5 are 
+wrong too. 
 
 ### Dynamic Programming
 
