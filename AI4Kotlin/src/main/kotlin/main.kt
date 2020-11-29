@@ -27,12 +27,27 @@ fun main() {
     pTree.print()
 
     println()
-    var minCut = pTree.evaluateEvent(Pair("Y","1"))
-    println("True Min Cut (Y=1): ${minCut.first}")
-    println("False Min Cut (Y=1): ${minCut.second}")
+    var eventY1 = pTree.evaluateEvent(Pair("Y","1"))
+    println("True Min Cut (Y=1): ${eventY1.first}")
+    println("False Min Cut (Y=1): ${eventY1.second}")
 
     println()
-    var minCutZ = pTree.evaluateEvent(Pair("Z","0"))
-    println("True Min Cut (Z=0): ${minCutZ.first}")
-    println("False Min Cut (Z=0): ${minCutZ.second}")
+    var eventZ0 = pTree.evaluateEvent(Pair("Z","0"))
+    println("True Min Cut (Z=0): ${eventZ0.first}")
+    println("False Min Cut (Z=0): ${eventZ0.second}")
+
+    println()
+    var eventY1andZ0 = pTree.evaluateAND(eventY1,eventZ0)
+    println("True Min Cut (Y=1) && (Z=0): ${eventY1andZ0.first}")
+    println("False Min Cut (Y=1) && (Z=0): ${eventY1andZ0.second}")
+
+    println()
+    var eventY1orZ0 = pTree.evaluateOR(eventY1,eventZ0)
+    println("True Min Cut (Y=1) || (Z=0): ${eventY1orZ0.first}")
+    println("False Min Cut (Y=1) || (Z=0): ${eventY1orZ0.second}")
+
+    println()
+    var eventY1PRECZ0 = pTree.evaluatePREC(eventY1,eventZ0)
+    println("True Min Cut (Y=1) -> (Z=0): ${eventY1PRECZ0.first}")
+    println("False Min Cut (Y=1) -> (Z=0): ${eventY1PRECZ0.second}")
 }
