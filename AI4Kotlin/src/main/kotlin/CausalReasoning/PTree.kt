@@ -54,6 +54,50 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                 transitions?.forEach { it.second.evaluateEvent(proposition,minCut) }
         }
 
+        fun evaluateAND(eventEvaluation: Pair<MutableList<String>,MutableList<String>>,
+                                event1: Pair<List<String>,List<String>>,
+                                event2: Pair<List<String>,List<String>>,  match1: Boolean, match2: Boolean){
+
+             var matchEvent1 = event1.first.contains(nodeID) || match1
+             var matchEvent2 = event2.first.contains(nodeID) || match2
+
+            if (event1.second.contains(nodeID) || event2.second.contains(nodeID))
+                eventEvaluation.second.add(nodeID)
+            else if (matchEvent1 && matchEvent2)
+                eventEvaluation.first.add(nodeID)
+            else if (!isLeaf)
+                transitions?.forEach { it.second.evaluateAND(eventEvaluation, event1, event2, matchEvent1, matchEvent2) }
+        }
+
+        fun evaluatePREC(eventEvaluation: Pair<MutableList<String>,MutableList<String>>,
+                        cause: Pair<List<String>,List<String>>,
+                        effect: Pair<List<String>,List<String>>,  match: Boolean){
+
+            var eventMatch=match
+
+            if (eventMatch){
+                if (effect.first.contains(nodeID) || effect.second.contains(nodeID) || cause.second.contains(nodeID)){
+                    eventEvaluation.second.add(nodeID)
+                }else {
+                    if (cause.first.contains(nodeID))
+                        eventMatch = false
+
+                    if (!isLeaf)
+                        transitions?.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, eventMatch) }
+                }
+            }else{
+                // NOTE: the paper has some bug here. It searches on TRUE and FALSE set of the
+                // "cause" and it should be the "effect"
+                if (effect.first.contains(nodeID))
+                    eventEvaluation.first.add(nodeID)
+                else if (effect.second.contains(nodeID))
+                    eventEvaluation.second.add(nodeID)
+                else if (!isLeaf)
+                    transitions?.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, eventMatch)  }
+            }
+
+        }
+
         fun print(level:Int, probability: Double){
            var padding = ""
            for (i in 1..level) {
@@ -92,25 +136,66 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
     }
 
     fun evaluateEvent(proposition:Pair<String,String>): Pair<List<String>,List<String>>{
-        var minCutTrue = mutableListOf<String>()
-        var minCutFalse = mutableListOf<String>()
+        var eventTrue = mutableListOf<String>()
+        var eventFalse = mutableListOf<String>()
 
-        var minCut = Pair(minCutTrue,minCutFalse)
+        var eventEvaluation = Pair(eventTrue,eventFalse)
 
         if (this.statement.first == proposition.first){
             if (this.statement.second == proposition.second)
-                minCutTrue.add(this.rootID)
+                eventTrue.add(this.rootID)
             else
-                minCutFalse.add(this.rootID)
+                eventFalse.add(this.rootID)
         }else
-            transitions.forEach { it.second.evaluateEvent(proposition,minCut) }
+            transitions.forEach { it.second.evaluateEvent(proposition,eventEvaluation) }
 
-        return minCut
+        return eventEvaluation
     }
 
-    fun evaluateNegEvent(proposition:Pair<String,String>): Pair<List<String>,List<String>>{
-        val minCut = evaluateEvent(proposition)
-        return Pair(minCut.second,minCut.first)
+    fun evaluateNOT(proposition:Pair<List<String>,List<String>>): Pair<List<String>,List<String>>{
+        return Pair(proposition.second,proposition.first)
+    }
+
+    fun evaluateAND(event1: Pair<List<String>,List<String>>, event2: Pair<List<String>,List<String>>):Pair<List<String>,List<String>>{
+        var eventTrue = mutableListOf<String>()
+        var eventFalse = mutableListOf<String>()
+
+        var eventEvaluation = Pair(eventTrue,eventFalse)
+
+        var matchEvent1 = event1.first.contains(rootID)
+        var matchEvent2 = event1.first.contains(rootID)
+
+        //FIXME Consider the case where event1 and/or event2 are both the root: b and I == I and b = b
+        if (event1.second.contains(rootID) || event2.second.contains(rootID))
+            eventEvaluation.second.add(rootID)
+        else if (matchEvent1 && matchEvent2)
+            eventEvaluation.first.add(rootID)
+        else {
+            transitions.forEach { it.second.evaluateAND(eventEvaluation, event1, event2, matchEvent1, matchEvent2) }
+        }
+
+        return eventEvaluation
+    }
+
+    fun evaluatePREC(cause: Pair<List<String>,List<String>>, effect: Pair<List<String>,List<String>>):Pair<List<String>,List<String>>{
+        var eventTrue = mutableListOf<String>()
+        var eventFalse = mutableListOf<String>()
+        var eventEvaluation = Pair(eventTrue,eventFalse)
+
+        var matchEvent = !cause.first.contains(rootID)
+
+        if (effect.first.contains(rootID) || effect.second.contains(rootID) || cause.second.contains(rootID)) {
+            eventEvaluation.second.add(rootID)
+        }
+        else {
+            transitions.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, matchEvent) }
+        }
+
+        return eventEvaluation
+    }
+
+    fun evaluateOR(event1: Pair<List<String>,List<String>>, event2: Pair<List<String>,List<String>>): Pair<List<String>,List<String>>{
+        return evaluateNOT(evaluateAND(evaluateNOT(event1),evaluateNOT(event2)))
     }
 
     fun print(){
