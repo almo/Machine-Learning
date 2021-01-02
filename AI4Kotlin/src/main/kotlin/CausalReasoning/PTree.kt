@@ -28,10 +28,10 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
         }
 
         fun generateNodeIDs(rootID:String,index:Int){
-            nodeID = "$rootID$index"
+            nodeID = "${rootID}.$index"
             if (!isLeaf){
                 var i = 0
-                transitions?.forEach { it.second.generateNodeIDs("$nodeID.", i++) }
+                transitions?.forEach { it.second.generateNodeIDs("$nodeID", i++) }
             }
         }
 
@@ -69,6 +69,56 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                 transitions?.forEach { it.second.evaluateAND(eventEvaluation, event1, event2, matchEvent1, matchEvent2) }
         }
 
+        fun filter(event:Pair<List<String>,List<String>>,probability:Double):Pair<Double,Double>{
+            var updatedProbs = Pair(0.0,0.0)
+
+            when {
+                // Node belonging to event's TRUE min cut
+                event.first.contains(nodeID) -> updatedProbs=Pair(1.0,probability)
+
+                // Node belonging to event's FALSE min cut
+                event.second.contains(nodeID) -> updatedProbs=Pair(0.0,0.0)
+
+                else -> {
+                    var regularP = 0.0
+                    var specialP = 0.0
+                    var nodeProbs: Pair<Double,Double>
+                    var tempTransitions = mutableMapOf<String,Pair<Double,Double>>()
+
+                    if (!isLeaf) {
+                        transitions?.forEach {
+                            nodeProbs= it.second.filter(event,it.first*probability)
+                            tempTransitions[it.second.nodeID] = nodeProbs
+                            specialP += nodeProbs.first
+                            regularP += nodeProbs.second
+                        }
+                        val transitionsIterator = transitions?.listIterator()
+
+                        if (transitionsIterator != null) {
+                            while (transitionsIterator.hasNext()) {
+                                var newTransition: Pair<Double, Node>
+                                val oldTransition = transitionsIterator.next()
+
+                                if (regularP > 0)
+                                    newTransition = oldTransition.copy(
+                                        first = (tempTransitions[oldTransition.second.nodeID]?.second?.div(regularP)!!)
+                                    )
+                                else
+                                    newTransition = oldTransition.copy(
+                                        first = (tempTransitions[oldTransition.second.nodeID]?.first?.div(specialP)!!)
+                                    )
+
+                                transitionsIterator.set(newTransition)
+                            }
+                        }
+                        updatedProbs=Pair(1.0,regularP)
+                    }
+                }
+            }
+
+            return updatedProbs
+        }
+
         fun evaluatePREC(eventEvaluation: Pair<MutableList<String>,MutableList<String>>,
                         cause: Pair<List<String>,List<String>>,
                         effect: Pair<List<String>,List<String>>,  match: Boolean){
@@ -96,6 +146,70 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                     transitions?.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, eventMatch)  }
             }
 
+        }
+
+        fun copy():Node{
+            var node:Node
+            var tempStatements = mutableListOf<Pair<String,String>>()
+
+            statements.forEach { tempStatements.add(Pair(it.first,it.second)) }
+
+            if (isLeaf)
+                node = Node(tempStatements,null)
+            else {
+                var tempTransition = mutableListOf<Pair<Double,Node>>()
+
+                transitions?.forEach { tempTransition.add(Pair(it.first,it.second.copy())) }
+                node = Node(tempStatements,tempTransition)
+            }
+
+            return node
+        }
+
+        fun sameStatements(statements: List<Pair<String,String>>):Boolean{
+            var aretheSame = true
+
+            when {
+                this.statements.size != statements.size -> aretheSame = false
+                else -> {
+                    this.statements.forEach { aretheSame = aretheSame && statements.contains(it) }
+                }
+            }
+
+            return aretheSame
+        }
+
+        fun isEqual(node: Node):Boolean{
+            var isEqual: Boolean = true
+
+            when{
+                (node.nodeID != this.nodeID)  -> isEqual=false
+                (!this.sameStatements(node.statements)) -> isEqual=false
+                (node.transitions != this.transitions) -> isEqual=false
+                else -> {
+                    if (this.transitions!=null){
+                        when {
+                                (node.transitions?.size != this.transitions?.size) -> isEqual=false
+                            else -> {
+                                node?.transitions?.forEach { it ->
+                                val nodeID = it.second.nodeID
+
+                                val node = this.transitions?.find { ti ->
+                                    (it.first == ti.first && ti.second.nodeID == nodeID && ti.second.sameStatements(it.second.statements))
+                                }
+
+                                isEqual = if (node != null)
+                                    isEqual && node?.second.isEqual(it.second)
+                                else
+                                    false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return isEqual
         }
 
         fun print(level:Int, probability: Double){
@@ -177,6 +291,57 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
         return eventEvaluation
     }
 
+    /**
+     * evaluateCOND: updates the transition probabilities of a COPY after an event is revealed to
+     * be TRUE i.e. P (A | B). This doesn't modify the calling instance i.e. it makes a copy,
+     *
+     * @param event: pair of lists corresponding to the nodes for which the event is TRUE and those for which the
+     * event is FALSE
+     * @return a copy of the calling instance with the probabilities updates according the event.
+     */
+    fun evaluateCOND(event:Pair<List<String>,List<String>>): PTree {
+        var condTree = this.copy()
+
+        condTree.filterCOND(event)
+
+        return condTree
+    }
+
+    /**
+     * filterCOND: updates the transition probabilities after an event is revealed to
+     * be TRUE i.e. P (A | B). This modifies the calling instance.
+     *
+     * @param event: pair of lists corresponding to the nodes for which the event is TRUE and those for which the
+     * event is FALSE
+     */
+    fun filterCOND(event:Pair<List<String>,List<String>>){
+        var regularP = 0.0
+        var specialP = 0.0
+        var nodeProbs: Pair<Double,Double>
+        var tempTransitions = mutableMapOf<String,Pair<Double,Double>>()
+
+        transitions.forEach {
+            nodeProbs= it.second.filter(event,it.first)
+            tempTransitions[it.second.nodeID] = nodeProbs
+            specialP += nodeProbs.first
+            regularP += nodeProbs.second
+        }
+
+        val transitionsIterator = transitions.listIterator()
+
+        while (transitionsIterator.hasNext()) {
+            var newTransition: Pair<Double, Node>
+            var oldTransition = transitionsIterator.next()
+
+            if (regularP > 0)
+                newTransition = oldTransition.copy(first = (tempTransitions[oldTransition.second.nodeID]?.second?.div(regularP)!!))
+            else
+                newTransition = oldTransition.copy(first = (tempTransitions[oldTransition.second.nodeID]?.first?.div(specialP)!!))
+
+            transitionsIterator.set(newTransition)
+        }
+    }
+
     fun evaluatePREC(cause: Pair<List<String>,List<String>>, effect: Pair<List<String>,List<String>>):Pair<List<String>,List<String>>{
         var eventTrue = mutableListOf<String>()
         var eventFalse = mutableListOf<String>()
@@ -196,6 +361,38 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
 
     fun evaluateOR(event1: Pair<List<String>,List<String>>, event2: Pair<List<String>,List<String>>): Pair<List<String>,List<String>>{
         return evaluateNOT(evaluateAND(evaluateNOT(event1),evaluateNOT(event2)))
+    }
+
+    fun copy():PTree {
+        var tempTransitions = mutableListOf<Pair<Double, Node>>()
+
+        transitions.forEach { tempTransitions.add(it.copy()) }
+
+        return PTree(transitions = tempTransitions)
+    }
+
+    fun equal(pTree: PTree): Boolean{
+        var isEqual: Boolean = true
+
+        when{
+            (pTree.statement != this.statement) || (pTree.rootID != this.rootID) || (pTree.transitions.size != this.transitions.size) -> isEqual=false
+            else -> {
+                pTree.transitions.forEach { it ->
+                    val nodeID= it.second.nodeID
+
+                    val node = this.transitions.find { ti ->
+                        (it.first==ti.first && ti.second.nodeID == nodeID && ti.second.sameStatements(it.second.statements))
+                    }
+
+                    isEqual = if (node!=null)
+                        isEqual && node?.second.isEqual(it.second)
+                    else
+                        false
+                }
+            }
+        }
+
+        return isEqual
     }
 
     fun print(){
@@ -239,7 +436,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
 
             // Generating node IDs
             var i=0
-            transitions.forEach { it.second.generateNodeIDs("$rootID.",i++) }
+            transitions.forEach { it.second.generateNodeIDs("$rootID",i++) }
 
             // Building random variables list
             variables = getRandomVariables()

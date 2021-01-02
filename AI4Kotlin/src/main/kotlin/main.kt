@@ -17,8 +17,8 @@ fun main() {
     val leaf40 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf(Pair(0.5,leaf34),Pair(0.5,leaf35)))
     val leaf41 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf(Pair(4.0/5.0,leaf36),Pair(1.0/5.0,leaf37)))
 
-    val leaf42 = PTree.Node(mutableListOf(Pair("X","0")),mutableListOf(Pair(3.0/5.0,leaf38),Pair(2.0/5.0,leaf39)))
-    val leaf43 = PTree.Node(mutableListOf(Pair("X","1")),mutableListOf(Pair(1.0/3.0,leaf41),Pair(2.0/3.0,leaf40)))
+    val leaf42 = PTree.Node(mutableListOf(Pair("X","0")),mutableListOf(Pair(2.0/5.0,leaf38),Pair(3.0/5.0,leaf39)))
+    val leaf43 = PTree.Node(mutableListOf(Pair("X","1")),mutableListOf(Pair(2.0/3.0,leaf41),Pair(1.0/3.0,leaf40)))
 
     val pTree =  PTree(transitions = mutableListOf(
             Pair(5.0/11.0,leaf42),
@@ -50,4 +50,27 @@ fun main() {
     var eventY1PRECZ0 = pTree.evaluatePREC(eventY1,eventZ0)
     println("True Min Cut (Y=1) -> (Z=0): ${eventY1PRECZ0.first}")
     println("False Min Cut (Y=1) -> (Z=0): ${eventY1PRECZ0.second}")
+
+    println()
+    var eventY0 = pTree.evaluateEvent(Pair("Y","0"))
+    println("True Min Cut (Y=0): ${eventY0.first}")
+    println("False Min Cut (Y=0): ${eventY0.second}")
+
+    val leaf1 = PTree.Node(mutableListOf(Pair("X","0")),null)
+    val leaf2 = PTree.Node(mutableListOf(Pair("X","1")),null)
+    val leaf3 = PTree.Node(mutableListOf(Pair("X","2")),null)
+
+    val pTree1 =  PTree(transitions = mutableListOf(
+        Pair(0.0,leaf1),
+        Pair(0.0,leaf2),
+        Pair(1.0,leaf3)))
+
+    pTree1.print()
+
+    var eventXNOT2 = pTree1.evaluateNOT(pTree1.evaluateEvent(Pair("X","2")))
+    pTree1.filterCOND(eventXNOT2)
+    pTree1.print()
+
+    pTree.filterCOND(eventY1)
+    pTree.print()
 }
