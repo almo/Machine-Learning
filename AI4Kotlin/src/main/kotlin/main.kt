@@ -27,32 +27,32 @@ fun main() {
     pTree.print()
 
     println()
-    var eventY1 = pTree.evaluateEvent(Pair("Y","1"))
+    val eventY1 = pTree.evaluateEvent(Pair("Y","1"))
     println("True Min Cut (Y=1): ${eventY1.first}")
     println("False Min Cut (Y=1): ${eventY1.second}")
 
     println()
-    var eventZ0 = pTree.evaluateEvent(Pair("Z","0"))
+    val eventZ0 = pTree.evaluateEvent(Pair("Z","0"))
     println("True Min Cut (Z=0): ${eventZ0.first}")
     println("False Min Cut (Z=0): ${eventZ0.second}")
 
     println()
-    var eventY1andZ0 = pTree.evaluateAND(eventY1,eventZ0)
+    val eventY1andZ0 = pTree.evaluateAND(eventY1,eventZ0)
     println("True Min Cut (Y=1) && (Z=0): ${eventY1andZ0.first}")
     println("False Min Cut (Y=1) && (Z=0): ${eventY1andZ0.second}")
 
     println()
-    var eventY1orZ0 = pTree.evaluateOR(eventY1,eventZ0)
+    val eventY1orZ0 = pTree.evaluateOR(eventY1,eventZ0)
     println("True Min Cut (Y=1) || (Z=0): ${eventY1orZ0.first}")
     println("False Min Cut (Y=1) || (Z=0): ${eventY1orZ0.second}")
 
     println()
-    var eventY1PRECZ0 = pTree.evaluatePREC(eventY1,eventZ0)
+    val eventY1PRECZ0 = pTree.evaluatePREC(eventY1,eventZ0)
     println("True Min Cut (Y=1) -> (Z=0): ${eventY1PRECZ0.first}")
     println("False Min Cut (Y=1) -> (Z=0): ${eventY1PRECZ0.second}")
 
     println()
-    var eventY0 = pTree.evaluateEvent(Pair("Y","0"))
+    val eventY0 = pTree.evaluateEvent(Pair("Y","0"))
     println("True Min Cut (Y=0): ${eventY0.first}")
     println("False Min Cut (Y=0): ${eventY0.second}")
 
@@ -67,10 +67,15 @@ fun main() {
 
     pTree1.print()
 
-    var eventXNOT2 = pTree1.evaluateNOT(pTree1.evaluateEvent(Pair("X","2")))
+    val eventXNOT2 = pTree1.evaluateNOT(pTree1.evaluateEvent(Pair("X","2")))
     pTree1.filterCOND(eventXNOT2)
     pTree1.print()
 
-    pTree.filterCOND(eventY1)
-    pTree.print()
+    println()
+    println("Testing Conditioning")
+    pTree.evaluateCOND(eventY1).print()
+
+    println()
+    println("Testing Intervention")
+    pTree.evaluateDO(eventY1).print()
 }

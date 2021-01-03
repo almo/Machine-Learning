@@ -129,3 +129,5 @@ wrong too.
 [6] [Algorithms for Causal Reasoning in Probability Trees](https://arxiv.org/abs/2010.12237)
 
 [7] [Tutorial: Causal Reasoning in Probability Trees](https://colab.research.google.com/github/deepmind/deepmind_research/blob/master/causal_reasoning/Causal_Reasoning_in_Probability_Trees.ipynb)
+
+[8] [Causality for Machine Learning](https://arxiv.org/abs/1911.10500)
