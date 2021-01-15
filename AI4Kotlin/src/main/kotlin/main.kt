@@ -3,14 +3,14 @@ import CausalReasoning.PTree
 fun main() {
     println("Probability Trees")
 
-    val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-    val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-    val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-    val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-    val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-    val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-    val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-    val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),null)
+    val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+    val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+    val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+    val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+    val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+    val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+    val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+    val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
     val leaf38 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf(Pair(0.5,leaf30),Pair(0.5,leaf31)))
     val leaf39 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf(Pair(2.0/3.0,leaf32),Pair(1.0/3.0,leaf33)))
@@ -56,9 +56,9 @@ fun main() {
     println("True Min Cut (Y=0): ${eventY0.first}")
     println("False Min Cut (Y=0): ${eventY0.second}")
 
-    val leaf1 = PTree.Node(mutableListOf(Pair("X","0")),null)
-    val leaf2 = PTree.Node(mutableListOf(Pair("X","1")),null)
-    val leaf3 = PTree.Node(mutableListOf(Pair("X","2")),null)
+    val leaf1 = PTree.Node(mutableListOf(Pair("X","0")),mutableListOf())
+    val leaf2 = PTree.Node(mutableListOf(Pair("X","1")),mutableListOf())
+    val leaf3 = PTree.Node(mutableListOf(Pair("X","2")),mutableListOf())
 
     val pTree1 =  PTree(transitions = mutableListOf(
         Pair(0.0,leaf1),

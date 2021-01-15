@@ -8,10 +8,10 @@ import kotlin.test.assertTrue
 class PTreeTests {
     @Test
     fun testConstruction1(){
-        val leaf10 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","0")),null)
-        val leaf11 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","1")),null)
-        val leaf12 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","0")),null)
-        val leaf13 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","1")),null)
+        val leaf10 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","0")),mutableListOf())
+        val leaf11 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","1")),mutableListOf())
+        val leaf12 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","0")),mutableListOf())
+        val leaf13 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","1")),mutableListOf())
 
         val pTree =  PTree(transitions = mutableListOf(
                 Pair(1.0/9.0,leaf10),
@@ -32,10 +32,10 @@ class PTreeTests {
 
     @Test
     fun testConstruction2(){
-        val leaf20 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf21 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf22 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf23 = PTree.Node(mutableListOf(Pair("Y","1")),null)
+        val leaf20 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf21 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf22 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf23 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
         val leaf24 = PTree.Node(mutableListOf(Pair("X","0")),mutableListOf(Pair(1.0/3.0,leaf20),Pair(2.0/3.0,leaf21)))
         val leaf25 = PTree.Node(mutableListOf(Pair("X","1")),mutableListOf(Pair(1.0/3.0,leaf22),Pair(2.0/3.0,leaf23)))
@@ -57,14 +57,14 @@ class PTreeTests {
     @Test
     fun testConstruction3(){
         // Example 3
-        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),null)
+        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
         val leaf38 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf(Pair(0.5,leaf30),Pair(0.5,leaf31)))
         val leaf39 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf(Pair(2.0/3.0,leaf32),Pair(1.0/3.0,leaf33)))
@@ -92,30 +92,30 @@ class PTreeTests {
 
     @Test
     fun testTransitions(){
-        val leaf20 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf21 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf22 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf23 = PTree.Node(mutableListOf(Pair("Y","1")),null)
+        val leaf20 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf21 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf22 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf23 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
         // Transition probabilities must sum up to one (testing case more than 1)
-        assertFails { val leaf24 = PTree.Node(mutableListOf(Pair("X","0")),mutableListOf(Pair(2.0/3.0,leaf20),Pair(2.0/3.0,leaf21))) }
+        assertFails { PTree.Node(mutableListOf(Pair("X","0")),mutableListOf(Pair(2.0/3.0,leaf20),Pair(2.0/3.0,leaf21))) }
 
         // Transition probabilities must sum up to one (testing case less than 1)
-        assertFails { val leaf25 = PTree.Node(mutableListOf(Pair("X","1")),mutableListOf(Pair(1.0/3.0,leaf22),Pair(2.0/5.0,leaf23))) }
+        assertFails {  PTree.Node(mutableListOf(Pair("X","1")),mutableListOf(Pair(1.0/3.0,leaf22),Pair(2.0/5.0,leaf23))) }
 
         val leaf24 = PTree.Node(mutableListOf(Pair("X","0")),mutableListOf(Pair(2.0/3.0,leaf20),Pair(1.0/3.0,leaf21)))
         val leaf25 = PTree.Node(mutableListOf(Pair("X","1")),mutableListOf(Pair(1.0/3.0,leaf22),Pair(2.0/3.0,leaf23)))
 
         // Transition probabilities must sum up to one (testing case more than 1)
         assertFails {
-            val pTree = PTree(transitions = mutableListOf(
+             PTree(transitions = mutableListOf(
                     Pair(2.0 / 3.0, leaf24),
                     Pair(2.0 / 3.0, leaf25)))
         }
 
         // Transition probabilities must sum up to one (testing case less than 1)
         assertFails {
-            val pTree = PTree(transitions = mutableListOf(
+             PTree(transitions = mutableListOf(
                     Pair(2.0 / 5.0, leaf24),
                     Pair(2.0 / 3.0, leaf25)))
         }
@@ -123,14 +123,14 @@ class PTreeTests {
 
     @Test
     fun testTreeIDs(){
-        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),null)
+        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
         val leaf38 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf(Pair(0.5,leaf30),Pair(0.5,leaf31)))
         val leaf39 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf(Pair(2.0/3.0,leaf32),Pair(1.0/3.0,leaf33)))
@@ -154,7 +154,7 @@ class PTreeTests {
         }
 
         i=0
-        leaf42.transitions?.forEach {
+        leaf42.transitions.forEach {
 
             assertEquals(it.second.nodeID, leaf42.nodeID + ".$i")
 
@@ -162,7 +162,7 @@ class PTreeTests {
         }
 
         i=0
-        leaf43.transitions?.forEach {
+        leaf43.transitions.forEach {
 
             assertEquals(it.second.nodeID, leaf43.nodeID + ".$i")
 
@@ -170,7 +170,7 @@ class PTreeTests {
         }
 
         i=0
-        leaf38.transitions?.forEach {
+        leaf38.transitions.forEach {
 
             assertEquals(it.second.nodeID, leaf38.nodeID + ".$i")
 
@@ -178,7 +178,7 @@ class PTreeTests {
         }
 
         i=0
-        leaf39.transitions?.forEach {
+        leaf39.transitions.forEach {
 
             assertEquals(it.second.nodeID, leaf39.nodeID + ".$i")
 
@@ -186,7 +186,7 @@ class PTreeTests {
         }
 
         i=0
-        leaf40.transitions?.forEach {
+        leaf40.transitions.forEach {
 
             assertEquals(it.second.nodeID, leaf40.nodeID + ".$i")
 
@@ -194,7 +194,7 @@ class PTreeTests {
         }
 
         i=0
-        leaf41.transitions?.forEach {
+        leaf41.transitions.forEach {
 
             assertEquals(it.second.nodeID, leaf41.nodeID + ".$i")
 
@@ -204,14 +204,14 @@ class PTreeTests {
 
     @Test
     fun testEvaluateEvent(){
-        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),null)
+        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
         val leaf38 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf(Pair(0.5,leaf30),Pair(0.5,leaf31)))
         val leaf39 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf(Pair(2.0/3.0,leaf32),Pair(1.0/3.0,leaf33)))
@@ -240,10 +240,10 @@ class PTreeTests {
 
     @Test
     fun testEqual(){
-        val leaf10 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","0")),null)
-        val leaf11 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","1")),null)
-        val leaf12 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","0")),null)
-        val leaf13 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","1")),null)
+        val leaf10 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","0")),mutableListOf())
+        val leaf11 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","1")),mutableListOf())
+        val leaf12 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","0")),mutableListOf())
+        val leaf13 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","1")),mutableListOf())
 
         val pTree1 =  PTree(transitions = mutableListOf(
                 Pair(1.0/9.0,leaf10),
@@ -260,16 +260,14 @@ class PTreeTests {
         assertTrue { pTree1.equal(pTree2) }
         assertTrue { pTree2.equal(pTree1) }
 
-        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf371 = PTree.Node(mutableListOf(Pair("W","0")),null)
-        val leaf372 = PTree.Node(mutableListOf(Pair("W","1")),null)
+        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
         val leaf38 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf(Pair(0.5,leaf30),Pair(0.5,leaf31)))
         val leaf39 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf(Pair(2.0/3.0,leaf32),Pair(1.0/3.0,leaf33)))
@@ -289,16 +287,16 @@ class PTreeTests {
         assertTrue { !pTree3.equal(pTree1) }
         assertTrue { !pTree3.equal(pTree2) }
 
-        val leaf030 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf031 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf032 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf033 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf034 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf035 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf036 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf037 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf0371 = PTree.Node(mutableListOf(Pair("W","0")),null)
-        val leaf0372 = PTree.Node(mutableListOf(Pair("W","1")),null)
+        val leaf030 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf031 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf032 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf033 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf034 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf035 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf036 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf037 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf0371 = PTree.Node(mutableListOf(Pair("W","0")),mutableListOf())
+        val leaf0372 = PTree.Node(mutableListOf(Pair("W","1")),mutableListOf())
 
         val leaf038 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf(Pair(0.4,leaf030),Pair(0.5,leaf031),Pair(0.1,leaf0371)))
         val leaf039 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf(Pair(2.0/3.0,leaf032),Pair(1.0/3.0,leaf033)))
@@ -325,10 +323,10 @@ class PTreeTests {
 
     @Test
     fun testCopy(){
-        val leaf10 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","0")),null)
-        val leaf11 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","1")),null)
-        val leaf12 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","0")),null)
-        val leaf13 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","1")),null)
+        val leaf10 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","0")),mutableListOf())
+        val leaf11 = PTree.Node(mutableListOf(Pair("X","0"),Pair("Y","1")),mutableListOf())
+        val leaf12 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","0")),mutableListOf())
+        val leaf13 = PTree.Node(mutableListOf(Pair("X","1"),Pair("Y","1")),mutableListOf())
 
         val pTree1 =  PTree(transitions = mutableListOf(
                 Pair(1.0/9.0,leaf10),
@@ -345,14 +343,14 @@ class PTreeTests {
         assertTrue { pTree1.equal(pTree2) }
         assertTrue { pTree2.equal(pTree1) }
 
-        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),null)
-        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),null)
-        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),null)
-        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),null)
-        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),null)
+        val leaf30 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf31 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf32 = PTree.Node(mutableListOf(Pair("Z","0")),mutableListOf())
+        val leaf33 = PTree.Node(mutableListOf(Pair("Z","1")),mutableListOf())
+        val leaf34 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf35 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
+        val leaf36 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf())
+        val leaf37 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf())
 
         val leaf38 = PTree.Node(mutableListOf(Pair("Y","0")),mutableListOf(Pair(0.5,leaf30),Pair(0.5,leaf31)))
         val leaf39 = PTree.Node(mutableListOf(Pair("Y","1")),mutableListOf(Pair(2.0/3.0,leaf32),Pair(1.0/3.0,leaf33)))
