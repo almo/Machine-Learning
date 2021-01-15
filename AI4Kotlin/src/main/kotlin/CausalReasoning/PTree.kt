@@ -7,24 +7,22 @@ import java.security.KeyStore
 //        and an ordered set of transitions, where a transition is
 //                      transition probability (Double)
 //                      child node (Node)
-//        FIXME: transitions are MutableList
 class PTree (val statement:Pair<String,String> = Pair("O","1"),
              val transitions: MutableList<Pair<Double, Node>>) {
 
     // Nodes
-    // FIXME: transitions are MutableList
     class Node (val statements: List<Pair<String,String>>,
-                val transitions: MutableList<Pair<Double, Node>>?)  {
+                val transitions: MutableList<Pair<Double, Node>>)  {
 
         // Leaf is a node with no transitions.
-        val isLeaf get() = transitions==null
+        private val isLeaf get() = transitions.isEmpty()
 
         var nodeID:String=""
 
         //Return the list of all random variables and their values
         fun getRandomVariables(randomVariables: MutableList<Pair<String,String>>){
             if (!this.isLeaf)
-                this.transitions?.forEach { it.second.getRandomVariables(randomVariables) }
+                this.transitions.forEach { it.second.getRandomVariables(randomVariables) }
 
             statements.forEach { if (!randomVariables.contains(it)) randomVariables.add(it) }
         }
@@ -33,7 +31,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
             nodeID = "${rootID}.$index"
             if (!isLeaf){
                 var i = 0
-                transitions?.forEach { it.second.generateNodeIDs("$nodeID", i++) }
+                transitions.forEach { it.second.generateNodeIDs("$nodeID", i++) }
             }
         }
 
@@ -53,7 +51,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
             }
 
             if (!match && !isLeaf)
-                transitions?.forEach { it.second.evaluateEvent(proposition,minCut) }
+                transitions.forEach { it.second.evaluateEvent(proposition,minCut) }
         }
 
         fun evaluateAND(eventEvaluation: Pair<MutableList<String>,MutableList<String>>,
@@ -68,7 +66,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
             else if (matchEvent1 && matchEvent2)
                 eventEvaluation.first.add(nodeID)
             else if (!isLeaf)
-                transitions?.forEach { it.second.evaluateAND(eventEvaluation, event1, event2, matchEvent1, matchEvent2) }
+                transitions.forEach { it.second.evaluateAND(eventEvaluation, event1, event2, matchEvent1, matchEvent2) }
         }
 
         fun filterCOND(event:Pair<List<String>,List<String>>,probability:Double):Pair<Double,Double>{
@@ -88,30 +86,27 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                     val tempTransitions = mutableMapOf<String,Pair<Double,Double>>()
 
                     if (!isLeaf) {
-                        transitions?.forEach {
+                        transitions.forEach {
                             nodeProbs= it.second.filterCOND(event,it.first*probability)
                             tempTransitions[it.second.nodeID] = nodeProbs
                             specialP += nodeProbs.first
                             regularP += nodeProbs.second
                         }
-                        val transitionsIterator = transitions?.listIterator()
+                        val transitionsIterator = transitions.listIterator()
+                        while (transitionsIterator.hasNext()) {
+                            var newTransition: Pair<Double, Node>
+                            val oldTransition = transitionsIterator.next()
 
-                        if (transitionsIterator != null) {
-                            while (transitionsIterator.hasNext()) {
-                                var newTransition: Pair<Double, Node>
-                                val oldTransition = transitionsIterator.next()
+                            if (regularP > 0)
+                                newTransition = oldTransition.copy(
+                                    first = (tempTransitions[oldTransition.second.nodeID]?.second?.div(regularP)!!)
+                                )
+                            else
+                                newTransition = oldTransition.copy(
+                                    first = (tempTransitions[oldTransition.second.nodeID]?.first?.div(specialP)!!)
+                                )
 
-                                if (regularP > 0)
-                                    newTransition = oldTransition.copy(
-                                        first = (tempTransitions[oldTransition.second.nodeID]?.second?.div(regularP)!!)
-                                    )
-                                else
-                                    newTransition = oldTransition.copy(
-                                        first = (tempTransitions[oldTransition.second.nodeID]?.first?.div(specialP)!!)
-                                    )
-
-                                transitionsIterator.set(newTransition)
-                            }
+                            transitionsIterator.set(newTransition)
                         }
                         updatedProbs=Pair(1.0,regularP)
                     }
@@ -138,7 +133,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
 
                     if (!isLeaf) {
 
-                        transitions?.forEach {
+                        transitions.forEach {
                             if (it.second.filterDO(event)){
                                 tempTransitions[it.second.nodeID] = Pair(1.0,it.first)
                                 specialP += 1.0
@@ -147,25 +142,24 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                                 tempTransitions[it.second.nodeID] = Pair(0.0,it.first)
                         }
 
-                        val transitionsIterator = transitions?.listIterator()
+                        val transitionsIterator = transitions.listIterator()
 
-                        if (transitionsIterator != null) {
-                            while (transitionsIterator.hasNext()) {
-                                var newTransition: Pair<Double, Node>
-                                val oldTransition = transitionsIterator.next()
+                        while (transitionsIterator.hasNext()) {
+                            var newTransition: Pair<Double, Node>
+                            val oldTransition = transitionsIterator.next()
 
-                                if (regularP > 0)
-                                    newTransition = oldTransition.copy(
-                                        first = (tempTransitions[oldTransition.second.nodeID]?.second?.div(regularP)!!)
-                                    )
-                                else
-                                    newTransition = oldTransition.copy(
-                                        first = (tempTransitions[oldTransition.second.nodeID]?.first?.div(specialP)!!)
-                                    )
+                            if (regularP > 0)
+                                newTransition = oldTransition.copy(
+                                    first = (tempTransitions[oldTransition.second.nodeID]?.second?.div(regularP)!!)
+                                )
+                            else
+                                newTransition = oldTransition.copy(
+                                    first = (tempTransitions[oldTransition.second.nodeID]?.first?.div(specialP)!!)
+                                )
 
-                                transitionsIterator.set(newTransition)
-                            }
+                            transitionsIterator.set(newTransition)
                         }
+
                         bFiltered=true
                     }
                 }
@@ -189,7 +183,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                         eventMatch = false
 
                     if (!isLeaf)
-                        transitions?.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, eventMatch) }
+                        transitions.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, eventMatch) }
                 }
             }else{
                 // NOTE: the paper has some bug here. It searches on TRUE and FALSE set of the
@@ -199,7 +193,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                 else if (effect.second.contains(nodeID))
                     eventEvaluation.second.add(nodeID)
                 else if (!isLeaf)
-                    transitions?.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, eventMatch)  }
+                    transitions.forEach { it.second.evaluatePREC(eventEvaluation, cause, effect, eventMatch)  }
             }
 
         }
@@ -211,11 +205,11 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
             statements.forEach { tempStatements.add(Pair(it.first,it.second)) }
 
             if (isLeaf)
-                node = Node(tempStatements,null)
+                node = Node(tempStatements,mutableListOf())
             else {
                 val tempTransition = mutableListOf<Pair<Double,Node>>()
 
-                transitions?.forEach { tempTransition.add(Pair(it.first,it.second.copy())) }
+                transitions.forEach { tempTransition.add(Pair(it.first,it.second.copy())) }
                 node = Node(tempStatements,tempTransition)
             }
 
@@ -243,25 +237,25 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                 (!this.sameStatements(node.statements)) -> isEqual=false
                 (node.transitions != this.transitions) -> isEqual=false
                 else -> {
-                    if (this.transitions!=null){
-                        when {
-                                (node.transitions?.size != this.transitions?.size) -> isEqual=false
-                            else -> {
-                                node?.transitions?.forEach { it ->
-                                val nodeID = it.second.nodeID
 
-                                val auxNode = this.transitions?.find { ti ->
-                                    (it.first == ti.first && ti.second.nodeID == nodeID && ti.second.sameStatements(it.second.statements))
-                                }
+                    when {
+                            (node.transitions.size != this.transitions.size) -> isEqual=false
+                        else -> {
+                            node.transitions.forEach { it ->
+                            val nodeID = it.second.nodeID
 
-                                isEqual = if (auxNode != null)
-                                    isEqual && auxNode?.second.isEqual(it.second)
-                                else
-                                    false
-                                }
+                            val auxNode = this.transitions.find { ti ->
+                                (it.first == ti.first && ti.second.nodeID == nodeID && ti.second.sameStatements(it.second.statements))
+                            }
+
+                            isEqual = if (auxNode != null)
+                                isEqual && auxNode.second.isEqual(it.second)
+                            else
+                                false
                             }
                         }
                     }
+
                 }
             }
 
@@ -278,23 +272,20 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
            println("${padding}NodeID:${nodeID}")
            println("${padding}P:"+ "%.4f".format(probability))
            if (!isLeaf)
-               transitions?.forEach { it.second.print(level+1,it.first) }
+               transitions.forEach { it.second.print(level+1,it.first) }
         }
 
         init {
             // Statements verification: cannot be empty
-            // FIXME: More complete verification needed
             if (statements.isEmpty())
                 throw Exception("CausalReasoning.PTree.Node: Empty Statements List ")
 
             // Transition verification: if transitions is not empty
-            // FIXME: More complete verification needed
-            if (transitions!=null) {
+            if (!isLeaf) {
                 // First, let's order the transitions
                 transitions.sortBy { it.first }
 
                 var probability = 0.0
-                // FIXME: Sum of float doesn't have to be exact. By now, I consider discrete float probabilities
                 transitions.forEach { probability+=it.first  }
 
                 if (probability != 1.0) {
@@ -493,7 +484,7 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
                     }
 
                     isEqual = if (node!=null)
-                        isEqual && node?.second.isEqual(it.second)
+                        isEqual && node.second.isEqual(it.second)
                     else
                         false
                 }
@@ -530,13 +521,10 @@ class PTree (val statement:Pair<String,String> = Pair("O","1"),
             // Before to generate the IDs, let's order the transitions
             transitions.sortBy { it.first }
 
-            // Transition verification: if transitions is not empty
-            // FIXME: More complete verification needed
             var probability = 0.0
 
             transitions.forEach { probability+=it.first  }
 
-            // FIXME: Sum of float doesn't have to be exact. By now, I consider discrete float probabilities
             if (probability != 1.0) {
                 //transition probabilities must sum up to one
                 throw Exception("CausalReasoning.PTree.Node: Transition Probabilities Must Sum Up To One ($probability)")
