@@ -54,12 +54,12 @@ func (polygon *tVertex) AddVertex(point tPoint) {
 	vVertex.coord = point
 
 	vVertex.next = polygon.next
-	polygon.next = vVertex
 	vVertex.prev = polygon
 
 	if polygon == polygon.next {
 		polygon.prev = vVertex
 	}
+	polygon.next = vVertex
 }
 
 // Printing all vertexs of the poligon
