@@ -33,25 +33,61 @@ type tPoint [DIM]float64
 // the implementation of a polygon as a circular list, including
 // also some fields required for the triangulation algorithm
 type tVertex struct {
-	index       int64    // Vertex index
-	coord       tPoint   // Coordinates, coord[X] & coord[Y]
-	ear         bool     // ear is required to implement the triangulation algorithm
-	left, right *tVertex // pointers to the adjacent vertex
+	prev, next *tVertex // pointers to the adjacent vertex
+	index      int64    // Vertex index
+	ear        bool     // ear is required to implement the triangulation algorithm
+	coord      tPoint   // Coordinates, coord[X] & coord[Y]
 }
 
-// tPolygon is a pointer to the first vertex
-type tPolygon *tVertex
+// Add a new Vertex to the Polygon
+func (polygon *tVertex) AddVertex(point tPoint) {
+	if polygon == nil {
+		fmt.Println("Empty polygon")
+		return
+	}
+
+	vVertex := new(tVertex)
+
+	vVertex.index = polygon.index
+	polygon.index += 1
+	vVertex.ear = false
+	vVertex.coord = point
+
+	vVertex.next = polygon.next
+	polygon.next = vVertex
+	vVertex.prev = polygon
+
+	if polygon == polygon.next {
+		polygon.prev = vVertex
+	}
+}
+
+// Printing all vertexs of the poligon
+func (polygon *tVertex) Print() {
+	if polygon == nil {
+		fmt.Println("Empty polygon")
+		return
+	}
+
+	vVertex := polygon
+	for {
+		fmt.Printf("Vertex %3d (x:%f, y:%f)\n", vVertex.index, vVertex.coord[X], vVertex.coord[Y])
+		vVertex = vVertex.next
+		if vVertex == polygon {
+			break
+		}
+	}
+}
 
 func main() {
-	var aPolygon tPolygon
 
-	aPolygon = new(tVertex)
-	aPolygon.index = 0
-	aPolygon.ear = true
-	aPolygon.left = aPolygon
-	aPolygon.right = aPolygon
-	aPolygon.coord[X] = rand.Float64()
-	aPolygon.coord[Y] = rand.Float64()
+	pPolygon := tVertex{nil, nil, 1, false, tPoint{rand.Float64(), rand.Float64()}}
+	pPolygon.next = &pPolygon
+	pPolygon.prev = &pPolygon
 
-	fmt.Printf("Vertex:\n\tX: %f\n\tY: %f\n", aPolygon.coord[X], aPolygon.coord[Y])
+	for range 14 {
+		pPolygon.AddVertex(tPoint{rand.Float64(), rand.Float64()})
+	}
+
+	pPolygon.Print()
 }
