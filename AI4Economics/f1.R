@@ -149,9 +149,9 @@ View(responses)
 # Removing everything before analysis of Used Cars (usedcard.csv)
 rm(list=ls())
 
-usedcard <- read.csv(file="usedcars.csv")
+usedcars <- read.csv(file="usedcars.csv")
 
 # Data dictionary
-str(usedcard)
+str(usedcars)
 
 
