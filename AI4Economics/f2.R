@@ -105,5 +105,5 @@ CrossTable(x=usedcars$model, y=usedcars$conservative)
 # Chi-squared test for independence between two variables
 # ~ 1.0 independence / ~ 0.0 dependence
 # 0.154 = 0.009+0.004+0.086+0.044+0.007+0.004
-pchisq(0.009+0.004+0.086+0.044+0.007+0.004,df=2,lower.tail = FALSE)
+#pchisq(0.009+0.004+0.086+0.044+0.007+0.004,df=2,lower.tail = FALSE)
 CrossTable(x=usedcars$model, y=usedcars$conservative,chisq = TRUE)

@@ -147,7 +147,7 @@ View(responses)
 # Used Cars Data Analysis (source usedcars.csv)
 #
 # Removing everything before analysis of Used Cars (usedcard.csv)
-rm(list=ls())
+#rm(list=ls())
 
 usedcars <- read.csv(file="usedcars.csv")
 
