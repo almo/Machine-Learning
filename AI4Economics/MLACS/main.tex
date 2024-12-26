@@ -1,0 +1,68 @@
+\documentclass[a4paper, 11pt, bibliography=numbered, es]{article}
+\usepackage[spanish]{babel}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{multirow} % Required for tables
+\usepackage{graphicx} %Require for images/graph
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{subfigure}
+\usepackage{longtable}
+\usepackage[backend=biber,style=numeric]{biblatex}
+\usepackage{csquotes}
+\usepackage{parskip}
+
+\setlength\parindent{0pt}
+\addbibresource{almo.bib}
+
+\title{Alfabetización \& Estrés Financiero}
+\author{Andrés-Leonardo Martínez-Ortiz \\ amartinez122@alumno.uned.es}
+\date{Diciembre 2024}
+
+\begin{document}
+\maketitle
+\section{Introducción}
+En la actualidad, los individuos de las sociedad desarrolladas, cuentan con 
+un sinfín de mecanismos financieros, que dan soporte a la vida contemporánea
+y constituyen herramientas catalizadoras de proyectos personales y empresariales. La adecuada integración, el aprovechamiento y el desarrollo de
+nuestra sociedad, sin duda, requieren del conocimiento financiero básico, así como
+de los servicios y herramientas ofrecidas. Su desconocimiento, no solo puede limitar
+nuestro desarrollo y participación en la sociedad, sino que en los casos más extremos
+puede impactar negativamente, con implicaciones que se prolonguen a lo largo de nuestra
+vida. 
+
+La alfabetización financiera, baremo elemental de educación en este dominio, 
+proporciona el conocimiento y habilidades para tomar decisiones como la 
+apertura de una cuenta bancaria, cómo obtener recursos para comprar una
+casa o financiar unos estudios, dónde invertir nuestros ahorros y cómo 
+garantizar nuestra estabilidad financiera a lo largo de nuestra vida
+\cite{EU01}, \cite{OCDE01}. Su importancia más allá de lo estrictamente personal vendría respaldad por algunos estudios que aportan evidencia de
+la conexión entre alfabetización digital y el desarrollo económico \cite{Lusardi14}. 
+
+\section{Motivación y objetivos del trabajo}
+\label{motivacion}
+El presente trabajo aborda el análisis de los aspectos que caracterizan el conocimiento financiero y las consecuencias, englobadas bajo el término de estrés financiero\footnote{El término estrés financiero se definirá como parte del presente trabajo.}, que se derivan de una insuficiente alfabetización en esta materia. Su ámbito se limita a datos de
+sección cruzada, obtenidos en 2021 y referidos a población estadounidense \cite{NFCS01}.
+
+El objetivo es poder caracterizar la alfabetización financiera en términos demográficos e información individual básica de uso de servicios y aplicaciones, introduciendo una taxonomía de niveles de estrés financiero, que permita la definición de medidas no solo 
+educativas de prevención, sino también acciones reactivas de carácter paliativo.
+
+Como pasos futuros, aunque fuera ya del ámbito de este trabajo, la expansión del contexto geográfico y el análisis de datos de panel, permitiría entender el impacto de las medidas 
+adoptadas, no ya en los aspectos abordados en este primer estudio, sino también en otros
+aspectos como el desarrollo económico, la iniciativa empresarial y la inversión privada. 
+\section{Descripción y justificación de la técnica o técnicas utilizadas}
+Los objetivos establecidos en el apartado \ref{motivacion} se alcanzarán 
+aplicando técnicas de aprendizaje estadístico, como aproximación alternativa a los modelos econométricos convencionales. 
+
+En una primera fase y siguiendo un proceso de aprendizaje no supervisado, se definirá la taxonomía que permita clasificar el espacio social de estudio con criterios de estrés financiero. A continuación, y una vez etiquetados los individuos de la muestra, se 
+desarrollarán clasificadores estadísticos que permitan predecir la categoría de un 
+individuo y las correspondientes medidas de prevención y reacción. 
+
+Para el análisis del problema y desarrollo de los modelos propuestos, se seguirán las 
+técnicas correspondientes a máquinas de vector soporte y árboles de decisión, descritas en las referencias \cite{lantz23}, \cite{Hastie23} y \cite{Hastie13}, y programadas en R\cite{R24}.
+%%\section{Desarrollo de la investigación}
+%%\section{Análisis y evaluación de los resultados obtenidos}
+%%\section{Conclusiones}
+%%\section{Anexo: código}
+\printbibliography 
+\end{document}
