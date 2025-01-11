@@ -68,24 +68,20 @@ set.seed(923841)
 teen_cluster <-  kmeans(interests_z, 5)
 teen_cluster$size
 teen_cluster$centers
-#if (!require(remotes)) install.packages("remotes", dependencies=TRUE)
-#library(remotes)
-
-#if (!require(Matrix)) install.packages("Matrix", dependencies = TRUE)
-#remotes::install_version("Matrix", version = "1.6.0")
-library(Matrix)
-
-#if (!require(pbkrtest)) install.packages("pbkrtest", dependencies = TRUE)
-#library(pbkrtest)
 
 if (!require(factoextra)) install.packages("factoextra", dependencies = TRUE)
 library(factoextra)
 
-#if (!require(rstatix)) install.packages("rstatix", dependencies=TRUE)
-#library(rstatix)
-
-#if (!require(car)) install.packages("car", dependencies=TRUE)
-#library(car)
-
-
 fviz_cluster(teen_cluster,interests_z,geom="point")
+
+teens$cluster <- teen_cluster$cluster
+teens[1:5, c('cluster','gender','age','friends')]
+aggregate(data=teens, age ~ cluster, mean)
+aggregate(data=teens, female ~ cluster, mean)
+aggregate(data=teens, friends~cluster, mean)
+
+if (!require(gputools)) install.packages("gputools", dependencies = TRUE)
+remotes::install_github("rstudio/tensorflow")
+library(tensorflow)
+tf$config$list_physical_devices("GPU")
+y

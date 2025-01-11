@@ -24,11 +24,12 @@
 \section{Introducción}
 En la actualidad, los individuos de las sociedad desarrolladas, cuentan con 
 un sinfín de mecanismos financieros, que dan soporte a la vida contemporánea
-y constituyen herramientas catalizadoras de proyectos personales y empresariales. La adecuada integración, el aprovechamiento y el desarrollo de
+y constituyen herramientas catalizadoras de proyectos personales y empresariales. 
+La adecuada integración, el aprovechamiento y el desarrollo de
 nuestra sociedad, sin duda, requieren del conocimiento financiero básico, así como
 de los servicios y herramientas ofrecidas. Su desconocimiento, no solo puede limitar
 nuestro desarrollo y participación en la sociedad, sino que en los casos más extremos
-puede impactar negativamente, con implicaciones que se prolonguen a lo largo de nuestra
+puede impactar negativamente, con efectos que se prolongan a lo largo de nuestra
 vida. 
 
 La alfabetización financiera, baremo elemental de educación en este dominio, 
@@ -36,31 +37,151 @@ proporciona el conocimiento y habilidades para tomar decisiones como la
 apertura de una cuenta bancaria, cómo obtener recursos para comprar una
 casa o financiar unos estudios, dónde invertir nuestros ahorros y cómo 
 garantizar nuestra estabilidad financiera a lo largo de nuestra vida
-\cite{EU01}, \cite{OCDE01}. Su importancia más allá de lo estrictamente personal vendría respaldad por algunos estudios que aportan evidencia de
+\cite{EU01}, \cite{OCDE01}. Su importancia más allá de lo estrictamente personal 
+vendría respaldada por algunos estudios que aportan evidencia de
 la conexión entre alfabetización digital y el desarrollo económico \cite{Lusardi14}. 
 
 \section{Motivación y objetivos del trabajo}
 \label{motivacion}
-El presente trabajo aborda el análisis de los aspectos que caracterizan el conocimiento financiero y las consecuencias, englobadas bajo el término de estrés financiero\footnote{El término estrés financiero se definirá como parte del presente trabajo.}, que se derivan de una insuficiente alfabetización en esta materia. Su ámbito se limita a datos de
-sección cruzada, obtenidos en 2021 y referidos a población estadounidense \cite{NFCS01}.
+El presente trabajo aborda el análisis de los aspectos que caracterizan el conocimiento 
+financiero y las consecuencias, englobadas bajo el término de estrés financiero\footnote{El término
+estrés financiero se definirá como parte del presente trabajo.}, que se derivan de una insuficiente
+alfabetización en esta materia. Su ámbito se limita a datos de sección cruzada, obtenidos en 2021 y 
+referidos a población estadounidense \cite{NFCS01}.
 
-El objetivo es poder caracterizar la alfabetización financiera en términos demográficos e información individual básica de uso de servicios y aplicaciones, introduciendo una taxonomía de niveles de estrés financiero, que permita la definición de medidas no solo 
-educativas de prevención, sino también acciones reactivas de carácter paliativo.
+El objetivo es poder caracterizar la alfabetización financiera en términos demográficos e información
+individual básica de uso de servicios y aplicaciones, introduciendo una taxonomía de niveles de estrés
+financiero, que permita la definición de medidas no solo educativas de prevención, sino también acciones
+reactivas de carácter paliativo.
 
-Como pasos futuros, aunque fuera ya del ámbito de este trabajo, la expansión del contexto geográfico y el análisis de datos de panel, permitiría entender el impacto de las medidas 
-adoptadas, no ya en los aspectos abordados en este primer estudio, sino también en otros
-aspectos como el desarrollo económico, la iniciativa empresarial y la inversión privada. 
+Como pasos futuros, aunque fuera ya del ámbito de este trabajo, la expansión del contexto geográfico
+y el análisis de datos de panel, permitiría entender el impacto de las medidas adoptadas, no ya en los
+aspectos abordados en este primer estudio, sino también en otros aspectos como el desarrollo económico,
+la iniciativa empresarial y la inversión privada. 
+
 \section{Descripción y justificación de la técnica o técnicas utilizadas}
-Los objetivos establecidos en el apartado \ref{motivacion} se alcanzarán 
-aplicando técnicas de aprendizaje estadístico, como aproximación alternativa a los modelos econométricos convencionales. 
+Los objetivos establecidos en el apartado \ref{motivacion} se alcanzarán aplicando técnicas de aprendizaje
+estadístico, como aproximación alternativa a los modelos econométricos convencionales. 
 
-En una primera fase y siguiendo un proceso de aprendizaje no supervisado, se definirá la taxonomía que permita clasificar el espacio social de estudio con criterios de estrés financiero. A continuación, y una vez etiquetados los individuos de la muestra, se 
-desarrollarán clasificadores estadísticos que permitan predecir la categoría de un 
-individuo y las correspondientes medidas de prevención y reacción. 
+En una primera fase y siguiendo un proceso de aprendizaje no supervisado, se definirá la taxonomía que permita
+clasificar el espacio social de estudio con criterios de estrés financiero. A continuación, y una vez etiquetados
+los individuos de la muestra, se desarrollarán clasificadores estadísticos que permitan predecir la categoría de un 
+individuo, permitiendo anticipar las correspondientes medidas de prevención y dirigiendo las acciones de reacción. 
 
-Para el análisis del problema y desarrollo de los modelos propuestos, se seguirán las 
-técnicas correspondientes a máquinas de vector soporte y árboles de decisión, descritas en las referencias \cite{lantz23}, \cite{Hastie23} y \cite{Hastie13}, y programadas en R\cite{R24}.
-%%\section{Desarrollo de la investigación}
+Para el análisis del problema y desarrollo de los modelos propuestos, se seguirán las técnicas correspondientes
+a algoritmos de clasificación no supervisada, máquinas de vector soporte y árboles de decisión, descritas en las
+referencias \cite{lantz23}, \cite{Hastie23}, \cite{aurelien17} y \cite{Hastie13}, y programadas en R\cite{R24}.
+
+El desarrollo de la investigación sigue una secuencia de pasos: (1) selección y descripción de la fuente de datos utilizada,
+(2) la selección de los métodos de análisis, (3) la preparación de los datos para su proceso y finalmente (4) la selección
+de los parámetros y entrenamiento de los métodos supervisados. Una vez completada esta parte, la aplicación de
+las técnicas obtenidas permitirá el análisis y evaluación de los resultados, lo que permitirá alcanzar un conjunto
+de conclusiones.
+
+\section{Desarrollo de la investigación}
+\subsection{Datos: selección y descripción}
+La fuente de datos seleccionada corresponde al proyecto National Finantial Capability Study \cite{NFCS01}, 
+un estudio a gran escala sobre la capacidad financiera de los ciudadanos estadounidenses. La muestra se 
+compone de las respuestas a un cuestionario de 27118 adultos, con una distribución aproximada de 500
+individuos por estado, más el Distrito de Columbia. Adicionalmente, requerimientos del estudio han obligado
+a aumentar el tamaño de la muestra en los estados de California y de Oregon hasta alcanzar los 1250 individuos.
+A nivel de estado se establecieron cuotas demográficas para garantizar la representatividad a nivel de edad,
+genero, educación e ingresos.
+
+El cuestionario utilizado para recavar los datos contiene 126 variables explicativas, identificadas con códigos 
+alfanuméricos (J10, J41\_1, etc \dots) y que son de tipo nominal, representadas numéricamente. Tanto la estructura
+del conjunto de datos, como la asignación de valores numéricos y etiquetas, se encuentran descrito en el fichero 
+\textit{NFCS 2021 State Data File Info 220627} que se distribuye con los datos\footnote{Recursos disponibles online https://finrafoundation.org/data-and-downloads}. 
+
+En esta investigación no se harán uso de todas las variables explicativas disponibles, reduciendo el análisis a un total de 51 variables. Serán excluidas aquellas sin relación, que presentan cierto nivel de redundancia o que no aportan valor según lo
+objetivos establecidos. Además se han organizado en tres grupos, recogiendo información demográfica, de estrés financiero y
+capacitación financiera. A continuación se presentan el conjunto de datos con la estructura propuesta.
+
+Un total de 14 variables explicativas caracterizan la \textbf{información demográfica} del individuo:
+\begin{enumerate}
+    \item \textbf{STATEQ} State
+    \item \textbf{A50A} GENDER (non-binary randomly assigned)
+    \item \textbf{A3Ar\_w} Age group
+    \item \textbf{A50B} GENDER/AGE NET (non-binary randomly assigned)
+    \item \textbf{A5\_2015} What was the highest level of education that you completed?
+    \item \textbf{A6} What is your marital status?
+    \item \textbf{A7} Which of the following describes your current living arrangements?
+    \item \textbf{A11} How many children do you have who are financially dependent on you (or your spouse/partner)? 
+    \item \textbf{A8\_2021} What is your (household's) approximate annual income, including wages, tips, investment
+    income, public assistance, income from retirement plans, etc.?
+    \item \textbf{A9} Which of the following best describes your current employment or work status?
+    \item \textbf{A40} In addition to your main employment, did you also do other/Did you do any work for pay
+    in the past 12 months?
+    \item \textbf{A10} Which of the following best describes your [spouse's/partner's] current employment or
+    work status? 
+    \item \textbf{A41} What was the highest level of education completed by the person or any of the people who
+    raised you?
+    \item \textbf{A21\_2015} Are you a part-time student taking courses for credit?
+\end{enumerate}
+
+La \textbf{alfabetización financiera} vendrá caracterizada por las siguientes 16 variables explicativas:
+\begin{enumerate}
+    \item \textbf{B1} Do you (Does your household) have a checking account? 
+    \item \textbf{B2} Do you [Does your household] have a savings account, money market account, or CDs?
+    \item \textbf{B31} How often do you use your mobile phone to pay for a product or service in person at a store,
+    gas station, or restaurant (e.g., by waving/tapping your mobile phone over a sensor at checkout, scanning
+    a barcode or QR code using your mobile phone, or using so 
+    \item \textbf{B42} How often do you use your mobile phone to transfer money to another person?
+    \item \textbf{B43} How often do you use websites or apps to help with financial tasks such as budgeting, saving,
+    or credit management (e.g., GoodBudget, Mint, Credit Karma, etc.)? Please do not include websites or 
+    apps for making payments or money transfers.
+    \item \textbf{C1\_2012} Do you (or your spouse/partner) have any retirement plans through a current or previous 
+    employer, like a pension plan, (a Thrift Savings Plan (TSP),) or a 401(k)?
+    \item \textbf{C2\_2012} Were these plans provided by your employer or your (spouse's/partner's) employer, or both? 
+    \item \textbf{C5\_2012} Do you [or your spouse/partner] regularly contribute to a retirement account like a (Thrift
+    Savings Plan (TSP),) 401(k) or IRA?   
+    \item \textbf{B14} Not including retirement accounts, do you  (does your household) have any investments in stocks, bonds, mutual funds, or other securities? 
+    \item \textbf{EA\_1}  Do you (or your spouse/partner) currently own your home?
+    \item \textbf{E7} Do you currently have any mortgages on your home?
+    \item \textbf{F1} How many credit cards do you have?  
+    \item \textbf{H1}  Are you covered by health insurance?
+    \item \textbf{M1\_1} How strongly do you agree or disagree with the following statements? - I am good at dealing with day-to-day financial matters, such as checking accounts, credit and debit cards, and tracking expenses
+    \item \textbf{M4} On a scale from 1 to 7, where 1 means very low and 7 means very high, how would you assess your overall financial knowledge?
+    \item \textbf{M20} Was financial education offered by a school or college you attended, or a workplace where you were employed?
+\end{enumerate}
+
+Por ultimo, el \textbf{estrés financiero} se caracteriza con un las siguientes 23 variables explicativas:
+\begin{enumerate}
+    \item \textbf{J1} Overall, thinking of your assets, debts and savings, how satisfied are you with your current
+    personal financial condition? 
+    \item \textbf{J3} Over the past year, would you say your (household's) spending was less than, more than, or about
+    equal to your (household's) income?
+    \item \textbf{J4} In a typical month, how difficult is it for you to cover your expenses and pay all your bills?
+    \item \textbf{J5} Have you set aside emergency or rainy day funds that would cover your expenses for 3 months,
+    in case of sickness, job loss, economic downturn, or other emergencies?
+    \item \textbf{J6} Are you setting aside any money for your children's college education?
+    \item \textbf{J10} In the past 12 months, have you [has your household] experienced a large  drop in income which
+    you did not expect? 
+    \item \textbf{J20} How confident are you that you could come up with \$2,000 if an unexpected need arose within
+    the next month?
+    \item \textbf{J32} How would you rate your current credit record?
+    \item \textbf{C10\_2012} In the last 12 months, have you (or your spouse/partner) taken a loan from your retirement account(s)? 
+    \item \textbf{E15\_2015} How many times have you been late with your mortgage payments in the past 12 months?
+    \item \textbf{F2\_1}  In the past 12 months, which of the following describes your experience with credit cards? - I always paid my credit cards in full
+    \item \textbf{F2\_2} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I carried over a balance and was charged interest
+    \item \textbf{F2\_3} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I paid the minimum payment only
+    \item \textbf{P50} At any time in your adult life (18 and older), did your parents or grandparents pay for an expense of yours that was \$10,000 or more?
+    \item \textbf{F2\_4} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I was charged a late fee for late payment 
+    \item \textbf{F2\_5} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I was charged an over the limit fee for exceeding my credit line 
+    \item \textbf{F2\_6} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I used the cards for a cash advance 
+    \item \textbf{G20} Do you currently have any unpaid bills from a health care or medical service provider (e.g., a hospital,
+     a doctor's office, or a testing lab) that are past due?
+    \item \textbf{G35} How many times have you been late with a student loan payment in the past 12 months?
+    \item \textbf{G38} Have you been contacted by a debt collection agency in the past 12 months?
+    \item \textbf{H30\_1} In the last 12 months, was there any time when you… - Did NOT fill a prescription for medicine because of the cost
+    \item \textbf{H30\_2} In the last 12 months, was there any time when you… - SKIPPED a medical test, treatment or follow-up recommended by a doctor because of the cost
+    \item \textbf{H30\_3} In the last 12 months, was there any time when you… - Had a medical problem but DID NOT go to a doctor or clinic because of the cost
+\end{enumerate}
+
+Adicionalmente se considera el campo NFCSID que es un indicador de cada registro
+del conjunto de datos. Esto permitirá conectar los distintos resultados.
+
+\subsection{Análisis exploratorio de los Datos}
 %%\section{Análisis y evaluación de los resultados obtenidos}
 %%\section{Conclusiones}
 %%\section{Anexo: código}
