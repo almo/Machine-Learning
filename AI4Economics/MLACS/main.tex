@@ -1,4 +1,4 @@
-\documentclass[a4paper, 11pt, bibliography=numbered, es]{article}
+\documentclass[a4paper, 11pt]{article}
 \usepackage[spanish]{babel}
 \usepackage{graphicx} % Required for inserting images
 \usepackage{multirow} % Required for tables
@@ -11,9 +11,14 @@
 \usepackage[backend=biber,style=numeric]{biblatex}
 \usepackage{csquotes}
 \usepackage{parskip}
-
+\graphicspath{ {./images/} }
 \setlength\parindent{0pt}
 \addbibresource{almo.bib}
+\usepackage{booktabs} % For better table formatting
+\usepackage{xcolor} % For color definitions
+\usepackage{caption}
+\usepackage{ragged2e}
+\usepackage{array}
 
 \title{Alfabetización \& Estrés Financiero}
 \author{Andrés-Leonardo Martínez-Ortiz \\ amartinez122@alumno.uned.es}
@@ -179,11 +184,172 @@ Por ultimo, el \textbf{estrés financiero} se caracteriza con un las siguientes 
 \end{enumerate}
 
 Adicionalmente se considera el campo NFCSID que es un indicador de cada registro
-del conjunto de datos. Esto permitirá conectar los distintos resultados.
+del conjunto de datos. Esto permitirá conectar los distintos resultados. La 
+implementación de esta parte se encuentra en los ficheros \textit{demographics.r}, \textit{capabilities.r} y \textit{stress.r} que forman
+parte del repositorio en Github del proyecto\cite{ALMO25}.
 
 \subsection{Análisis exploratorio de los Datos}
+Una vez contamos con los conjuntos de datos que proporcionan información sobre
+la demografía, las capacidades financieras y el estrés financiero, el siguiente
+paso consiste en un análisis exploratorio de los datos. En primer lugar se
+analizan cómo se distribuyen los registros incompletos para las variables explicativas.
+
+Comenzamos con las variables explicativas demográficas. La figure \ref{fig:demographic_features_missing_values}
+recoge el porcentaje de registros que carecen de valor. Como se puede observar, solo dos 
+variables explicativas tiene entradas sin definir: (1) \textbf{A10}, con un
+\textbf{41.99\%} de valores faltantes y (2) \textbf{A21\_2015}, con un \textbf{40.62\%} de 
+valores faltantes. Tal y como se puede consultar en la sección \ref{features_description}, la 
+primera de las variables corresponde con el estado laboral de la pareja y la segunda informa 
+sobre estudiantes a tiempo parcial. Si bien son importantes, dado los elevados porcentajes de
+datos faltantes y el elevado numero de otras variables explicativas, se opta por eliminarlas
+del estudio.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Demographic_Features__Missing_Values.pdf} 
+    \caption{Variables Demográficas: valores faltantes}
+    \label{fig:demographic_features_missing_values}
+\end{figure}
+
+La figura \ref{fig:capabilities_features_missing_values} presenta el porcentaje de valores 
+faltantes para las variables explicativas correspondientes al conjunto de datos de alfabetización
+financiera. En este conjunto de datos existen cuatro variables explicativas con valores faltantes:
+(1) \textbf{B14}, con un \textbf{4.33\%}, (2) \textbf{C2\_2012}, con un \textbf{62.57\%}, (3) 
+\textbf{C5\_2012} con un \textbf{54.04\%} y finalmente (4) \textbf{E7} con un \textbf{41.19\%}. De
+nuevo, tal y como se puede comprobar en la sección \ref{features_description} estas variables harían
+referencia respectivamente a la inversión en acciones (B14), quién es el promotor de los planes de
+pensiones (C2\_2012), si se realizan contribuciones recurrentes al plan de pensiones (C5\_2012) y
+la existencia de una hipoteca (E7). En este caso, se eliminarán del conjunto de datos las
+variables con elevados porcentaje del valores faltantes y se completará la variable E14 distribuyendo
+los valores faltantes proporcionalmente entre los cuatro niveles.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Capabilities_Features__Missing_Values.pdf} 
+    \caption{Variables Alfabetización Financiera: valores faltantes}
+    \label{fig:capabilities_features_missing_values}
+\end{figure}
+
+Por último, la figura \ref{fig:stress_features_missing_values} presenta el porcentaje de valores
+faltantes para las variables explicativas correspondientes al conjunto de datos de estrés
+financiero. En este caso, existen 10 variables con valores faltantes: (1) \textbf{C10\_2012}, con 
+un \textbf{54.04\%}, (2) \textbf{E15\_2015}, con un \textbf{69.3\%}, (3) \textbf{G35}, con un 
+\textbf{76.21\%}, (4) \textbf{J6}, con un \textbf{65.6\%}, y el conjunto de variables
+\textbf{F2\_1}, \textbf{F2\_2}, \textbf{F2\_3}, \textbf{F2\_4}, \textbf{F2\_5} y \textbf{F2\_6}, 
+todas ellas con un porcentaje de valores faltantes de \textbf{21.09\%}. Siguiendo con la 
+aproximación anterior, para las cuatro primeras variables, debido al elevado porcentaje de 
+valores faltantes se opta por eliminarlas del conjunto de datos. El conjunto de seis variables,
+con un quinto de valores faltantes, corresponden todas ellas, a preguntas relacionadas con 
+tarjetas de crédito, se opta por la distribución proporcional entre los niveles existentes.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Stress_Features__Missing_Values.pdf} 
+    \caption{Variables Estrés Financiero: valores faltantes}
+    \label{fig:stress_features_missing_values}
+\end{figure}
+
+
 %%\section{Análisis y evaluación de los resultados obtenidos}
 %%\section{Conclusiones}
 %%\section{Anexo: código}
+\section{Variables Explicativas: listado y descripción}
+\label{features_description}
+El presente apéndice recoge las descripciones de las variables explicativas, todas ellas categóricas, 
+que se han utilizado en la investigación. Para información adicional sobre el conjunto de datos 
+consúltese la referencia \cite{NFCS01}.
+
+\begin{table}
+\centering
+\footnotesize
+\begin{tabular}{>{\RaggedRight\hspace{0pt}}m{2cm} >{\RaggedRight\hspace{0pt}}m{11cm}}
+\toprule
+\textbf{Variable} & \textbf{Descripción}\\
+\midrule
+NFCSID & Respondent ID \\
+STATEQ & State \\
+A50A & [GENDER (non-binary randomly assigned)]\\
+A3Ar\_w & Age group \\
+A50B & [GENDER/AGE NET (non-binary randomly assigned)] \\
+A5\_2015 & What was the highest level of education that you completed? [2015 codes] \\
+A6 & What is your marital status?\\
+A7 & Which of the following describes your current living arrangements?\\
+A11 & How many children do you have who are financially dependent on you [or your spouse/partner]?\\
+A8\_2021 & What is your [household's] approximate annual income, including wages, tips, investment income, public assistance, income from retirement plans, etc.? [2021 codes] \\
+A9 & Which of the following best describes your current employment or work status?  \\
+A40 & [In addition to your main employment, did you also do other/Did you do any] work for pay in the past 12 months?\\
+A10 & Which of the following best describes your [spouse's/partner's] current employment or work status? \\
+A21\_2015 & Are you a part-time student taking courses for credit? [2015 base]\\
+A41 & What was the highest level of education completed by the person or any of the people who raised you?\\
+\bottomrule
+\end{tabular}
+\caption{Demografía: Variables Explicativas}
+\end{table}
+
+\begin{table}
+\centering
+\footnotesize
+\begin{tabular}{>{\RaggedRight\hspace{0pt}}m{2cm} >{\RaggedRight\hspace{0pt}}m{11cm}}
+\toprule
+\textbf{Variable} & \textbf{Descripción} \\
+\midrule
+\textbf{NFCSID} & Respondent ID\\
+\textbf{B1} & Do you [Does yourhousehold] have a checking account?  \\
+\textbf{B2} & Do you [Does your household] have a savings account, money market account, or CDs?\\
+\textbf{B31} & How often do you use your mobile phone to pay for a product or service in person at a store, gas station, or restaurant (e.g., by waving/tapping your mobile phone over a sensor at checkout, scanning a barcode or QR code using your mobile phone, or using so\\
+\textbf{B42} & How often do you use your mobile phone to transfer money to another person?\\
+\textbf{B43} & How often do you use websites or apps to help with financial tasks such as budgeting, saving, or credit management (e.g., GoodBudget, Mint, Credit Karma, etc.)? Please do not include websites or apps for making payments or money transfers.\\
+\textbf{C1\_2012} & Do you [or your spouse/partner] have any retirement plans through a current or previous employer, like a pension plan, [a Thrift Savings Plan (TSP),] or a 401(k)? [2012 base] \\
+\textbf{C2\_2012} & Were these plans provided by your employer or your [spouse's/partner's] employer, or both? [2012 base] \\
+\textbf{C5\_2012} & Do you [or your spouse/partner] regularly contribute to a retirement account like a [Thrift Savings Plan (TSP),] 401(k) or IRA? [2012 base]\\
+\textbf{B14} & Not including retirement accounts, do you [does your household] have any investments in stocks, bonds, mutual funds, or other securities? \\
+\textbf{EA\_1} & Do you [or your spouse/partner] currently own your home?\\
+\textbf{E7} & Do you currently have any mortgages on your home?\\
+\textbf{F1} & How many credit cards do you have?\\
+\textbf{H1} & Are you covered by health insurance?\\
+\textbf{M1\_1} & How strongly do you agree or disagree with the following statements? - I am good at dealing with day-to-day financial matters, such as checking accounts, credit and debit cards, and tracking expenses \\
+\textbf{M4} & On a scale from 1 to 7, where 1 means very low and 7 means very high, how would you assess your overall financial knowledge? \\
+\textbf{M20} & Was financial education offered by a school or college you attended, or a workplace where you were employed?\\
+\bottomrule
+\end{tabular}
+\caption{Alfabetización Financiera: Variables Explicativas}
+\end{table}
+
+\begin{table}
+\centering
+\footnotesize
+\begin{tabular}{>{\RaggedRight\hspace{0pt}}m{2cm} >{\RaggedRight\hspace{0pt}}m{11cm}}
+\toprule
+\textbf{Variable} & \textbf{Descripción}\\
+\midrule
+\textbf{NFCSID} & Respondent ID \\
+\textbf{J1} & Overall, thinking of your assets, debts and savings, how satisfied are you with your current personal financial condition?  \\
+\textbf{J3} & Over the past year, would you say your [household's] spending was less than, more than, or about equal to your [household's] income?  \\
+\textbf{J4} & In a typical month, how difficult is it for you to cover your expenses and pay all your bills?  \\
+\textbf{J5} & Have you set aside emergency or rainy day funds that would cover your expenses for 3 months, in case of sickness, job loss, economic downturn, or other emergencies?  \\
+\textbf{J6} & Are you setting aside any money for your children's college education?\\
+\textbf{J10} & In the past 12 months, have you [has your household] experienced a large drop in income which you did not expect? \\
+\textbf{J20} & How confident are you that you could come up with \$2,000 if an unexpected need arose within the next month?  \\
+\textbf{J32} & How would you rate your current credit record? \\
+\textbf{C10\_2012} & In the last 12 months, have you [or your spouse/partner] taken a loan from your retirement account(s)? [2012 base]  \\
+\textbf{E15\_2015} & How many times have you been late with your mortgage payments in the past 12 months? [2015 time frame]  \\
+\textbf{F2\_1} & In the past 12 months, which of the following describes your experience with credit cards? - I always paid my credit cards in full  \\
+\textbf{F2\_2} & In the past 12 months, which of the following describes your experience with credit cards? - In some months, I carried over a balance and was charged interest \\
+\textbf{F2\_3} & In the past 12 months, which of the following describes your experience with credit cards? - In some months, I paid the minimum payment only \\
+\textbf{F2\_4} & In the past 12 months, which of the following describes your experience with credit cards? - In some months, I was charged a late fee for late payment  \\
+\textbf{F2\_5} & In the past 12 months, which of the following describes your experience with credit cards? - In some months, I was charged an over the limit fee for exceeding my credit line  \\
+\textbf{F2\_6} & In the past 12 months, which of the following describes your experience with credit cards? - In some months, I used the cards for a cash advance  \\
+\textbf{P50} & At any time in your adult life (18 and older), did your parents or grandparents pay for an expense of yours that was \$10,000 or more?  \\
+\textbf{G20} & Do you currently have any unpaid bills from a health care or medical service provider (e.g., a hospital, a doctor's office, or a testing lab) that are past due?  \\
+\textbf{G35} & How many times have you been late with a student loan payment in the past 12 months? \\
+\textbf{G38} & Have you been contacted by a debt collection agency in the past 12 months? \\
+\textbf{H30\_1} & In the last 12 months, was there any time when you… - Did NOT fill a prescription for medicine because of the cost  \\
+\textbf{H30\_2} & In the last 12 months, was there any time when you… - SKIPPED a medical test, treatment or follow-up recommended by a doctor because of the cost  \\
+\textbf{H30\_3} & In the last 12 months, was there any time when you… - Had a medical problem but DID NOT go to a doctor or clinic because of the cost  \\
+\bottomrule
+\end{tabular}
+\caption{Estrés Financiero: Variables Explicativas}
+\end{table}
+\newpage
 \printbibliography 
 \end{document}

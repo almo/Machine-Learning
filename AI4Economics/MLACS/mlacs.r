@@ -1,5 +1,5 @@
-# 
-# Copyright 2025 Andrés Leonardo Martínez Ortiz 
+#
+# Copyright 2025 Andrés Leonardo Martínez Ortiz
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,37 +19,90 @@
 # Machine Learning Aplicado a Ciencias Sociales Curso 2024/25
 # Practicum
 
+# Loading dependencies
+if (!require(ggplot2))
+  install.packages("ggplot2")
+library(ggplot2)
+
 # Loading dataset
 NFCS2021 <- read.csv('Datasets/nfcs-2021.csv', stringsAsFactors = TRUE)
 
-#
-# Splitting dataset in the subsets: demographics, financial capabilities and 
-# financial stress
-#
-# Demographics Features
-#
-DemographicsFeatures <- c("NFCSID","STATEQ","A50A","A3Ar_w","A50B","A5_2015","A6",
-                          "A7","A11","A8_2021","A9","A40","A10","A21_2015","A41")
-str(DemographicsFeatures)
-
-NFCS2021Demographics <- NFCS2021[,DemographicsFeatures]
-str(NFCS2021Demographics)
+# Loading definition and refactoring of data frames
+source('demographics.r')
+source('capabilities.r')
+source('stress.r')
 
 #
-# Financial Capabilities Features
+# Preprocessing
 #
-CapabilitiesFeatures <- c('NFCSID','B1','B2','B31','B42','B43','C1_2012','C2_2012',
-                          'C5_2012','B14','EA_1','E7','F1','H1','M1_1','M4','M20')
-str(CapabilitiesFeatures)
-NFCS2021Capabilities <- NFCS2021[,CapabilitiesFeatures]
-str(CapabilitiesFeatures)
 
-#
-# Financial Stress Features
-#
-StressFeatures <- c('NFCSID','J1','J3','J4','J5','J6','J10','J20','J32',
-                    'C10_2012','E15_2015','F2_1','F2_2','F2_3','F2_4','F2_5',
-                    'F2_6','P50','G20','G35','G38','H30_1','H30_2','H30_3')
-str(StressFeatures)
-NFCS2021Stress <- NFCS2021[,StressFeatures]
-str(NFCS2021Stress)
+# Missing values
+# Demographics
+DemographicsNA <- data.frame(
+  Feature = character(),
+  Missing_Count = numeric(),
+  Missing_Percent = numeric(),
+  stringsAsFactors = FALSE
+)
+
+for (feature in DemographicsFeatures) {
+  missing_count <- sum(is.na(NFCS2021Demographics[[feature]]))
+  missing_percent <- round((missing_count / nrow(NFCS2021Demographics)) * 100, 2)
+  DemographicsNA[nrow(DemographicsNA) + 1, ] <- c(feature, missing_count, missing_percent)
+}
+
+ggplot(DemographicsNA, aes(x = Feature, y = Missing_Percent)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = paste0(Missing_Percent, "%")), vjust = -0.5, size = 3) +
+  labs(title = "Variables Demograficas - Porcentaje de Valores Faltantes", x = "Variable", y = "Porcentaje") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Missing values
+# Capabilities
+CapabilitiesNA <- data.frame(
+  Feature = character(),
+  Missing_Count = numeric(),
+  Missing_Percent = numeric(),
+  stringsAsFactors = FALSE
+)
+
+for (feature in CapabilitiesFeatures) {
+  missing_count <- sum(is.na(NFCS2021Capabilities[[feature]]))
+  missing_percent <- round((missing_count / nrow(NFCS2021Capabilities)) * 100, 2)
+  CapabilitiesNA[nrow(CapabilitiesNA) + 1, ] <- c(feature, missing_count, missing_percent)
+}
+
+ggplot(CapabilitiesNA, aes(x = Feature, y = Missing_Percent)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = paste0(Missing_Percent, "%")), vjust = -0.5, size = 3) +
+  labs(title = "Variables Alfabetización Financiera - Porcentaje de Valores Faltantes", x = "Variable", y = "Porcentaje") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Missing values
+# Stress Features
+StressNA <- data.frame(
+  Feature = character(),
+  Missing_Count = numeric(),
+  Missing_Percent = numeric(),
+  stringsAsFactors = FALSE
+)
+
+for (feature in StressFeatures) {
+  missing_count <- sum(is.na(NFCS2021Stress[[feature]]))
+  missing_percent <- round((missing_count / nrow(NFCS2021Stress)) * 100, 2)
+  StressNA[nrow(StressNA) + 1, ] <- c(feature, missing_count, missing_percent)
+}
+
+ggplot(StressNA, aes(x = Feature, y = Missing_Percent)) +
+  geom_col(fill = "steelblue") +
+  geom_text(
+    aes(label = paste0(Missing_Percent, "%")),
+    hjust = -0.1 ,
+    vjust = -0.5,
+    size = 3,
+    angle = 45
+  ) +
+  labs(title = "Variables Estrés Financiero - Porcentaje de Valores Faltantes", x = "Variable", y = "Porcentaje") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
