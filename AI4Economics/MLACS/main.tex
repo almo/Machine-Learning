@@ -17,6 +17,7 @@
 \usepackage{booktabs} % For better table formatting
 \usepackage{xcolor} % For color definitions
 \usepackage{caption}
+\usepackage{subcaption} % For subfigures
 \usepackage{ragged2e}
 \usepackage{array}
 
@@ -26,10 +27,13 @@
 
 \begin{document}
 \maketitle
+
 \section{Introducción}
+\label{sec:introduction}
 En la actualidad, los individuos de las sociedad desarrolladas, cuentan con 
 un sinfín de mecanismos financieros, que dan soporte a la vida contemporánea
 y constituyen herramientas catalizadoras de proyectos personales y empresariales. 
+
 La adecuada integración, el aprovechamiento y el desarrollo de
 nuestra sociedad, sin duda, requieren del conocimiento financiero básico, así como
 de los servicios y herramientas ofrecidas. Su desconocimiento, no solo puede limitar
@@ -47,60 +51,80 @@ vendría respaldada por algunos estudios que aportan evidencia de
 la conexión entre alfabetización digital y el desarrollo económico \cite{Lusardi14}. 
 
 \section{Motivación y objetivos del trabajo}
-\label{motivacion}
-El presente trabajo aborda el análisis de los aspectos que caracterizan el conocimiento 
-financiero y las consecuencias, englobadas bajo el término de estrés financiero\footnote{El término
-estrés financiero se definirá como parte del presente trabajo.}, que se derivan de una insuficiente
-alfabetización en esta materia. Su ámbito se limita a datos de sección cruzada, obtenidos en 2021 y 
-referidos a población estadounidense \cite{NFCS01}.
+\label{sec:motivation}
+El presente trabajo aborda el análisis de los aspectos que caracterizan el conocimiento
+financiero y las consecuencias, englobadas bajo el término de estrés 
+financiero\footnote{El término estrés financiero se definirá como parte del presente 
+trabajo.}, que se derivan de una insuficiente alfabetización en esta materia. Su ámbito se 
+limita a datos de sección cruzada, obtenidos en 2021 y referidos a población estadounidense 
+\cite{NFCS01}.
 
-El objetivo es poder caracterizar la alfabetización financiera en términos demográficos e información
-individual básica de uso de servicios y aplicaciones, introduciendo una taxonomía de niveles de estrés
-financiero, que permita la definición de medidas no solo educativas de prevención, sino también acciones
-reactivas de carácter paliativo.
+El objetivo es poder caracterizar la alfabetización financiera en términos demográficos e 
+información individual básica de uso de servicios y aplicaciones, introduciendo una taxonomía 
+de niveles de estrés financiero, que permita la definición de medidas no solo educativas de 
+prevención, sino también acciones reactivas de carácter paliativo.
 
-Como pasos futuros, aunque fuera ya del ámbito de este trabajo, la expansión del contexto geográfico
-y el análisis de datos de panel, permitiría entender el impacto de las medidas adoptadas, no ya en los
-aspectos abordados en este primer estudio, sino también en otros aspectos como el desarrollo económico,
-la iniciativa empresarial y la inversión privada. 
+Como pasos futuros, aunque fuera ya del ámbito de este trabajo, la expansión del contexto
+geográfico y el análisis de datos de panel, permitiría entender el impacto de las medidas 
+adoptadas, no ya en los aspectos abordados en este primer estudio, sino también en otros 
+aspectos como el desarrollo económico, la iniciativa empresarial y la inversión privada. 
 
 \section{Descripción y justificación de la técnica o técnicas utilizadas}
-Los objetivos establecidos en el apartado \ref{motivacion} se alcanzarán aplicando técnicas de aprendizaje
-estadístico, como aproximación alternativa a los modelos econométricos convencionales. 
+\label{sec:technical_proposal}
+Los objetivos establecidos en el apartado \ref{sec:motivation} se alcanzarán aplicando técnicas 
+de aprendizaje estadístico, como aproximación alternativa a los modelos econométricos 
+convencionales. 
 
-En una primera fase y siguiendo un proceso de aprendizaje no supervisado, se definirá la taxonomía que permita
-clasificar el espacio social de estudio con criterios de estrés financiero. A continuación, y una vez etiquetados
-los individuos de la muestra, se desarrollarán clasificadores estadísticos que permitan predecir la categoría de un 
-individuo, permitiendo anticipar las correspondientes medidas de prevención y dirigiendo las acciones de reacción. 
+En una primera fase y siguiendo un proceso de aprendizaje no supervisado, se definirá la taxonomía que permita clasificar el espacio social de estudio con criterios de estrés
+financiero. A continuación, y una vez etiquetados los individuos de la muestra, se
+desarrollarán clasificadores estadísticos que permitan predecir la categoría de un 
+individuo, permitiendo anticipar las correspondientes medidas de prevención y dirigiendo las 
+acciones de reacción. 
 
-Para el análisis del problema y desarrollo de los modelos propuestos, se seguirán las técnicas correspondientes
-a algoritmos de clasificación no supervisada, máquinas de vector soporte y árboles de decisión, descritas en las
-referencias \cite{lantz23}, \cite{Hastie23}, \cite{aurelien17} y \cite{Hastie13}, y programadas en R\cite{R24}.
+Para el análisis del problema y desarrollo de los modelos propuestos, se seguirán las 
+técnicas correspondientes a algoritmos de clasificación no supervisada, máquinas de vector 
+soporte y árboles de decisión, descritas en las referencias \cite{lantz23}, \cite{Hastie23}, 
+\cite{aurelien17} y \cite{Hastie13}, y programadas en R\cite{R24}.
 
-El desarrollo de la investigación sigue una secuencia de pasos: (1) selección y descripción de la fuente de datos utilizada,
-(2) la selección de los métodos de análisis, (3) la preparación de los datos para su proceso y finalmente (4) la selección
-de los parámetros y entrenamiento de los métodos supervisados. Una vez completada esta parte, la aplicación de
-las técnicas obtenidas permitirá el análisis y evaluación de los resultados, lo que permitirá alcanzar un conjunto
-de conclusiones.
+El desarrollo de la investigación sigue una secuencia de pasos: (1) selección y descripción 
+de la fuente de datos utilizada, (2) la selección de los métodos de análisis, (3) la 
+preparación de los datos para su proceso y finalmente (4) la selección de los parámetros y 
+entrenamiento de los métodos supervisados. Una vez completada esta parte, la aplicación de
+las técnicas obtenidas permitirá el análisis y evaluación de los resultados, lo que permitirá
+alcanzar un conjunto de conclusiones.
 
 \section{Desarrollo de la investigación}
+\label{sec:research}
 \subsection{Datos: selección y descripción}
-La fuente de datos seleccionada corresponde al proyecto National Finantial Capability Study \cite{NFCS01}, 
-un estudio a gran escala sobre la capacidad financiera de los ciudadanos estadounidenses. La muestra se 
-compone de las respuestas a un cuestionario de 27118 adultos, con una distribución aproximada de 500
-individuos por estado, más el Distrito de Columbia. Adicionalmente, requerimientos del estudio han obligado
-a aumentar el tamaño de la muestra en los estados de California y de Oregon hasta alcanzar los 1250 individuos.
-A nivel de estado se establecieron cuotas demográficas para garantizar la representatividad a nivel de edad,
+\label{sec:sub:datasets}
+La fuente de datos seleccionada corresponde al proyecto National Finantial Capability Study 
+\cite{NFCS01}, un estudio a gran escala sobre la capacidad financiera de los ciudadanos 
+estadounidenses. La muestra se compone de las respuestas a un cuestionario de 27118 adultos, 
+con una distribución aproximada de 500 individuos por estado, más el Distrito de Columbia. 
+Adicionalmente, requerimientos del estudio han obligado a aumentar el tamaño de la muestra en 
+los estados de California y de Oregon hasta alcanzar los 1250 individuos. A nivel de estado 
+se establecieron cuotas demográficas para garantizar la representatividad a nivel de edad,
 genero, educación e ingresos.
 
-El cuestionario utilizado para recavar los datos contiene 126 variables explicativas, identificadas con códigos 
-alfanuméricos (J10, J41\_1, etc \dots) y que son de tipo nominal, representadas numéricamente. Tanto la estructura
-del conjunto de datos, como la asignación de valores numéricos y etiquetas, se encuentran descrito en el fichero 
-\textit{NFCS 2021 State Data File Info 220627} que se distribuye con los datos\footnote{Recursos disponibles online https://finrafoundation.org/data-and-downloads}. 
+El cuestionario utilizado para recavar los datos contiene 126 variables explicativas, 
+identificadas con códigos alfanuméricos (J10, J41\_1, etc \dots) y que son de tipo nominal, 
+representadas numéricamente. Tanto la estructura del conjunto de datos, como la asignación de 
+valores numéricos y etiquetas, se encuentran descrito en el fichero \textit{NFCS 2021 State 
+Data File Info 220627} que se distribuye con los datos\footnote{Recursos disponibles online 
+https://finrafoundation.org/data-and-downloads}. 
+
+En esta investigación no se harán uso de todas las variables explicativas disponibles, 
+reduciendo el análisis a un total de 51 variables. Serán excluidas aquellas sin relación, que 
+presentan cierto nivel de redundancia o que no aportan valor según lo objetivos establecidos. 
+Además se han organizado en tres grupos, recogiendo información demográfica, de estrés 
+financiero y capacitación financiera. 
+A continuación se presentan el conjunto de datos con la  estructura propuesta:
 
 En esta investigación no se harán uso de todas las variables explicativas disponibles, reduciendo el análisis a un total de 51 variables. Serán excluidas aquellas sin relación, que presentan cierto nivel de redundancia o que no aportan valor según lo
 objetivos establecidos. Además se han organizado en tres grupos, recogiendo información demográfica, de estrés financiero y
-capacitación financiera. A continuación se presentan el conjunto de datos con la estructura propuesta:
+capacitación financiera. 
+
+A continuación se presentan el conjunto de datos con la estructura propuesta:
 \begin{description}
     \item[Demografía] Un total de 14 variables explicativas caracterizan la información demográfica del individuo: \textbf{NFCSID},
     \textbf{STATEQ}, \textbf{A50A}, \textbf{A3Ar\_w}, \textbf{A50B}, \textbf{A5\_2015}, \textbf{A6}, \textbf{A7}. \textbf{A11},
@@ -117,28 +141,17 @@ capacitación financiera. A continuación se presentan el conjunto de datos con 
     Se encuentran descritas en la tabla \ref{table:stress_features}.
 \end{description}
 
-
-
 Adicionalmente se considera el campo NFCSID que es un indicador de cada registro
 del conjunto de datos. Esto permitirá conectar los distintos resultados. La 
 implementación de esta parte se encuentra en los ficheros \textit{demographics.r}, \textit{capabilities.r} y \textit{stress.r} que forman
 parte del repositorio en Github del proyecto\cite{ALMO25}.
 
 \subsection{Análisis exploratorio de los Datos}
+\label{sec:exploratory_analysis}
 Una vez contamos con los conjuntos de datos que proporcionan información sobre
 la demografía, las capacidades financieras y el estrés financiero, el siguiente
 paso consiste en un análisis exploratorio de los datos. En primer lugar se
 analizan cómo se distribuyen los registros incompletos para las variables explicativas.
-
-Comenzamos con las variables explicativas demográficas. La figure \ref{fig:demographic_features_missing_values}
-recoge el porcentaje de registros que carecen de valor. Como se puede observar, solo dos 
-variables explicativas tiene entradas sin definir: (1) \textbf{A10}, con un
-\textbf{41.99\%} de valores faltantes y (2) \textbf{A21\_2015}, con un \textbf{40.62\%} de 
-valores faltantes. Tal y como se puede consultar en la sección \ref{features_description}, la 
-primera de las variables corresponde con el estado laboral de la pareja y la segunda informa 
-sobre estudiantes a tiempo parcial. Si bien son importantes, dado los elevados porcentajes de
-datos faltantes y el elevado numero de otras variables explicativas, se opta por eliminarlas
-del estudio.
 
 \begin{figure}[ht]
     \centering
@@ -147,12 +160,24 @@ del estudio.
     \label{fig:demographic_features_missing_values}
 \end{figure}
 
+Comenzamos con las variables explicativas demográficas. La figure \ref{fig:demographic_features_missing_values}
+recoge el porcentaje de registros que carecen de valor. Como se puede observar, solo dos 
+variables explicativas tiene entradas sin definir: (1) \textbf{A10}, con un
+\textbf{41.99\%} de valores faltantes y (2) \textbf{A21\_2015}, con un \textbf{40.62\%} de 
+valores faltantes. 
+
+Tal y como se puede consultar en la sección \ref{sec:features_description}, la 
+primera de las variables corresponde con el estado laboral de la pareja y la segunda informa 
+sobre estudiantes a tiempo parcial. Si bien son importantes, dado los elevados porcentajes de
+datos faltantes y el elevado numero de otras variables explicativas, se opta por eliminarlas
+del estudio.
+
 La figura \ref{fig:capabilities_features_missing_values} presenta el porcentaje de valores 
 faltantes para las variables explicativas correspondientes al conjunto de datos de alfabetización
 financiera. En este conjunto de datos existen cuatro variables explicativas con valores faltantes:
 (1) \textbf{B14}, con un \textbf{4.33\%}, (2) \textbf{C2\_2012}, con un \textbf{62.57\%}, (3) 
 \textbf{C5\_2012} con un \textbf{54.04\%} y finalmente (4) \textbf{E7} con un \textbf{41.19\%}. De
-nuevo, tal y como se puede comprobar en la sección \ref{features_description} estas variables harían
+nuevo, tal y como se puede comprobar en la sección \ref{sec:features_description} estas variables harían
 referencia respectivamente a la inversión en acciones (B14), quién es el promotor de los planes de
 pensiones (C2\_2012), si se realizan contribuciones recurrentes al plan de pensiones (C5\_2012) y
 la existencia de una hipoteca (E7). En este caso, se eliminarán del conjunto de datos las
@@ -184,14 +209,22 @@ tarjetas de crédito, y de nuevo en este caso, se completarán los valores con i
     \label{fig:stress_features_missing_values}
 \end{figure}
 
-El proceso de imputación de valores faltantes presenta ciertas limitaciones, derivadas de la razón que subyace bajo la ausencia de dichos valores. Se podría tratar de un proceso puramente aleatorio (\textbf{MCAR}), independiente del valor
-del resto de variables explicativas; simplemente, algunos valores se han perdido. 
-Alternativamente, la razón que explicaría la ausencia del dato podría depender de las otras variables explicativas, pero no del valor ausente (\textbf{MAR}); en nuestra caso podría explicar algunos de los valores faltantes. Finalmente los valores faltantes podrían ser una respuesta condicionada por el valor en cuestión 
-(\textbf{MNAR}), y por lo tanto sería un resultado intencionado y no aleatorio. 
+El proceso de imputación de valores faltantes presenta ciertas limitaciones, derivadas de la
+razón que subyace bajo la ausencia de dichos valores. Se podría tratar de un proceso 
+puramente aleatorio (\textbf{MCAR}), independiente del valor del resto de variables
+explicativas; simplemente, algunos valores se han perdido. 
+
+Alternativamente, la razón que explicaría la ausencia del dato podría depender de las otras 
+variables explicativas, pero no del valor ausente (\textbf{MAR}); en nuestra caso podría 
+explicar algunos de los valores faltantes. Finalmente los valores faltantes podrían ser una 
+respuesta condicionada por el valor en cuestión (\textbf{MNAR}), y por lo tanto sería un 
+resultado intencionado y no aleatorio. 
+
 La imputación funcionará mejor en los casos en los que existe algún grado de aleatoriedad \cite{lantz23}, y aunque no es posible discernir a priori la razón
 última que explicaría cada uno de los valores faltantes, esta consideración es
 necesaria para mantener un escepticismo sano, que eventualmente pueda identificar
 situaciones en las que la imputación requiere un análisis mas profundo.
+\\
 
 \colorbox{gray!30}{
 \begin{minipage}{\textwidth}
@@ -214,13 +247,105 @@ situaciones en las que la imputación requiere un análisis mas profundo.
   \end{description}
 \end{minipage}
 }
+\\
+A modo ilustrativo se recoge la distribución de los distintos niveles, comparando los valores
+originales con las imputaciones. Como se aprecia en la figura \ref{fig:Analysis_MV_B14}, no 
+existe una diferencia apreciable entre los valores originales y los imputados, lo que es consistente con el reducido porcentaje de valores faltantes que se daban en la variable B14.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Analysis_MV_B14.pdf} 
+    \caption{Variables Alfabetización Financiera: valores faltantes}
+    \label{fig:Analysis_MV_B14}
+\end{figure}
+
+Seguidamente se presenta las mismas figuras resumen para las variables con valores faltantes 
+correspondientes al conjunto de datos representando el estrés financiero. Como se aprecia, el 
+resultado es muy similar para todas las variables ya que todas ellas presentaban un 
+porcentaje similar de valores faltantes. Las diferencias apreciables son debidas al las 
+diferencias entre el resto de variables, que hacen que el algoritmo de \textit{random forest} 
+resulte en imputaciones ligeramente distintas.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Analysis_MV_F2_1.pdf} 
+    \caption{Análisis F2\_1 valores Imputados vs Originales}
+    \label{fig:Analysis_MV_F2_1}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Analysis_MV_F2_2.pdf} 
+    \caption{Análisis F2\_2 valores Imputados vs Originales}
+    \label{fig:Analysis_MV_F2_2}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Analysis_MV_F2_3.pdf} 
+    \caption{Análisis F2\_3 valores Imputados vs Originales}
+    \label{fig:Analysis_MV_F2_3}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Analysis_MV_F2_4.pdf} 
+    \caption{Análisis F2\_4 valores Imputados vs Originales}
+    \label{fig:Analysis_MV_F2_4}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Analysis_MV_F2_5.pdf} 
+    \caption{Análisis F2\_5 valores Imputados vs Originales}
+    \label{fig:Analysis_MV_F2_5}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Analysis_MV_F2_6.pdf} 
+    \caption{Análisis F2\_6 valores Imputados vs Originales}
+    \label{fig:Analysis_MV_F2_6}
+\end{figure}
+
+\subsection{Codificación de Variables Categóricas}
+El conjunto de datos NFCS 2021 esta formado por variables categóricas, nominales, que
+representan las respuestas de los participantes en el estudio a preguntas con un
+conjunto de opciones. El procesamiento requiere la codificación de estas variables
+y en este caso se utiliza el código denominado \textit{one-hot}. 
+
+Para cada factor, este código introduce una nueva variable binaria por cada uno de los
+niveles. El resultado es la explosión dimensional del conjunto de datos y el carácter
+disperso de la matriz que los representa. Desde el punto de vista de programación, 
+el proceso es extremadamente sencillo, ya que utilizando la librería \textit{mltools}, se
+reduce a una instrucción.
+
+En la investigación que nos ocupa, y más tras el tratamiento de los valores faltantes, los
+conjuntos de datos no son especialmente grandes, por lo que el impacto de la codificación
+\textit{one-hot} no será importante; en particular el conjunto de datos demográficos  para
+de XX a YY dimensiones, el conjunto de datos de alfabetización financiera pasa de XX a YY
+dimensiones y el conjunto de datos de estrés financiero para de XX a YY dimensiones.
+
+\subsection{Taxonomías}
+\label{sec:sub:clustering}
+Una vez preparados los conjuntos de datos se realizará una taxonomía siguiendo un proceso
+jerárquico, que comenzará con la introducción de una taxonomía del estrés financiero, para
+continuar con una taxonomía de la alfabetización financieras y finalmente
+se cruzarán esos datos con los demográficos para clasificar la población en conjunto.
+
+Una vez obtenidas las clasificaciones o taxonomías anteriores, y tras etiquetar los conjuntos
+adecuadamente se desarrollarán, utilizando un aprendizaje supervisado, clasificadores que 
+permitan partiendo de los datos demográficos o de alfabetización financiera determinar el 
+nivel de estrés financiero, ya sea para recomendar medidas de alfabetización financiera 
+paliativas o de prevención.
+
 
 
 %%\section{Análisis y evaluación de los resultados obtenidos}
 %%\section{Conclusiones}
 %%\section{Anexo: código}
 \section{Variables Explicativas: listado y descripción}
-\label{features_description}
+\label{sec:features_description}
 El presente apéndice recoge las descripciones de las variables explicativas, todas ellas categóricas, 
 que se han utilizado en la investigación. Para información adicional sobre el conjunto de datos 
 consúltese la referencia \cite{NFCS01}.

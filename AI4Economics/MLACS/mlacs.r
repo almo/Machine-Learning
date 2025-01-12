@@ -20,6 +20,7 @@
 # Practicum
 
 set.seed(845904523)
+Sys.setenv(R_DATATABLE_NUM_THREADS = 8)
 
 # Loading dependencies
 if (!require(ggplot2))
@@ -29,6 +30,19 @@ library(ggplot2)
 if (!require(missForest))
   install.packages('missForest')
 library(missForest)
+
+if (!require(mltools))
+  install.packages("mltools")
+library(mltools)
+
+if (!require(data.table))
+  install.packages("data.table")
+library(data.table)
+
+if (!require(factoextra))
+  install.packages("factoextra")
+library(factoextra)
+
 
 # Loading dataset
 NFCS2021 <- read.csv('Datasets/nfcs-2021.csv', stringsAsFactors = TRUE)
@@ -133,6 +147,12 @@ CompletedDemographicsFeatures <- c(
   "A41"
 )
 
+print("Demographics features: missing values for A10")
+print(table(NFCS2021Demographics$A10, useNA = "ifany"))
+
+print("Demographics features: missing values for A21_2015")
+print(table(NFCS2021Demographics$A21_2015, useNA = "ifany"))
+
 NFCS2021Demographics <- NFCS2021Demographics[, CompletedDemographicsFeatures]
 str(NFCS2021Demographics)
 
@@ -156,6 +176,18 @@ CompletedCapabilitiesFeatures <- c(
   'M20'
 )
 
+print("Capabilities features: missing values for C2_2012")
+print(table(NFCS2021Capabilities$C2_2012, useNA = "ifany"))
+
+print("Capabilities features: missing values for C5_2012")
+print(table(NFCS2021Capabilities$C5_2012, useNA = "ifany"))
+
+print("Capabilities features: missing values for E7")
+print(table(NFCS2021Capabilities$E7, useNA = "ifany"))
+
+print("Capabilities features: missing values for B14")
+print(table(NFCS2021Capabilities$B14, useNA = "ifany"))
+
 NFCS2021Capabilities <- NFCS2021Capabilities[, CompletedCapabilitiesFeatures]
 str(NFCS2021Capabilities)
 
@@ -168,14 +200,13 @@ ImputedValuesAnalysis <- rbind(
   data.frame(NFCS2021Capabilities, source =  'Original')
 )
 
-ggplot(ImputedValuesAnalysis, aes(x = B14, fill = source)) +
+ggplot(ImputedValuesAnalysis, aes(x = B14,  fill = source)) +
   geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución B14 Imputado vs Original",
-       x = "Niveles B14",
-       y = "Número") +
+  labs(title = "Comparación Distribución B14 Imputado vs Original", x = "Niveles B14", y = "Número") +
   theme_bw()
 
-prop.table(table(ImputedValuesAnalysis$B14, ImputedValuesAnalysis$source), margin = 2)
+prop.table(table(ImputedValuesAnalysis$B14, ImputedValuesAnalysis$source),
+           margin = 2)
 
 # Assigning the missing values
 NFCS2021Capabilities$B14 <- ImputedValues$ximp$B14
@@ -207,116 +238,84 @@ CompletedStressFeatures <- c(
   'H30_3'
 )
 
+print("Stress features: missing values for C10_2012")
+print(table(NFCS2021Stress$C10_2012, useNA = "ifany"))
+
+print("Stress features: missing values for E15_2015")
+print(table(NFCS2021Stress$E15_2015, useNA = "ifany"))
+
+print("Stress features: missing values for G35")
+print(table(NFCS2021Stress$G35, useNA = "ifany"))
+
+print("Stress features: missing values for J6")
+print(table(NFCS2021Stress$J6, useNA = "ifany"))
+
+print("Stress features: missing values for F2_1")
+print(table(NFCS2021Stress$F2_1, useNA = "ifany"))
+
+print("Stress features: missing values for F2_2")
+print(table(NFCS2021Stress$F2_2, useNA = "ifany"))
+
+print("Stress features: missing values for F2_3")
+print(table(NFCS2021Stress$F2_3, useNA = "ifany"))
+
+print("Stress features: missing values for F2_4")
+print(table(NFCS2021Stress$F2_4, useNA = "ifany"))
+
+print("Stress features: missing values for F2_5")
+print(table(NFCS2021Stress$F2_5, useNA = "ifany"))
+
+print("Stress features: missing values for F2_6")
+print(table(NFCS2021Stress$F2_6, useNA = "ifany"))
+
 NFCS2021Stress <- NFCS2021Stress[, CompletedStressFeatures]
 str(NFCS2021Stress)
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 # Imputing missing values with missForest
 ImputedValues <- missForest(NFCS2021Stress)
 
-# Analyzing the results for F2_1
-ImputedValuesAnalysis <- rbind(
-  data.frame(ImputedValues$ximp, source = 'Imputado'),
-  data.frame(NFCS2021Stress, source =  'Original')
-)
+# Analysing the result for all the variables
+for (var in c("F2_1", "F2_2", "F2_3", "F2_4", "F2_5", "F2_6")) {
+  # Analyzing the results
+  ImputedValuesAnalysis <- rbind(
+    data.frame(ImputedValues$ximp, source = 'Imputado'),
+    data.frame(NFCS2021Stress, source = 'Original')
+  )
+  
+  # Create the plot
+  print(
+    ggplot(ImputedValuesAnalysis, aes(x = .data[[var]], fill = source)) +
+      geom_bar(position = "dodge") +
+      labs(
+        title = paste0("Comparación Distribución ", var, " Imputado vs Original"),
+        x = paste0("Niveles ", var),
+        y = "Número"
+      ) +
+      theme_bw()
+  )
+  
+  # Print the proportion table
+  print(prop.table(
+    table(ImputedValuesAnalysis[[var]], ImputedValuesAnalysis$source),
+    margin = 2
+  ))
+  
+  # Assigning missing values
+  NFCS2021Stress[[var]] <- ImputedValues$ximp[[var]]
+}
 
-ggplot(ImputedValuesAnalysis, aes(x = F2_1, fill = source)) +
-  geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución F2_1 Imputado vs Original",
-       x = "Niveles F2_1",
-       y = "Número") +
-  theme_bw()
+#
+# one-hot coding
+#
+if (!require(data.table))
+  install.packages("data.table")
+library(data.table)
 
-prop.table(table(ImputedValuesAnalysis$F2_1, ImputedValuesAnalysis$source), margin = 2)
+# Demographics
+NFCS2021Demographics1H <- one_hot(as.data.table(NFCS2021Demographics))
 
-# Assigning missing values for F2_1
-NFCS2021Stress$F2_1 <- ImputedValues$ximp$F2_1
+# Financial Capabilities
+NFCS2021Capabilities1H <- one_hot(as.data.table(NFCS2021Capabilities))
 
-# Analyzing the results for F2_2
-ImputedValuesAnalysis <- rbind(
-  data.frame(ImputedValues$ximp, source = 'Imputado'),
-  data.frame(NFCS2021Stress, source =  'Original')
-)
-
-ggplot(ImputedValuesAnalysis, aes(x = F2_2, fill = source)) +
-  geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución F2_2 Imputado vs Original",
-       x = "Niveles F2_2",
-       y = "Número") +
-  theme_bw()
-
-prop.table(table(ImputedValuesAnalysis$F2_2, ImputedValuesAnalysis$source), margin = 2)
-
-# Assigning missing values for F2_2
-NFCS2021Stress$F2_2 <- ImputedValues$ximp$F2_2
-
-# Analyzing the results for F2_3
-ImputedValuesAnalysis <- rbind(
-  data.frame(ImputedValues$ximp, source = 'Imputado'),
-  data.frame(NFCS2021Stress, source =  'Original')
-)
-
-ggplot(ImputedValuesAnalysis, aes(x = F2_3, fill = source)) +
-  geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución F2_3 Imputado vs Original",
-       x = "Niveles F2_3",
-       y = "Número") +
-  theme_bw()
-
-prop.table(table(ImputedValuesAnalysis$F2_3, ImputedValuesAnalysis$source), margin = 2)
-
-# Assigning missing values for F2_3
-NFCS2021Stress$F2_3 <- ImputedValues$ximp$F2_3
-
-# Analyzing the results for F2_4
-ImputedValuesAnalysis <- rbind(
-  data.frame(ImputedValues$ximp, source = 'Imputado'),
-  data.frame(NFCS2021Stress, source =  'Original')
-)
-
-ggplot(ImputedValuesAnalysis, aes(x = F2_4, fill = source)) +
-  geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución F2_4 Imputado vs Original",
-       x = "Niveles F2_4",
-       y = "Número") +
-  theme_bw()
-
-prop.table(table(ImputedValuesAnalysis$F2_4, ImputedValuesAnalysis$source), margin = 2)
-
-# Assigning missing values for F2_5
-NFCS2021Stress$F2_5 <- ImputedValues$ximp$F2_5
-
-# Analyzing the results for F2_5
-ImputedValuesAnalysis <- rbind(
-  data.frame(ImputedValues$ximp, source = 'Imputado'),
-  data.frame(NFCS2021Stress, source =  'Original')
-)
-
-ggplot(ImputedValuesAnalysis, aes(x = F2_5, fill = source)) +
-  geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución F2_5 Imputado vs Original",
-       x = "Niveles F2_5",
-       y = "Número") +
-  theme_bw()
-
-prop.table(table(ImputedValuesAnalysis$F2_5, ImputedValuesAnalysis$source), margin = 2)
-
-# Assigning missing values for F2_5
-NFCS2021Stress$F2_5 <- ImputedValues$ximp$F2_5
-
-# Analyzing the results for F2_6
-ImputedValuesAnalysis <- rbind(
-  data.frame(ImputedValues$ximp, source = 'Imputado'),
-  data.frame(NFCS2021Stress, source =  'Original')
-)
-
-ggplot(ImputedValuesAnalysis, aes(x = F2_6, fill = source)) +
-  geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución F2_6 Imputado vs Original",
-       x = "Niveles F2_6",
-       y = "Número") +
-  theme_bw()
-
-prop.table(table(ImputedValuesAnalysis$F2_6, ImputedValuesAnalysis$source), margin = 2)
-
-# Assigning missing values for F2_6
-NFCS2021Stress$F2_6 <- ImputedValues$ximp$F2_6
+# Financial Stress 
+NFCS2021Stress1H <- one_hot(as.data.table(NFCS2021Stress))
