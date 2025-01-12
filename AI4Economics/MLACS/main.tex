@@ -100,88 +100,24 @@ del conjunto de datos, como la asignación de valores numéricos y etiquetas, se
 
 En esta investigación no se harán uso de todas las variables explicativas disponibles, reduciendo el análisis a un total de 51 variables. Serán excluidas aquellas sin relación, que presentan cierto nivel de redundancia o que no aportan valor según lo
 objetivos establecidos. Además se han organizado en tres grupos, recogiendo información demográfica, de estrés financiero y
-capacitación financiera. A continuación se presentan el conjunto de datos con la estructura propuesta.
+capacitación financiera. A continuación se presentan el conjunto de datos con la estructura propuesta:
+\begin{description}
+    \item[Demografía] Un total de 14 variables explicativas caracterizan la información demográfica del individuo: \textbf{NFCSID},
+    \textbf{STATEQ}, \textbf{A50A}, \textbf{A3Ar\_w}, \textbf{A50B}, \textbf{A5\_2015}, \textbf{A6}, \textbf{A7}. \textbf{A11},
+    \textbf{A8\_2021}, \textbf{A9}, \textbf{A40}, \textbf{A10}, \textbf{A21\_2015} y \textbf{A41}. Se encuentran descritas
+    en la tabla \ref{table:demographics_features}.
+    \item[Alfabetización financiera] La alfabetización financiera viene caracterizada por las siguientes 16 variables explicativas:
+    \textbf{NFCSID}, \textbf{B1}, \textbf{B2}, \textbf{B31}, \textbf{B42}, \textbf{B43}, \textbf{C1\_2012}, \textbf{C2\_2012},
+    \textbf{C5\_2012}, \textbf{B14}, \textbf{EA\_1}, \textbf{E7}, \textbf{F1}, \textbf{H1}, \textbf{M1\_1}, \textbf{M4} y
+    \textbf{M20}. Se encuentran descritas en la tabla \ref{table:capabilities_features}.
+    \item[Estrés financiero] El estrés financiero se caracteriza con las siguientes 23 variables explicativas: \textbf{NFCSID},
+    \textbf{J1}, \textbf{J3}, \textbf{J4}, \textbf{J5}, \textbf{J6}, \textbf{J10}, \textbf{J20}, \textbf{J32}, \textbf{C10\_2012},
+    \textbf{E15\_2015}, \textbf{F2\_1}, \textbf{F2\_2}, \textbf{F2\_3}, \textbf{F2\_4}, \textbf{F2\_5}, \textbf{F2\_6}, 
+    \textbf{P50}, \textbf{G20}, \textbf{G35}, \textbf{G38}, \textbf{H30\_1}, \textbf{H30\_2} y \textbf{H30\_3}.
+    Se encuentran descritas en la tabla \ref{table:stress_features}.
+\end{description}
 
-Un total de 14 variables explicativas caracterizan la \textbf{información demográfica} del individuo:
-\begin{enumerate}
-    \item \textbf{STATEQ} State
-    \item \textbf{A50A} GENDER (non-binary randomly assigned)
-    \item \textbf{A3Ar\_w} Age group
-    \item \textbf{A50B} GENDER/AGE NET (non-binary randomly assigned)
-    \item \textbf{A5\_2015} What was the highest level of education that you completed?
-    \item \textbf{A6} What is your marital status?
-    \item \textbf{A7} Which of the following describes your current living arrangements?
-    \item \textbf{A11} How many children do you have who are financially dependent on you (or your spouse/partner)? 
-    \item \textbf{A8\_2021} What is your (household's) approximate annual income, including wages, tips, investment
-    income, public assistance, income from retirement plans, etc.?
-    \item \textbf{A9} Which of the following best describes your current employment or work status?
-    \item \textbf{A40} In addition to your main employment, did you also do other/Did you do any work for pay
-    in the past 12 months?
-    \item \textbf{A10} Which of the following best describes your [spouse's/partner's] current employment or
-    work status? 
-    \item \textbf{A41} What was the highest level of education completed by the person or any of the people who
-    raised you?
-    \item \textbf{A21\_2015} Are you a part-time student taking courses for credit?
-\end{enumerate}
 
-La \textbf{alfabetización financiera} vendrá caracterizada por las siguientes 16 variables explicativas:
-\begin{enumerate}
-    \item \textbf{B1} Do you (Does your household) have a checking account? 
-    \item \textbf{B2} Do you [Does your household] have a savings account, money market account, or CDs?
-    \item \textbf{B31} How often do you use your mobile phone to pay for a product or service in person at a store,
-    gas station, or restaurant (e.g., by waving/tapping your mobile phone over a sensor at checkout, scanning
-    a barcode or QR code using your mobile phone, or using so 
-    \item \textbf{B42} How often do you use your mobile phone to transfer money to another person?
-    \item \textbf{B43} How often do you use websites or apps to help with financial tasks such as budgeting, saving,
-    or credit management (e.g., GoodBudget, Mint, Credit Karma, etc.)? Please do not include websites or 
-    apps for making payments or money transfers.
-    \item \textbf{C1\_2012} Do you (or your spouse/partner) have any retirement plans through a current or previous 
-    employer, like a pension plan, (a Thrift Savings Plan (TSP),) or a 401(k)?
-    \item \textbf{C2\_2012} Were these plans provided by your employer or your (spouse's/partner's) employer, or both? 
-    \item \textbf{C5\_2012} Do you [or your spouse/partner] regularly contribute to a retirement account like a (Thrift
-    Savings Plan (TSP),) 401(k) or IRA?   
-    \item \textbf{B14} Not including retirement accounts, do you  (does your household) have any investments in stocks, bonds, mutual funds, or other securities? 
-    \item \textbf{EA\_1}  Do you (or your spouse/partner) currently own your home?
-    \item \textbf{E7} Do you currently have any mortgages on your home?
-    \item \textbf{F1} How many credit cards do you have?  
-    \item \textbf{H1}  Are you covered by health insurance?
-    \item \textbf{M1\_1} How strongly do you agree or disagree with the following statements? - I am good at dealing with day-to-day financial matters, such as checking accounts, credit and debit cards, and tracking expenses
-    \item \textbf{M4} On a scale from 1 to 7, where 1 means very low and 7 means very high, how would you assess your overall financial knowledge?
-    \item \textbf{M20} Was financial education offered by a school or college you attended, or a workplace where you were employed?
-\end{enumerate}
-
-Por ultimo, el \textbf{estrés financiero} se caracteriza con un las siguientes 23 variables explicativas:
-\begin{enumerate}
-    \item \textbf{J1} Overall, thinking of your assets, debts and savings, how satisfied are you with your current
-    personal financial condition? 
-    \item \textbf{J3} Over the past year, would you say your (household's) spending was less than, more than, or about
-    equal to your (household's) income?
-    \item \textbf{J4} In a typical month, how difficult is it for you to cover your expenses and pay all your bills?
-    \item \textbf{J5} Have you set aside emergency or rainy day funds that would cover your expenses for 3 months,
-    in case of sickness, job loss, economic downturn, or other emergencies?
-    \item \textbf{J6} Are you setting aside any money for your children's college education?
-    \item \textbf{J10} In the past 12 months, have you [has your household] experienced a large  drop in income which
-    you did not expect? 
-    \item \textbf{J20} How confident are you that you could come up with \$2,000 if an unexpected need arose within
-    the next month?
-    \item \textbf{J32} How would you rate your current credit record?
-    \item \textbf{C10\_2012} In the last 12 months, have you (or your spouse/partner) taken a loan from your retirement account(s)? 
-    \item \textbf{E15\_2015} How many times have you been late with your mortgage payments in the past 12 months?
-    \item \textbf{F2\_1}  In the past 12 months, which of the following describes your experience with credit cards? - I always paid my credit cards in full
-    \item \textbf{F2\_2} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I carried over a balance and was charged interest
-    \item \textbf{F2\_3} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I paid the minimum payment only
-    \item \textbf{P50} At any time in your adult life (18 and older), did your parents or grandparents pay for an expense of yours that was \$10,000 or more?
-    \item \textbf{F2\_4} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I was charged a late fee for late payment 
-    \item \textbf{F2\_5} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I was charged an over the limit fee for exceeding my credit line 
-    \item \textbf{F2\_6} In the past 12 months, which of the following describes your experience with credit cards? - In some months, I used the cards for a cash advance 
-    \item \textbf{G20} Do you currently have any unpaid bills from a health care or medical service provider (e.g., a hospital,
-     a doctor's office, or a testing lab) that are past due?
-    \item \textbf{G35} How many times have you been late with a student loan payment in the past 12 months?
-    \item \textbf{G38} Have you been contacted by a debt collection agency in the past 12 months?
-    \item \textbf{H30\_1} In the last 12 months, was there any time when you… - Did NOT fill a prescription for medicine because of the cost
-    \item \textbf{H30\_2} In the last 12 months, was there any time when you… - SKIPPED a medical test, treatment or follow-up recommended by a doctor because of the cost
-    \item \textbf{H30\_3} In the last 12 months, was there any time when you… - Had a medical problem but DID NOT go to a doctor or clinic because of the cost
-\end{enumerate}
 
 Adicionalmente se considera el campo NFCSID que es un indicador de cada registro
 del conjunto de datos. Esto permitirá conectar los distintos resultados. La 
@@ -220,8 +156,7 @@ nuevo, tal y como se puede comprobar en la sección \ref{features_description} e
 referencia respectivamente a la inversión en acciones (B14), quién es el promotor de los planes de
 pensiones (C2\_2012), si se realizan contribuciones recurrentes al plan de pensiones (C5\_2012) y
 la existencia de una hipoteca (E7). En este caso, se eliminarán del conjunto de datos las
-variables con elevados porcentaje del valores faltantes y se completará la variable E14 distribuyendo
-los valores faltantes proporcionalmente entre los cuatro niveles.
+variables con elevados porcentaje del valores faltantes y se imputará la variable E14.
 
 \begin{figure}[ht]
     \centering
@@ -240,7 +175,7 @@ todas ellas con un porcentaje de valores faltantes de \textbf{21.09\%}. Siguiend
 aproximación anterior, para las cuatro primeras variables, debido al elevado porcentaje de 
 valores faltantes se opta por eliminarlas del conjunto de datos. El conjunto de seis variables,
 con un quinto de valores faltantes, corresponden todas ellas, a preguntas relacionadas con 
-tarjetas de crédito, se opta por la distribución proporcional entre los niveles existentes.
+tarjetas de crédito, y de nuevo en este caso, se completarán los valores con imputación.
 
 \begin{figure}[ht]
     \centering
@@ -248,6 +183,37 @@ tarjetas de crédito, se opta por la distribución proporcional entre los nivele
     \caption{Variables Estrés Financiero: valores faltantes}
     \label{fig:stress_features_missing_values}
 \end{figure}
+
+El proceso de imputación de valores faltantes presenta ciertas limitaciones, derivadas de la razón que subyace bajo la ausencia de dichos valores. Se podría tratar de un proceso puramente aleatorio (\textbf{MCAR}), independiente del valor
+del resto de variables explicativas; simplemente, algunos valores se han perdido. 
+Alternativamente, la razón que explicaría la ausencia del dato podría depender de las otras variables explicativas, pero no del valor ausente (\textbf{MAR}); en nuestra caso podría explicar algunos de los valores faltantes. Finalmente los valores faltantes podrían ser una respuesta condicionada por el valor en cuestión 
+(\textbf{MNAR}), y por lo tanto sería un resultado intencionado y no aleatorio. 
+La imputación funcionará mejor en los casos en los que existe algún grado de aleatoriedad \cite{lantz23}, y aunque no es posible discernir a priori la razón
+última que explicaría cada uno de los valores faltantes, esta consideración es
+necesaria para mantener un escepticismo sano, que eventualmente pueda identificar
+situaciones en las que la imputación requiere un análisis mas profundo.
+
+\colorbox{gray!30}{
+\begin{minipage}{\textwidth}
+\textbf{Librería missForest}\\
+  La librería missForest\footnote{https://academic.oup.com/bioinformatics/article/28/1/112/219101}
+  corresponde con el estado del arte en R para la imputación de valores
+  ausentes. Resulta especialmente recomendada para situaciones en las que se cuenta con variables
+  explicativas de tipo categórico, ordinal o numérico, y es capaz por tanto de relaciones complejas,
+  proporcionando además un conjunto de datos sobre el proceso.\\
+
+  El proceso seguido sería el siguiente:
+  \begin{description}
+      \item[Imputación inicial] El procese se inicial realizando un imputación, que en el caso  
+      de variables categóricas corresponde con el valor mas frecuente.
+      \item[Revisión] Se revisan los valores asignados a cada registro y se analizando el valor
+      que presentan el resto de variables del registro, se mejora la imputación inicial, utilizando
+      un \textit{random forest}.
+      \item[Iteración] El proceso se repite hasta alcanzar el número máximo de iteraciones o se 
+      cumple un criterio definido de finalización.
+  \end{description}
+\end{minipage}
+}
 
 
 %%\section{Análisis y evaluación de los resultados obtenidos}
@@ -284,6 +250,7 @@ A41 & What was the highest level of education completed by the person or any of 
 \bottomrule
 \end{tabular}
 \caption{Demografía: Variables Explicativas}
+\label{table:demographics_features}
 \end{table}
 
 \begin{table}
@@ -313,6 +280,7 @@ A41 & What was the highest level of education completed by the person or any of 
 \bottomrule
 \end{tabular}
 \caption{Alfabetización Financiera: Variables Explicativas}
+\label{table:capabilities_features}
 \end{table}
 
 \begin{table}
@@ -349,6 +317,7 @@ A41 & What was the highest level of education completed by the person or any of 
 \bottomrule
 \end{tabular}
 \caption{Estrés Financiero: Variables Explicativas}
+\label{table:stress_features}
 \end{table}
 \newpage
 \printbibliography 
