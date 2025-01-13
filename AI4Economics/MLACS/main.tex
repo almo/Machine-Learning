@@ -20,6 +20,7 @@
 \usepackage{subcaption} % For subfigures
 \usepackage{ragged2e}
 \usepackage{array}
+\usepackage{listings}
 
 \title{Alfabetización \& Estrés Financiero}
 \author{Andrés-Leonardo Martínez-Ortiz \\ amartinez122@alumno.uned.es}
@@ -69,7 +70,7 @@ geográfico y el análisis de datos de panel, permitiría entender el impacto de
 adoptadas, no ya en los aspectos abordados en este primer estudio, sino también en otros 
 aspectos como el desarrollo económico, la iniciativa empresarial y la inversión privada. 
 
-\section{Descripción y justificación de la técnica o técnicas utilizadas}
+\section{Descripción y justificación de la solución técnica}
 \label{sec:technical_proposal}
 Los objetivos establecidos en el apartado \ref{sec:motivation} se alcanzarán aplicando técnicas 
 de aprendizaje estadístico, como aproximación alternativa a los modelos econométricos 
@@ -113,13 +114,6 @@ valores numéricos y etiquetas, se encuentran descrito en el fichero \textit{NFC
 Data File Info 220627} que se distribuye con los datos\footnote{Recursos disponibles online 
 https://finrafoundation.org/data-and-downloads}. 
 
-En esta investigación no se harán uso de todas las variables explicativas disponibles, 
-reduciendo el análisis a un total de 51 variables. Serán excluidas aquellas sin relación, que 
-presentan cierto nivel de redundancia o que no aportan valor según lo objetivos establecidos. 
-Además se han organizado en tres grupos, recogiendo información demográfica, de estrés 
-financiero y capacitación financiera. 
-A continuación se presentan el conjunto de datos con la  estructura propuesta:
-
 En esta investigación no se harán uso de todas las variables explicativas disponibles, reduciendo el análisis a un total de 51 variables. Serán excluidas aquellas sin relación, que presentan cierto nivel de redundancia o que no aportan valor según lo
 objetivos establecidos. Además se han organizado en tres grupos, recogiendo información demográfica, de estrés financiero y
 capacitación financiera. 
@@ -142,9 +136,7 @@ A continuación se presentan el conjunto de datos con la estructura propuesta:
 \end{description}
 
 Adicionalmente se considera el campo NFCSID que es un indicador de cada registro
-del conjunto de datos. Esto permitirá conectar los distintos resultados. La 
-implementación de esta parte se encuentra en los ficheros \textit{demographics.r}, \textit{capabilities.r} y \textit{stress.r} que forman
-parte del repositorio en Github del proyecto\cite{ALMO25}.
+del conjunto de datos. Esto permitirá conectar los distintos resultados. 
 
 \subsection{Análisis exploratorio de los Datos}
 \label{sec:exploratory_analysis}
@@ -181,7 +173,7 @@ nuevo, tal y como se puede comprobar en la sección \ref{sec:features_descriptio
 referencia respectivamente a la inversión en acciones (B14), quién es el promotor de los planes de
 pensiones (C2\_2012), si se realizan contribuciones recurrentes al plan de pensiones (C5\_2012) y
 la existencia de una hipoteca (E7). En este caso, se eliminarán del conjunto de datos las
-variables con elevados porcentaje del valores faltantes y se imputará la variable E14.
+variables con elevados porcentaje del valores faltantes y se imputará la variable B14.
 
 \begin{figure}[ht]
     \centering
@@ -322,14 +314,14 @@ reduce a una instrucción.
 
 En la investigación que nos ocupa, y más tras el tratamiento de los valores faltantes, los
 conjuntos de datos no son especialmente grandes, por lo que el impacto de la codificación
-\textit{one-hot} no será importante; en particular el conjunto de datos demográficos  para
-de XX a YY dimensiones, el conjunto de datos de alfabetización financiera pasa de XX a YY
-dimensiones y el conjunto de datos de estrés financiero para de XX a YY dimensiones.
+\textit{one-hot} no será importante; en particular el conjunto de datos demográficos pasa
+de 13 a 131 dimensiones, el conjunto de datos de alfabetización financiera pasa de 14 a 74
+dimensiones y el conjunto de datos de estrés financiero para de 20 a 92 dimensiones.
 
 \subsection{Taxonomías}
 \label{sec:sub:clustering}
 Una vez preparados los conjuntos de datos se realizará una taxonomía siguiendo un proceso
-jerárquico, que comenzará con la introducción de una taxonomía del estrés financiero, para
+incremental, que comenzará con la introducción de una taxonomía del estrés financiero, para
 continuar con una taxonomía de la alfabetización financieras y finalmente
 se cruzarán esos datos con los demográficos para clasificar la población en conjunto.
 
@@ -339,11 +331,169 @@ permitan partiendo de los datos demográficos o de alfabetización financiera de
 nivel de estrés financiero, ya sea para recomendar medidas de alfabetización financiera 
 paliativas o de prevención.
 
+La definición de la taxonomía del conjunto de datos se realiza estableciendo un objetivo 
+de 3 categorías. Este objetivo es sin duda arbitrario, pero lamentablemente la dimensionalidad
+del conjunto de datos hace la aplicación de las técnicas de identificación del número de grupos
+intratable con los recursos computacionales disponibles (ver las conclusiones al respecto en 
+el apartado \ref{sec:sub:conclusions_ml}. En cualquier caso, se busca la definición de tres
+categoría que hagan factible la interpretación de los resultados. Esta tres categorías serán:
+(1) No estrés financiero, (2) Riesgo de estrés financiero y (3) Estrés financiero.
 
+El análisis se realiza con la función \textit{kmodes}, especialmente adecuada para el análisis
+de taxonomías cuando las variables explicativas son categóricas. 
 
-%%\section{Análisis y evaluación de los resultados obtenidos}
-%%\section{Conclusiones}
-%%\section{Anexo: código}
+\subsection{Evaluación y Predicción}
+\label{sec:sub:predictors}
+
+\section{Análisis y evaluación de los resultados obtenidos}
+\label{sec:analysis}
+Una vez desarrollada la investigación, en este apartado se aborda el análisis y evaluación de
+los resultados, omitiendo los detalles técnicos, destacados en el apartado \ref{sec:research}
+para centrar la discusión en ámbito económico.
+
+\subsection{Estrés Financiero: caracterización}
+El análisis realizado categoriza los individuos del conjunto de datos en tres grupos:
+(1) No estrés financiero, (2) Riesgo de estrés financiero y (3) Estrés financiero. Esta
+taxonomía se establece en función de los valores de las variables explicativas manejadas
+(ver \ref{sec:features_description}) de acuerdo a los valores recogidos en la tabla 
+\ref{tab:stress_taxonomy}
+
+\begin{table}
+\centering
+\begin{tabular}{ |p{1cm}||p{3.2cm}|p{3.2cm}|p{3.2cm}|  }
+\hline
+  & \textbf{Grupo 1}  &  \textbf{Grupo 2} & \textbf{Grupo 3}\\
+ \hline
+  \hline
+ \textbf{J1} & \textit{Satisfied} (8) & \textit{Satisfied} (1) & \textit{Satisfied} (1) \\
+ \hline
+ \textbf{J3} & \textit{Spending less than income} & \textit{Spending about equal to income} & \textit{Spending more than income} \\
+ \hline
+ \textbf{J4} & \textit{Not at all difficult} & \textit{Somewhat difficult} & \textit{Somewhat difficult} \\
+ \hline
+ \textbf{J5} & \textit{Yes} & \textit{No} & \textit{No}\\
+ \hline
+ \textbf{J10} & \textit{No} & \textit{No} & \textit{Yes} \\
+ \hline
+ \textbf{J20} & \textit{I am certain I could come up with the full \$2,000}& \textit{I could probably come up with \$2,000}
+ & \textit{I am certain I could not come up with \$2,000}\\
+ \hline
+ \textbf{J32} & \textit{Very good} & \textit{Good}& \textit{About average} \\
+ \hline
+ \textbf{F2\_1} & \textit{Yes} & \textit{Yes} & \textit{No} \\
+ \hline
+ \textbf{F2\_2} & \textit{No} & \textit{No} & \textit{Yes}\\
+ \hline
+ \textbf{F2\_3} & \textit{No} & \textit{No} & \textit{Yes}\\
+ \hline
+ \textbf{F2\_4} & \textit{No} & \textit{No} & \textit{Yes}\\
+ \hline
+ \textbf{F2\_5} & \textit{No} & \textit{No} & \textit{Yes}\\
+ \hline
+ \textbf{F2\_6} & \textit{No} & \textit{No} & \textit{Yes}\\
+ \hline
+ \textbf{P50} & \textit{No} & \textit{No} & \textit{No}\\
+ \hline
+ \textbf{G20} & \textit{No} & \textit{No} & \textit{Yes}\\
+ \hline
+ \textbf{G38} & \textit{No} & \textit{No} & \textit{Yes}\\
+ \hline
+ \textbf{H30\_1} & \textit{No} & \textit{No} & \textit{No}\\
+  \hline
+ \textbf{H30\_2} & \textit{No} & \textit{No} & \textit{No}\\
+  \hline
+ \textbf{H30\_3} & \textit{No} & \textit{No} & \textit{No}\\
+ \hline
+\end{tabular}
+    \caption{Taxonomía de estrés financiero}
+    \label{tab:stress_taxonomy}
+\end{table}
+
+Antes de comenzar con la descripción de los grupos obtenidos, proceden algunas reflexiones 
+previas. En primer lugar hay un conjunto de variables explicativas (\textbf{P50}, 
+\textbf{H30\_1}, \textbf{H30\_2} y \textbf{H30\_3}) que no aportan información que permita
+discriminar ninguno de los grupos, por lo que deberían eliminarse del estudio. Más allá de 
+esto merece la pena valorarlas de acuerdo con sus definiciones en el apartado
+\ref{sec:features_description}:
+\begin{description}
+    \item[Gratitud de padres y abuelos no llega a \$10.000] (Variable P50) ninguno de 
+    los grupos identificados ha recibido apoyo económico para pagar facturas, al menos de esa 
+    cantidad o superior.
+    \item[Con la salud no se juega] (Variables H30\_1, H30\_2 y H30\_3) ninguno de los grupos 
+    identificados ha sacrificado prescripciones médicas, pruebas diagnosticas o tratamientos 
+    médicos por razones económicas.
+\end{description}
+
+Ahora pasemos a describir los distintos grupos, analizando las variables explicativas que 
+representan al individuo tipo de la clase\footnote{Recuérdese que la taxonomía ser creó haciendo
+uso de la función \textit{kmodes} que reemplaza valores medios por modas, de tal mode que el centroide
+de clase puede interpretarse como el perfil de individuo más frecuente.} El Grupo 1, al que
+denominamos de \textbf{Estrés Reducido}, cuenta con un nivel de elevado (8) de satisfacción
+con sus finanzas personales (\textbf{J1}), derivado de varias razones. En primer lugar, sus gastos
+son menores que sus ingresos (\textbf{J3}), por lo que no le cuesta cubrir sus necesidades 
+(\textbf{J4}), hasta el punto de que cuenta con un fondo de emergencia que le permite cubrir
+sus gastos por tres meses (\textbf{F5}), podría hacer frente a un gasto imprevisto de \$2.000
+(\textbf{J20}), aunque en realidad no se ha visto obligado, ya que su nivel de ingresos en los
+últimos 12 meses no ha sufrido variaciones importantes (\textbf{J10}). Se trata de un individuo
+que paga la liquidación de la tarjeta de crédito al completo (\textbf{F2\_1}), si necesitar 
+financiar (\textbf{F2\_2}) o hacer uso del \textit{pay back} (\textbf{F2\_6)}. No tiene facturas
+médicas pendientes (\textbf{G20}) ni retraso en sus creditos de estudios(\textbf{G35}).
+Resultado de todo ello, cuenta con \textit{credit score} muy bueno (\textbf{J32}). 
+
+El Grupo 2, al que denominamos en \textbf{Riesgo de Estrés}, cuenta por el contrario con
+un nivel mínimo (1) de satisfacción con sus finanzas personales (\textbf{J1}), hecho que 
+que se desprende de las circunstancias que describen el resto de las variables explicativas.
+En primer lugar, sus gastos están aproximadamente al nivel de sus ingresos (\textbf{J3}),
+por lo encuentra alguna dificultad para cubrir sus gastos mensuales y pagar sus facturas
+(\textbf{J4}); de hecho no cuentan con ningún fondo de emergencia que les permita 
+sus gastos por tres meses (\textbf{F5}), aunque podría llegar hacer frente a un gasto 
+imprevisto de \$2.000 (\textbf{J20}) y su nivel de ingresos en los últimos 12 meses no 
+ha sufrido variaciones importantes (\textbf{J10}). Por lo demás, comparte características
+con el grupo 1 y se trata de un individuo que paga la liquidación de la tarjeta de crédito
+al completo (\textbf{F2\_1}), si necesitar financiar (\textbf{F2\_2}) o hacer uso del
+\textit{pay back} (\textbf{F2\_6)}. No tiene facturas médicas pendientes (\textbf{G20}) 
+ni retraso en sus créditos de estudios(\textbf{G35}). Resultado de todo ello, cuenta con
+\textit{credit score} bueno (\textbf{J32}). 
+
+Por último, el Grupo 3, del que podemos afirmar que sufre \textbf{Estrés Financiero}, 
+cuenta con un nivel mínimo (1) de satisfacción con sus finanzas personales (\textbf{J1}),
+reflejo de la situación que reflejan el resto de variables explicativas. Sus gastos se 
+por encima de su nivel de ingresos (\textbf{J3}), por lo encuentra alguna dificultad para
+cubrir sus gastos mensuales y pagar sus facturas (\textbf{J4}); de hecho no cuentan con ningún
+fondo de emergencia que les permita sus gastos por tres meses (\textbf{F5}), y no podría 
+hacer frente a un gasto imprevisto de \$2.000 (\textbf{J20}), ya que su nivel de ingresos 
+de los últimos 12 meses ha sufrido alguna variación importante (\textbf{J10}). 
+Además, durante el último año no pudo pagar la factura completa de su tarjeta de crédito,
+(\textbf{F2\_1}) y se vio obligado a financiarla (\textbf{F2\_2}), reduciéndola al mínimo
+(\textbf{F2\_3}), pagando penalizaciones por por retrasos (\textbf{F2\_4}), o por exceso de
+crédito (\textbf{F2\_5}), y haciendo uso de \textit{pay back} (\textbf{F2\_6)}.
+Con todo, no tiene facturas médicas pendientes (\textbf{G20}) ni retraso en sus créditos de
+estudios(\textbf{G35}). Resultado de lo anterior, cuenta con \textit{credit score} 
+por encima de la media (\textbf{J32}). 
+
+\section{Conclusiones}
+\label{sec:conclusions}
+La investigación llevada a cabo proporciona interesantes resultados, que confirman por 
+otra parte ciertas intuiciones. De los resultados obtenidos se desprenden conclusiones en
+dos ámbitos, el de la aplicación de técnicas de \textit{machine learning} en el ámbito de la econometría y en el ámbito propio del campo de la investigación, la alfabetización
+financiera. En este apartado se presentarán ambos conjuntos de conclusiones.
+\subsection{Conclusiones: Aprendizaje automático en Econometría}
+\label{sec:sub:conclusions_ml}
+El problema abordado presenta un conjunto de retos desde el punto de vista de la aplicación
+de técnicas de aprendizaje automático en el campo de la econometría. 
+
+En primer lugar, si bien el conjunto de datos del estudio es de tamaño suficiente, el 
+análisis de variables explicativas categóricas esta limitado por cuestiones meramente 
+computacionales. El proceso de identificación del número de elementos de la taxonomía 
+de estrés financiero, bien mediante la técnica del \textit{elbow curve} o el análisis
+gráfico mediante \textit{Hierarchical Cluster Analysis}, resultó del todo imposible
+con los recursos computacionales disponibles. Aunque el conjunto de variables explicativas
+se limitó desde el principio y fue reducido ligeramente durante el análisis exploratorio
+de los datos, la dimensionalidad era aún elevada. 
+
+\subsection{Conclusiones: alfabetización y estrés financiero}
+\label{sec:sub:conclusions_financial_stress}
+
 \section{Variables Explicativas: listado y descripción}
 \label{sec:features_description}
 El presente apéndice recoge las descripciones de las variables explicativas, todas ellas categóricas, 
@@ -374,6 +524,8 @@ A21\_2015 & Are you a part-time student taking courses for credit? [2015 base]\\
 A41 & What was the highest level of education completed by the person or any of the people who raised you?\\
 \bottomrule
 \end{tabular}
+\printbibliography 
+\newpage
 \caption{Demografía: Variables Explicativas}
 \label{table:demographics_features}
 \end{table}
@@ -444,6 +596,4 @@ A41 & What was the highest level of education completed by the person or any of 
 \caption{Estrés Financiero: Variables Explicativas}
 \label{table:stress_features}
 \end{table}
-\newpage
-\printbibliography 
 \end{document}

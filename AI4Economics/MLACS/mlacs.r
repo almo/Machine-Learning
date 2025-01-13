@@ -19,6 +19,7 @@
 # Machine Learning Aplicado a Ciencias Sociales Curso 2024/25
 # Practicum
 
+# Setting context
 set.seed(845904523)
 Sys.setenv(R_DATATABLE_NUM_THREADS = 8)
 
@@ -43,6 +44,13 @@ if (!require(factoextra))
   install.packages("factoextra")
 library(factoextra)
 
+if (!require(klaR))
+  install.packages("klaR")
+library(klaR)
+
+if (!require(cluster))
+  install.packages("cluster")
+library(cluster)
 
 # Loading dataset
 NFCS2021 <- read.csv('Datasets/nfcs-2021.csv', stringsAsFactors = TRUE)
@@ -200,7 +208,7 @@ ImputedValuesAnalysis <- rbind(
   data.frame(NFCS2021Capabilities, source =  'Original')
 )
 
-ggplot(ImputedValuesAnalysis, aes(x = B14,  fill = source)) +
+ggplot(ImputedValuesAnalysis, aes(x = B14, fill = source)) +
   geom_bar(position = "dodge") +
   labs(title = "Comparación Distribución B14 Imputado vs Original", x = "Niveles B14", y = "Número") +
   theme_bw()
@@ -270,7 +278,7 @@ print(table(NFCS2021Stress$F2_6, useNA = "ifany"))
 
 NFCS2021Stress <- NFCS2021Stress[, CompletedStressFeatures]
 str(NFCS2021Stress)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+
 # Imputing missing values with missForest
 ImputedValues <- missForest(NFCS2021Stress)
 
@@ -307,9 +315,6 @@ for (var in c("F2_1", "F2_2", "F2_3", "F2_4", "F2_5", "F2_6")) {
 #
 # one-hot coding
 #
-if (!require(data.table))
-  install.packages("data.table")
-library(data.table)
 
 # Demographics
 NFCS2021Demographics1H <- one_hot(as.data.table(NFCS2021Demographics))
@@ -317,5 +322,93 @@ NFCS2021Demographics1H <- one_hot(as.data.table(NFCS2021Demographics))
 # Financial Capabilities
 NFCS2021Capabilities1H <- one_hot(as.data.table(NFCS2021Capabilities))
 
-# Financial Stress 
+# Financial Stress
 NFCS2021Stress1H <- one_hot(as.data.table(NFCS2021Stress))
+
+#
+# Saving Datasets
+#
+
+# Demographics
+saveRDS(NFCS2021Demographics,
+        "./Datasets/NFCS2021Demographics.RData")
+saveRDS(NFCS2021Demographics1H,
+        "./Datasets/NFCS2021Demographics1H.RData")
+
+# Financial Capabilities
+saveRDS(NFCS2021Capabilities,
+        "./Datasets/NFCS2021Capabilities.RData")
+saveRDS(NFCS2021Capabilities1H,
+        "./Datasets/NFCS2021Capabilities1H.RData")
+
+# Financial Stress
+saveRDS(NFCS2021Stress, "./Datasets/NFCS2021Stress.RData")
+saveRDS(NFCS2021Stress1H, "./Datasets/NFCS2021Stress1H.RData")
+
+
+#
+# Clustering Analysis
+#
+
+# Financial Stress
+# kmodes Clustering
+StressTaxonomy <- kmodes(NFCS2021Stress[, -1], 3)
+
+# Size of the clusters
+StressTaxonomy$size
+
+# Centroids
+StressTaxonomy$modes
+
+#
+# Extending the Financial Stress dataset including the Stress Group
+#
+
+StressGroup <- StressTaxonomy$cluster
+
+StressGroup <- factor(
+  StressGroup,
+  levels = c(1, 2, 3),
+  labels = c("No Stress", "Stress Risk", "Stress")
+)
+
+# New data frame for supervised learning
+NFCS2021MLACS <- merge(NFCS2021Demographics,NFCS2021Capabilities,  by='NFCSID', all.x = TRUE)
+NFCS2021MLACS <- merge(NFCS2021MLACS,NFCS2021Stress,  by='NFCSID', all.x = TRUE)
+NFCS2021MLACS$StressGroup <- StressGroup
+
+# Augmented data frame for analysis
+NFCS2021Demographics$StressGroup <- StressGroup
+NFCS2021Capabilities$StressGroup <- StressGroup
+NFCS2021Stress$StressGroup <- StressGroup
+
+stress_counts <- table(NFCS2021Stress$StressGroup)
+stress_counts <- data.frame(StressGroup = names(stress_counts), n = as.numeric(stress_counts))
+
+ggplot(NFCS2021Stress, aes(x = StressGroup)) +
+  geom_bar(fill = "steelblue") +  # Use a light blue color for the bars
+  geom_text(data = stress_counts, aes(label = n, y = n), vjust = -0.5) +
+  labs(title = "Distribución del Nivel de Estrés", x = "Nivel de Estrés", y = "Número de Individuos") +
+  theme_minimal()
+
+#
+# Demographic Analysis
+#
+StressGroupsState <- table(NFCS2021Demographics$StressGroup,NFCS2021Demographics$STATEQ)
+
+barplot(StressGroupsState, beside = TRUE,
+        xlab = "Nivel de Estrés", ylab = "Numero de Individups",
+        main = "Nivel de Estrés por Estado")
+
+StressGroupsIncome <- table(NFCS2021Demographics$StressGroup,NFCS2021Demographics$A8_2021)
+
+barplot(StressGroupsIncome, beside = TRUE,
+        xlab = "Nivel de Estrés", ylab = "Numero de Individups",
+        main = "Nivel de Estrés por Ingresos")
+
+IncomeStressGroups <- table(NFCS2021Demographics$A8_2021,NFCS2021Demographics$StressGroup)
+
+barplot(IncomeStressGroups, beside = TRUE,
+        xlab = "Nivel de Estrés", ylab = "Numero de Individups",
+        main = "Nivel de Ingresos por Nivel de Estrés")
+
