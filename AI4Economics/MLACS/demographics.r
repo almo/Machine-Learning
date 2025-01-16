@@ -43,8 +43,8 @@ DemographicsFeatures <- c(
 )
 str(DemographicsFeatures)
 
-NFCS2021Demographics <- NFCS2021[, DemographicsFeatures]
-str(NFCS2021Demographics)
+NFCS.2021.Demographics <- NFCS.2021[, DemographicsFeatures]
+str(NFCS.2021.Demographics)
 
 #
 # Refactoring the datasets
@@ -54,8 +54,8 @@ str(NFCS2021Demographics)
 #
 # Convert STATEQ to a factor
 # State
-NFCS2021Demographics$STATEQ <- factor(
-  NFCS2021Demographics$STATEQ,
+NFCS.2021.Demographics$STATEQ <- factor(
+  NFCS.2021.Demographics$STATEQ,
   levels = c(
     1,
     2,
@@ -166,8 +166,8 @@ NFCS2021Demographics$STATEQ <- factor(
 
 # Convert A50A to a factor
 # [GENDER (non-binary randomly assigned)]
-NFCS2021Demographics$A50A <- factor(
-  NFCS2021Demographics$A50A,
+NFCS.2021.Demographics$A50A <- factor(
+  NFCS.2021.Demographics$A50A,
   levels = c(1, 2),
   labels = c("Male", "Female")
 )
@@ -175,16 +175,16 @@ NFCS2021Demographics$A50A <- factor(
 
 # Convert A3Ar_w to a factor
 # Age group
-NFCS2021Demographics$A3Ar_w <- factor(
-  NFCS2021Demographics$A3Ar_w,
+NFCS.2021.Demographics$A3Ar_w <- factor(
+  NFCS.2021.Demographics$A3Ar_w,
   levels = c(1, 2, 3, 4, 5, 6),
   labels = c("18-24", "25-34", "35-44", "45-54", "55-64", "65+")
 )
 
 # Convert A50B to a factor
 # GENDER/AGE NET (non-binary randomly assigned)
-NFCS2021Demographics$A50B <- factor(
-  NFCS2021Demographics$A50B,
+NFCS.2021.Demographics$A50B <- factor(
+  NFCS.2021.Demographics$A50B,
   levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
   labels = c(
     "Male 18-24",
@@ -204,8 +204,8 @@ NFCS2021Demographics$A50B <- factor(
 
 # Convert A5_2015 to a factor
 # What was the highest level of education that you completed? [2015 codes]
-NFCS2021Demographics$A5_2015 <- factor(
-  NFCS2021Demographics$A5_2015,
+NFCS.2021.Demographics$A5_2015 <- factor(
+  NFCS.2021.Demographics$A5_2015,
   levels = c(1, 2, 3, 4, 5, 6, 7, 99),
   labels = c(
     "Did not complete high school",
@@ -221,8 +221,8 @@ NFCS2021Demographics$A5_2015 <- factor(
 
 # Convert A6 to a factor
 # What is your marital status?
-NFCS2021Demographics$A6 <- factor(
-  NFCS2021Demographics$A6,
+NFCS.2021.Demographics$A6 <- factor(
+  NFCS.2021.Demographics$A6,
   levels = c(1, 2, 3, 4, 5, 99),
   labels = c(
     "Married",
@@ -236,8 +236,8 @@ NFCS2021Demographics$A6 <- factor(
 
 # Convert A7 to a factor
 # Which of the following describes your current living arrangements?
-NFCS2021Demographics$A7 <- factor(
-  NFCS2021Demographics$A7,
+NFCS.2021.Demographics$A7 <- factor(
+  NFCS.2021.Demographics$A7,
   levels = c(1, 2, 3, 4, 99),
   labels = c(
     "I am the only adult in the household",
@@ -252,8 +252,8 @@ NFCS2021Demographics$A7 <- factor(
 # Convert A11 to a factor
 # How many children do you have who are financially dependent on you [or your
 # spouse/partner]?
-NFCS2021Demographics$A11 <- factor(
-  NFCS2021Demographics$A11,
+NFCS.2021.Demographics$A11 <- factor(
+  NFCS.2021.Demographics$A11,
   levels = c(1, 2, 3, 4, 5, 6, 99),
   labels = c(
     "1",
@@ -269,8 +269,8 @@ NFCS2021Demographics$A11 <- factor(
 # Convert A8_2021 to a factor
 # What is your [household's] approximate annual income, including wages, tips,
 # investment income, public assistance, income from retirement plans, etc.? [2021 codes]
-NFCS2021Demographics$A8_2021 <- factor(
-  NFCS2021Demographics$A8_2021,
+NFCS.2021.Demographics$A8_2021 <- factor(
+  NFCS.2021.Demographics$A8_2021,
   levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 98, 99),
   labels = c(
     "Less than $15,000",
@@ -290,8 +290,8 @@ NFCS2021Demographics$A8_2021 <- factor(
 
 # Convert A9 to a factor
 # Which of the following best describes your current employment or work status?
-NFCS2021Demographics$A9 <- factor(
-  NFCS2021Demographics$A9,
+NFCS.2021.Demographics$A9 <- factor(
+  NFCS.2021.Demographics$A9,
   levels = c(1, 2, 3, 4, 5, 6, 7, 8, 99),
   labels = c(
     "Self-employed",
@@ -309,8 +309,8 @@ NFCS2021Demographics$A9 <- factor(
 # Convert A40 to a factor
 # [In addition to your main employment, did you also do other/Did you do any]
 # work for pay in the past 12 months?
-NFCS2021Demographics$A40 <- factor(
-  NFCS2021Demographics$A40,
+NFCS.2021.Demographics$A40 <- factor(
+  NFCS.2021.Demographics$A40,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
@@ -318,8 +318,8 @@ NFCS2021Demographics$A40 <- factor(
 # Convert A10 to a factor
 # Which of the following best describes your [spouse's/partner's] current
 # employment or work status?
-NFCS2021Demographics$A10 <- factor(
-  NFCS2021Demographics$A10,
+NFCS.2021.Demographics$A10 <- factor(
+  NFCS.2021.Demographics$A10,
   levels = c(1, 2, 3, 4, 5, 6, 7, 8, 99),
   labels = c(
     "Self-employed",
@@ -336,8 +336,8 @@ NFCS2021Demographics$A10 <- factor(
 
 # Convert A21_2015 to a factor
 # Are you a part-time student taking courses for credit? [2015 base]
-NFCS2021Demographics$A21_2015 <- factor(
-  NFCS2021Demographics$A21_2015,
+NFCS.2021.Demographics$A21_2015 <- factor(
+  NFCS.2021.Demographics$A21_2015,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
@@ -346,8 +346,8 @@ NFCS2021Demographics$A21_2015 <- factor(
 # Convert A41 to a factor
 # What was the highest level of education completed by the person or any of the
 # people who raised you?
-NFCS2021Demographics$A41 <- factor(
-  NFCS2021Demographics$A41,
+NFCS.2021.Demographics$A41 <- factor(
+  NFCS.2021.Demographics$A41,
   levels = c(1, 2, 3, 4, 5, 6, 98, 99),
   labels = c(
     "Did not complete high school",

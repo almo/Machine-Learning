@@ -49,8 +49,8 @@ StressFeatures <- c(
   'H30_3'
 )
 str(StressFeatures)
-NFCS2021Stress <- NFCS2021[, StressFeatures]
-str(NFCS2021Stress)
+NFCS.2021.Stress <- NFCS.2021[, StressFeatures]
+str(NFCS.2021.Stress)
 
 #
 # Financial Stress Features
@@ -58,8 +58,8 @@ str(NFCS2021Stress)
 # Convert J1 to a factor
 # Overall, thinking of your assets, debts and savings, how satisfied are you with
 # your current personal financial condition?
-NFCS2021Stress$J1 <- factor(
-  NFCS2021Stress$J1,
+NFCS.2021.Stress$J1 <- factor(
+  NFCS.2021.Stress$J1,
   levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 98, 99),
   labels = c(
     "1 - Not At All Satisfied",
@@ -78,10 +78,10 @@ NFCS2021Stress$J1 <- factor(
 )
 
 # Convert J3 to a factor
-# Over the past year, would you say your [household's] spending was less than, 
+# Over the past year, would you say your [household's] spending was less than,
 # more than, or about equal to your [household's] income?
-NFCS2021Stress$J3 <- factor(
-  NFCS2021Stress$J3,
+NFCS.2021.Stress$J3 <- factor(
+  NFCS.2021.Stress$J3,
   levels = c(1, 2, 3, 98, 99),
   labels = c(
     "Spending less than income",
@@ -95,8 +95,8 @@ NFCS2021Stress$J3 <- factor(
 # Convert J4 to a factor
 # In a typical month, how difficult is it for you to cover your expenses and
 # pay all your bills?
-NFCS2021Stress$J4 <- factor(
-  NFCS2021Stress$J4,
+NFCS.2021.Stress$J4 <- factor(
+  NFCS.2021.Stress$J4,
   levels = c(1, 2, 3, 98, 99),
   labels = c(
     "Very difficult",
@@ -110,25 +110,25 @@ NFCS2021Stress$J4 <- factor(
 # Convert J5 to a factor
 # Have you set aside emergency or rainy day funds that would cover your expenses
 # for 3 months, in case of sickness, job loss, economic downturn, or other emergencies?
-NFCS2021Stress$J5 <- factor(
-  NFCS2021Stress$J5,
+NFCS.2021.Stress$J5 <- factor(
+  NFCS.2021.Stress$J5,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert J6 to a factor
 # Are you setting aside any money for your children's college education?
-NFCS2021Stress$J6 <- factor(
-  NFCS2021Stress$J6,
+NFCS.2021.Stress$J6 <- factor(
+  NFCS.2021.Stress$J6,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert J10 to a factor
-# In the past 12 months, have you [has your household] experienced a large drop 
+# In the past 12 months, have you [has your household] experienced a large drop
 # in income which you did not expect?
-NFCS2021Stress$J10 <- factor(
-  NFCS2021Stress$J10,
+NFCS.2021.Stress$J10 <- factor(
+  NFCS.2021.Stress$J10,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
@@ -136,8 +136,8 @@ NFCS2021Stress$J10 <- factor(
 # Convert J20 to a factor
 # How confident are you that you could come up with $2,000 if an unexpected need
 # arose within the next month?
-NFCS2021Stress$J20 <- factor(
-  NFCS2021Stress$J20,
+NFCS.2021.Stress$J20 <- factor(
+  NFCS.2021.Stress$J20,
   levels = c(1, 2, 3, 4, 98, 99),
   labels = c(
     "I am certain I could come up with the full $2,000",
@@ -151,8 +151,8 @@ NFCS2021Stress$J20 <- factor(
 
 # Convert J32 to a factor
 # How would you rate your current credit record?
-NFCS2021Stress$J32 <- factor(
-  NFCS2021Stress$J32,
+NFCS.2021.Stress$J32 <- factor(
+  NFCS.2021.Stress$J32,
   levels = c(1, 2, 3, 4, 5, 98, 99),
   labels = c(
     "Very bad",
@@ -168,72 +168,72 @@ NFCS2021Stress$J32 <- factor(
 # Convert C10_2012 to a factor
 # In the last 12 months, have you [or your spouse/partner] taken a loan from your
 # retirement account(s)? [2012 base]
-NFCS2021Stress$C10_2012 <- factor(
-  NFCS2021Stress$C10_2012,
+NFCS.2021.Stress$C10_2012 <- factor(
+  NFCS.2021.Stress$C10_2012,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert E15_2015 to a factor
-# How many times have you been late with your mortgage payments in the past 12 
+# How many times have you been late with your mortgage payments in the past 12
 # months? [2015 time frame]
-NFCS2021Stress$E15_2015 <- factor(
-  NFCS2021Stress$E15_2015,
+NFCS.2021.Stress$E15_2015 <- factor(
+  NFCS.2021.Stress$E15_2015,
   levels = c(1, 2, 3, 98, 99),
   labels = c("Never", "Once", "More than once", "Don't know", "Prefer not to say")
 )
 
 # Convert F2_1 to a factor
-# In the past 12 months, which of the following describes your experience with 
+# In the past 12 months, which of the following describes your experience with
 # credit cards? - I always paid my credit cards in full
-NFCS2021Stress$F2_1 <- factor(
-  NFCS2021Stress$F2_1,
+NFCS.2021.Stress$F2_1 <- factor(
+  NFCS.2021.Stress$F2_1,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert F2_2 to a factor
-# In the past 12 months, which of the following describes your experience with 
+# In the past 12 months, which of the following describes your experience with
 # credit cards? - In some months, I carried over a balance and was charged interest
-NFCS2021Stress$F2_2 <- factor(
-  NFCS2021Stress$F2_2,
+NFCS.2021.Stress$F2_2 <- factor(
+  NFCS.2021.Stress$F2_2,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert F2_3 to a factor
-# In the past 12 months, which of the following describes your experience with 
+# In the past 12 months, which of the following describes your experience with
 # credit cards? - In some months, I paid the minimum payment only
-NFCS2021Stress$F2_3 <- factor(
-  NFCS2021Stress$F2_3,
+NFCS.2021.Stress$F2_3 <- factor(
+  NFCS.2021.Stress$F2_3,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert F2_4 to a factor
-# In the past 12 months, which of the following describes your experience with 
+# In the past 12 months, which of the following describes your experience with
 # credit cards? - In some months, I was charged a late fee for late payment
-NFCS2021Stress$F2_4 <- factor(
-  NFCS2021Stress$F2_4,
+NFCS.2021.Stress$F2_4 <- factor(
+  NFCS.2021.Stress$F2_4,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert F2_5 to a factor
-# In the past 12 months, which of the following describes your experience with 
-# credit cards? - In some months, I was charged an over the limit fee for 
+# In the past 12 months, which of the following describes your experience with
+# credit cards? - In some months, I was charged an over the limit fee for
 # exceeding my credit line
-NFCS2021Stress$F2_5 <- factor(
-  NFCS2021Stress$F2_5,
+NFCS.2021.Stress$F2_5 <- factor(
+  NFCS.2021.Stress$F2_5,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert F2_6 to a factor
-# In the past 12 months, which of the following describes your experience with 
+# In the past 12 months, which of the following describes your experience with
 # credit cards? - In some months, I used the cards for a cash advance
-NFCS2021Stress$F2_6 <- factor(
-  NFCS2021Stress$F2_6,
+NFCS.2021.Stress$F2_6 <- factor(
+  NFCS.2021.Stress$F2_6,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
@@ -241,26 +241,26 @@ NFCS2021Stress$F2_6 <- factor(
 # Convert P50 to a factor
 # At any time in your adult life (18 and older), did your parents or grandparents
 # pay for an expense of yours that was $10,000 or more?
-NFCS2021Stress$P50 <- factor(
-  NFCS2021Stress$P50,
+NFCS.2021.Stress$P50 <- factor(
+  NFCS.2021.Stress$P50,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert G20 to a factor
-# Do you currently have any unpaid bills from a health care or medical service 
+# Do you currently have any unpaid bills from a health care or medical service
 # provider (e.g., a hospital, a doctor's office, or a testing lab) that are past due?
-NFCS2021Stress$G20 <- factor(
-  NFCS2021Stress$G20,
+NFCS.2021.Stress$G20 <- factor(
+  NFCS.2021.Stress$G20,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert G35 to a factor
-# How many times have you been late with a student loan payment in the past 
+# How many times have you been late with a student loan payment in the past
 # 12 months?
-NFCS2021Stress$G35 <- factor(
-  NFCS2021Stress$G35,
+NFCS.2021.Stress$G35 <- factor(
+  NFCS.2021.Stress$G35,
   levels = c(1, 2, 3, 4, 98, 99),
   labels = c(
     "Never, payments are not due on my loans at this time",
@@ -274,35 +274,35 @@ NFCS2021Stress$G35 <- factor(
 
 # Convert G38 to a factor
 # Have you been contacted by a debt collection agency in the past 12 months?
-NFCS2021Stress$G38 <- factor(
-  NFCS2021Stress$G38,
+NFCS.2021.Stress$G38 <- factor(
+  NFCS.2021.Stress$G38,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert H30_1 to a factor
-# In the last 12 months, was there any time when you… - Did NOT fill a 
+# In the last 12 months, was there any time when you… - Did NOT fill a
 # prescription for medicine because of the cost
-NFCS2021Stress$H30_1 <- factor(
-  NFCS2021Stress$H30_1,
+NFCS.2021.Stress$H30_1 <- factor(
+  NFCS.2021.Stress$H30_1,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert H30_2 to a factor
-# In the last 12 months, was there any time when you… - SKIPPED a medical test, 
+# In the last 12 months, was there any time when you… - SKIPPED a medical test,
 # treatment or follow-up recommended by a doctor because of the cost
-NFCS2021Stress$H30_2 <- factor(
-  NFCS2021Stress$H30_2,
+NFCS.2021.Stress$H30_2 <- factor(
+  NFCS.2021.Stress$H30_2,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )
 
 # Convert 30_3 to a factor
-# In the last 12 months, was there any time when you… - Had a medical problem 
+# In the last 12 months, was there any time when you… - Had a medical problem
 # but DID NOT go to a doctor or clinic because of the cost
-NFCS2021Stress$H30_3 <- factor(
-  NFCS2021Stress$H30_3,
+NFCS.2021.Stress$H30_3 <- factor(
+  NFCS.2021.Stress$H30_3,
   levels = c(1, 2, 98, 99),
   labels = c("Yes", "No", "Don't know", "Prefer not to say")
 )

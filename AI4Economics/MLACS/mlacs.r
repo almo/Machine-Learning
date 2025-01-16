@@ -28,9 +28,9 @@ if (!require(ggplot2))
   install.packages("ggplot2")
 library(ggplot2)
 
-if (!require(missForest))
-  install.packages('missForest')
-library(missForest)
+if (!require(missRanger))
+  install.packages('missRanger')
+library(missRanger)
 
 if (!require(mltools))
   install.packages("mltools")
@@ -52,8 +52,38 @@ if (!require(cluster))
   install.packages("cluster")
 library(cluster)
 
+if (!require(rpart))
+  install.packages("rpart")
+library(rpart)
+
+if (!require(rpart.plot))
+  install.packages("rpart.plot")
+library(rpart.plot)
+
+if (!require(C50))
+  install.packages("C50")
+library(C50)
+
+if (!require(randomForest))
+  install.packages("randomForest")
+
+library(randomForest)
+
+if (!require(e1071))
+  install.packages("e1071")
+library(e1071)
+
+
+if (!require(gbm))
+  install.packages("gbm")
+library(gbm)
+
+if (!require(klaR))
+  install.packages("klaR")
+library(klaR)
+
 # Loading dataset
-NFCS2021 <- read.csv('Datasets/nfcs-2021.csv', stringsAsFactors = TRUE)
+NFCS.2021 <- read.csv('Datasets/nfcs-2021.csv', stringsAsFactors = TRUE)
 
 # Loading definition and refactoring of data frames
 source('demographics.r')
@@ -66,7 +96,7 @@ source('stress.r')
 
 # Missing values
 # Demographics
-DemographicsNA <- data.frame(
+NA.Demographics <- data.frame(
   Feature = character(),
   Missing_Count = numeric(),
   Missing_Percent = numeric(),
@@ -74,20 +104,30 @@ DemographicsNA <- data.frame(
 )
 
 for (feature in DemographicsFeatures) {
-  missing_count <- sum(is.na(NFCS2021Demographics[[feature]]))
-  missing_percent <- round((missing_count / nrow(NFCS2021Demographics)) * 100, 2)
-  DemographicsNA[nrow(DemographicsNA) + 1, ] <- c(feature, missing_count, missing_percent)
+  missing_count <- sum(is.na(NFCS.2021.Demographics[[feature]]))
+  missing_percent <- round((missing_count / nrow(NFCS.2021.Demographics)) * 100, 2)
+  nr <- nrow(NA.Demographics) + 1
+  NA.Demographics[nr, "Feature"] <- feature
+  NA.Demographics[nr, "Missing_Count"] <- missing_count
+  NA.Demographics[nr, "Missing_Percent"] <- missing_percent
+  
 }
 
-ggplot(DemographicsNA, aes(x = Feature, y = Missing_Percent)) +
+ggplot(NA.Demographics, aes(x = Feature, y = Missing_Percent)) +
   geom_col(fill = "steelblue") +
   geom_text(aes(label = paste0(Missing_Percent, "%")), vjust = -0.5, size = 3) +
   labs(title = "Variables Demográficas - Porcentaje de Valores Faltantes", x = "Variable", y = "Porcentaje") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+print("Demographics features: missing values for A10")
+print(table(NFCS.2021.Demographics$A10, useNA = "ifany"))
+
+print("Demographics features: missing values for A21_2015")
+print(table(NFCS.2021.Demographics$A21_2015, useNA = "ifany"))
+
 # Missing values
 # Capabilities
-CapabilitiesNA <- data.frame(
+NA.Capabilities <- data.frame(
   Feature = character(),
   Missing_Count = numeric(),
   Missing_Percent = numeric(),
@@ -95,21 +135,35 @@ CapabilitiesNA <- data.frame(
 )
 
 for (feature in CapabilitiesFeatures) {
-  missing_count <- sum(is.na(NFCS2021Capabilities[[feature]]))
-  missing_percent <- round((missing_count / nrow(NFCS2021Capabilities)) * 100, 2)
-  CapabilitiesNA[nrow(CapabilitiesNA) + 1, ] <- c(feature, missing_count, missing_percent)
+  missing_count <- sum(is.na(NFCS.2021.Capabilities[[feature]]))
+  missing_percent <- round((missing_count / nrow(NFCS.2021.Capabilities)) * 100, 2)
+  nr <- nrow(NA.Capabilities) + 1
+  NA.Capabilities[nr, "Feature"] <- feature
+  NA.Capabilities[nr, "Missing_Count"] <- missing_count
+  NA.Capabilities[nr, "Missing_Percent"] <- missing_percent
 }
 
-ggplot(CapabilitiesNA, aes(x = Feature, y = Missing_Percent)) +
+ggplot(NA.Capabilities, aes(x = Feature, y = Missing_Percent)) +
   geom_col(fill = "steelblue") +
   geom_text(aes(label = paste0(Missing_Percent, "%")), vjust = -0.5, size = 3) +
   labs(title = "Variables Alfabetización Financiera - Porcentaje de Valores Faltantes", x = "Variable", y = "Porcentaje") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+print("Capabilities features: missing values for C2_2012")
+print(table(NFCS.2021.Capabilities$C2_2012, useNA = "ifany"))
+
+print("Capabilities features: missing values for C5_2012")
+print(table(NFCS.2021.Capabilities$C5_2012, useNA = "ifany"))
+
+print("Capabilities features: missing values for E7")
+print(table(NFCS.2021.Capabilities$E7, useNA = "ifany"))
+
+print("Capabilities features: missing values for B14")
+print(table(NFCS.2021.Capabilities$B14, useNA = "ifany"))
 
 # Missing values
 # Stress Features
-StressNA <- data.frame(
+NA.Stress <- data.frame(
   Feature = character(),
   Missing_Count = numeric(),
   Missing_Percent = numeric(),
@@ -117,12 +171,15 @@ StressNA <- data.frame(
 )
 
 for (feature in StressFeatures) {
-  missing_count <- sum(is.na(NFCS2021Stress[[feature]]))
-  missing_percent <- round((missing_count / nrow(NFCS2021Stress)) * 100, 2)
-  StressNA[nrow(StressNA) + 1, ] <- c(feature, missing_count, missing_percent)
+  missing_count <- sum(is.na(NFCS.2021.Stress[[feature]]))
+  missing_percent <- round((missing_count / nrow(NFCS.2021.Stress)) * 100, 2)
+  nr <- nrow(NA.Stress) + 1
+  NA.Stress[nr, "Feature"] <- feature
+  NA.Stress[nr, "Missing_Count"] <- missing_count
+  NA.Stress[nr, "Missing_Percent"] <- missing_percent
 }
 
-ggplot(StressNA, aes(x = Feature, y = Missing_Percent)) +
+ggplot(NA.Stress, aes(x = Feature, y = Missing_Percent)) +
   geom_col(fill = "steelblue") +
   geom_text(
     aes(label = paste0(Missing_Percent, "%")),
@@ -133,6 +190,36 @@ ggplot(StressNA, aes(x = Feature, y = Missing_Percent)) +
   ) +
   labs(title = "Variables Estrés Financiero - Porcentaje de Valores Faltantes", x = "Variable", y = "Porcentaje") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print("Stress features: missing values for C10_2012")
+print(table(NFCS.2021.Stress$C10_2012, useNA = "ifany"))
+
+print("Stress features: missing values for E15_2015")
+print(table(NFCS.2021.Stress$E15_2015, useNA = "ifany"))
+
+print("Stress features: missing values for G35")
+print(table(NFCS.2021.Stress$G35, useNA = "ifany"))
+
+print("Stress features: missing values for J6")
+print(table(NFCS.2021.Stress$J6, useNA = "ifany"))
+
+print("Stress features: missing values for F2_1")
+print(table(NFCS.2021.Stress$F2_1, useNA = "ifany"))
+
+print("Stress features: missing values for F2_2")
+print(table(NFCS.2021.Stress$F2_2, useNA = "ifany"))
+
+print("Stress features: missing values for F2_3")
+print(table(NFCS.2021.Stress$F2_3, useNA = "ifany"))
+
+print("Stress features: missing values for F2_4")
+print(table(NFCS.2021.Stress$F2_4, useNA = "ifany"))
+
+print("Stress features: missing values for F2_5")
+print(table(NFCS.2021.Stress$F2_5, useNA = "ifany"))
+
+print("Stress features: missing values for F2_6")
+print(table(NFCS.2021.Stress$F2_6, useNA = "ifany"))
 
 #
 # Missing value treatment
@@ -155,14 +242,8 @@ CompletedDemographicsFeatures <- c(
   "A41"
 )
 
-print("Demographics features: missing values for A10")
-print(table(NFCS2021Demographics$A10, useNA = "ifany"))
-
-print("Demographics features: missing values for A21_2015")
-print(table(NFCS2021Demographics$A21_2015, useNA = "ifany"))
-
-NFCS2021Demographics <- NFCS2021Demographics[, CompletedDemographicsFeatures]
-str(NFCS2021Demographics)
+NFCS.2021.Demographics <- NFCS.2021.Demographics[, CompletedDemographicsFeatures]
+str(NFCS.2021.Demographics)
 
 # Financial Capabilities:
 #    - removing C2_2012, C5_2012, E7
@@ -184,40 +265,8 @@ CompletedCapabilitiesFeatures <- c(
   'M20'
 )
 
-print("Capabilities features: missing values for C2_2012")
-print(table(NFCS2021Capabilities$C2_2012, useNA = "ifany"))
-
-print("Capabilities features: missing values for C5_2012")
-print(table(NFCS2021Capabilities$C5_2012, useNA = "ifany"))
-
-print("Capabilities features: missing values for E7")
-print(table(NFCS2021Capabilities$E7, useNA = "ifany"))
-
-print("Capabilities features: missing values for B14")
-print(table(NFCS2021Capabilities$B14, useNA = "ifany"))
-
-NFCS2021Capabilities <- NFCS2021Capabilities[, CompletedCapabilitiesFeatures]
-str(NFCS2021Capabilities)
-
-# Imputing Missing Values with missForests
-ImputedValues <- missForest(NFCS2021Capabilities)
-
-# Analyzing the results
-ImputedValuesAnalysis <- rbind(
-  data.frame(ImputedValues$ximp, source = 'Imputado'),
-  data.frame(NFCS2021Capabilities, source =  'Original')
-)
-
-ggplot(ImputedValuesAnalysis, aes(x = B14, fill = source)) +
-  geom_bar(position = "dodge") +
-  labs(title = "Comparación Distribución B14 Imputado vs Original", x = "Niveles B14", y = "Número") +
-  theme_bw()
-
-prop.table(table(ImputedValuesAnalysis$B14, ImputedValuesAnalysis$source),
-           margin = 2)
-
-# Assigning the missing values
-NFCS2021Capabilities$B14 <- ImputedValues$ximp$B14
+NFCS.2021.Capabilities <- NFCS.2021.Capabilities[, CompletedCapabilitiesFeatures]
+str(NFCS.2021.Capabilities)
 
 # Stress Capabilities:
 #    - removing C10_2012, E15_2015, G35, J6
@@ -246,48 +295,50 @@ CompletedStressFeatures <- c(
   'H30_3'
 )
 
-print("Stress features: missing values for C10_2012")
-print(table(NFCS2021Stress$C10_2012, useNA = "ifany"))
+NFCS.2021.Stress <- NFCS.2021.Stress[, CompletedStressFeatures]
+str(NFCS.2021.Stress)
 
-print("Stress features: missing values for E15_2015")
-print(table(NFCS2021Stress$E15_2015, useNA = "ifany"))
+#
+# Imputing Values for Financial Capabilities and Financial Stress
+#
 
-print("Stress features: missing values for G35")
-print(table(NFCS2021Stress$G35, useNA = "ifany"))
+# Financial Capabilities
+# Evaluating Missing Values with missRanger (newest implementation of missForest)
+ImputedValues <- missRanger(NFCS.2021.Capabilities,pmm = TRUE, seed = 904584523)
 
-print("Stress features: missing values for J6")
-print(table(NFCS2021Stress$J6, useNA = "ifany"))
+# Analyzing the results
+ImputedValuesAnalysis <- rbind(
+  data.frame(ImputedValues, source = 'Imputado'),
+  data.frame(NFCS.2021.Capabilities, source =  'Original')
+)
 
-print("Stress features: missing values for F2_1")
-print(table(NFCS2021Stress$F2_1, useNA = "ifany"))
+ggplot(ImputedValuesAnalysis, aes(x = B14, fill = source)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Comparación Distribución B14 Imputado vs Original", x = "Niveles B14", y = "Número") +
+  theme_bw()
 
-print("Stress features: missing values for F2_2")
-print(table(NFCS2021Stress$F2_2, useNA = "ifany"))
+# NOTE: missForest modify all the values, including the complete, and thus the 
+# data frame has to be imputed completely, and not just the features with missing
+# values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
+prop.table(table(ImputedValuesAnalysis$B14, ImputedValuesAnalysis$source),
+           margin = 2)
 
-print("Stress features: missing values for F2_3")
-print(table(NFCS2021Stress$F2_3, useNA = "ifany"))
+# Imputing Assigning the missing values
+# NOTE: missForest modify all the values, including the complete, and thus the 
+# data frame has to be imputed completely, and not just the features with missing
+# values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
+NFCS.2021.Capabilities <- ImputedValues
 
-print("Stress features: missing values for F2_4")
-print(table(NFCS2021Stress$F2_4, useNA = "ifany"))
-
-print("Stress features: missing values for F2_5")
-print(table(NFCS2021Stress$F2_5, useNA = "ifany"))
-
-print("Stress features: missing values for F2_6")
-print(table(NFCS2021Stress$F2_6, useNA = "ifany"))
-
-NFCS2021Stress <- NFCS2021Stress[, CompletedStressFeatures]
-str(NFCS2021Stress)
-
-# Imputing missing values with missForest
-ImputedValues <- missForest(NFCS2021Stress)
+# Financial Stress
+# Evaluating Missing Values with missRanger (newest implementation of missForest)
+ImputedValues <- missRanger(NFCS.2021.Stress,pmm = TRUE, seed = 452384590)
 
 # Analysing the result for all the variables
 for (var in c("F2_1", "F2_2", "F2_3", "F2_4", "F2_5", "F2_6")) {
   # Analyzing the results
   ImputedValuesAnalysis <- rbind(
-    data.frame(ImputedValues$ximp, source = 'Imputado'),
-    data.frame(NFCS2021Stress, source = 'Original')
+    data.frame(ImputedValues, source = 'Imputado'),
+    data.frame(NFCS.2021.Stress, source = 'Original')
   )
   
   # Create the plot
@@ -303,47 +354,54 @@ for (var in c("F2_1", "F2_2", "F2_3", "F2_4", "F2_5", "F2_6")) {
   )
   
   # Print the proportion table
+  # NOTE: missForest modify all the values, including the complete, and thus the 
+  # data frame has to be imputed completely, and not just the features with missing
+  # values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
   print(prop.table(
     table(ImputedValuesAnalysis[[var]], ImputedValuesAnalysis$source),
     margin = 2
   ))
-  
-  # Assigning missing values
-  NFCS2021Stress[[var]] <- ImputedValues$ximp[[var]]
 }
+
+# Assigning missing values
+# NOTE: missForest modify all the values, including the complete, and thus the 
+# data frame has to be imputed completely, and not just the features with missing
+# values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
+NFCS.2021.Stress <- ImputedValues
+
 
 #
 # one-hot coding
 #
 
 # Demographics
-NFCS2021Demographics1H <- one_hot(as.data.table(NFCS2021Demographics))
+NFCS.2021.Demographics.1H <- one_hot(as.data.table(NFCS.2021.Demographics))
 
 # Financial Capabilities
-NFCS2021Capabilities1H <- one_hot(as.data.table(NFCS2021Capabilities))
+NFCS.2021.Capabilities.1H <- one_hot(as.data.table(NFCS.2021.Capabilities))
 
 # Financial Stress
-NFCS2021Stress1H <- one_hot(as.data.table(NFCS2021Stress))
+NFCS.2021.Stress.1H <- one_hot(as.data.table(NFCS.2021.Stress))
 
 #
-# Saving Datasets
+# Saving curated data sets
 #
 
 # Demographics
-saveRDS(NFCS2021Demographics,
-        "./Datasets/NFCS2021Demographics.RData")
-saveRDS(NFCS2021Demographics1H,
-        "./Datasets/NFCS2021Demographics1H.RData")
+saveRDS(NFCS.2021.Demographics,
+        "./Datasets/NFCS.2021.Demographics.RData")
+saveRDS(NFCS.2021.Demographics.1H,
+        "./Datasets/NFCS.2021.Demographics1H.RData")
 
 # Financial Capabilities
-saveRDS(NFCS2021Capabilities,
-        "./Datasets/NFCS2021Capabilities.RData")
-saveRDS(NFCS2021Capabilities1H,
-        "./Datasets/NFCS2021Capabilities1H.RData")
+saveRDS(NFCS.2021.Capabilities,
+        "./Datasets/NFCS.2021.Capabilities.RData")
+saveRDS(NFCS.2021.Capabilities.1H,
+        "./Datasets/NFCS.2021.Capabilities1H.RData")
 
 # Financial Stress
-saveRDS(NFCS2021Stress, "./Datasets/NFCS2021Stress.RData")
-saveRDS(NFCS2021Stress1H, "./Datasets/NFCS2021Stress1H.RData")
+saveRDS(NFCS.2021.Stress, "./Datasets/NFCS.2021.Stress.RData")
+saveRDS(NFCS.2021.Stress.1H, "./Datasets/NFCS.2021.Stress1H.RData")
 
 
 #
@@ -352,7 +410,7 @@ saveRDS(NFCS2021Stress1H, "./Datasets/NFCS2021Stress1H.RData")
 
 # Financial Stress
 # kmodes Clustering
-StressTaxonomy <- kmodes(NFCS2021Stress[, -1], 3)
+StressTaxonomy <- kmodes(NFCS.2021.Stress[,-1], modes=3)
 
 # Size of the clusters
 StressTaxonomy$size
@@ -373,19 +431,53 @@ StressGroup <- factor(
 )
 
 # New data frame for supervised learning
-NFCS2021MLACS <- merge(NFCS2021Demographics,NFCS2021Capabilities,  by='NFCSID', all.x = TRUE)
-NFCS2021MLACS <- merge(NFCS2021MLACS,NFCS2021Stress,  by='NFCSID', all.x = TRUE)
+NFCS2021MLACS <- merge(NFCS.2021.Demographics,
+                       NFCS.2021.Capabilities,
+                       by = 'NFCSID',
+                       all.x = TRUE)
+NFCS2021MLACS <- merge(NFCS2021MLACS,
+                       NFCS.2021.Stress,
+                       by = 'NFCSID',
+                       all.x = TRUE)
 NFCS2021MLACS$StressGroup <- StressGroup
 
+# One-hot version of the data frame. SVM will required this encoding.
+NFCS2021MLACS1H <- merge(
+  NFCS.2021.Demographics1H,
+  NFCS.2021.Capabilities1H,
+  by = 'NFCSID',
+  all.x = TRUE
+)
+NFCS2021MLACS1H <- merge(NFCS2021MLACS1H,
+                         NFCS.2021.Stress1H,
+                         by = 'NFCSID',
+                         all.x = TRUE)
+NFCS2021MLACS1H$StressGroup <- StressGroup
+
+NFCS.2021.Demographics1H$StressGroup <- StressGroup
+NFCS.2021.Capabilities1H <- StressGroup
+
+NFCS2021MLACS1H <- one_hot(as.data.table(NFCS2021MLACS1H))
+NFCS.2021.Demographics1H <- one_hot(as.data.table(NFCS.2021.Demographics1H))
+NFCS.2021.Capabilities1H <- one_hot(as.data.table(NFCS.2021.Capabilities1H))
+
 # Augmented data frame for analysis
-NFCS2021Demographics$StressGroup <- StressGroup
-NFCS2021Capabilities$StressGroup <- StressGroup
-NFCS2021Stress$StressGroup <- StressGroup
+NFCS.2021.Demographics$StressGroup <- StressGroup
+NFCS.2021.Capabilities$StressGroup <- StressGroup
+NFCS.2021.Stress$StressGroup <- StressGroup
 
-stress_counts <- table(NFCS2021Stress$StressGroup)
-stress_counts <- data.frame(StressGroup = names(stress_counts), n = as.numeric(stress_counts))
+saveRDS(NFCS.2021.Demographics,
+        "./Datasets/NFCS.2021.Demographics_Stress.RData")
+saveRDS(NFCS.2021.Capabilities,
+        "./Datasets/NFCS.2021.Capabilities_Stress.RData")
+saveRDS(NFCS.2021.Stress,
+        "./Datasets/NFCS.2021.Stress_Stress.RData")
 
-ggplot(NFCS2021Stress, aes(x = StressGroup)) +
+stress_counts <- table(NFCS.2021.Stress$StressGroup)
+stress_counts <- data.frame(StressGroup = names(stress_counts),
+                            n = as.numeric(stress_counts))
+
+ggplot(NFCS.2021.Stress, aes(x = StressGroup)) +
   geom_bar(fill = "steelblue") +  # Use a light blue color for the bars
   geom_text(data = stress_counts, aes(label = n, y = n), vjust = -0.5) +
   labs(title = "Distribución del Nivel de Estrés", x = "Nivel de Estrés", y = "Número de Individuos") +
@@ -394,21 +486,102 @@ ggplot(NFCS2021Stress, aes(x = StressGroup)) +
 #
 # Demographic Analysis
 #
-StressGroupsState <- table(NFCS2021Demographics$StressGroup,NFCS2021Demographics$STATEQ)
+StressGroupsState <- table(NFCS.2021.Demographics$StressGroup,
+                           NFCS.2021.Demographics$STATEQ)
 
-barplot(StressGroupsState, beside = TRUE,
-        xlab = "Nivel de Estrés", ylab = "Numero de Individups",
-        main = "Nivel de Estrés por Estado")
+barplot(
+  StressGroupsState,
+  beside = TRUE,
+  xlab = "Nivel de Estrés",
+  ylab = "Numero de Individups",
+  main = "Nivel de Estrés por Estado"
+)
 
-StressGroupsIncome <- table(NFCS2021Demographics$StressGroup,NFCS2021Demographics$A8_2021)
+StressGroupsIncome <- table(NFCS.2021.Demographics$StressGroup,
+                            NFCS.2021.Demographics$A8_2021)
 
-barplot(StressGroupsIncome, beside = TRUE,
-        xlab = "Nivel de Estrés", ylab = "Numero de Individups",
-        main = "Nivel de Estrés por Ingresos")
+barplot(
+  StressGroupsIncome,
+  beside = TRUE,
+  xlab = "Nivel de Estrés",
+  ylab = "Numero de Individups",
+  main = "Nivel de Estrés por Ingresos"
+)
 
-IncomeStressGroups <- table(NFCS2021Demographics$A8_2021,NFCS2021Demographics$StressGroup)
+IncomeStressGroups <- table(NFCS.2021.Demographics$A8_2021,
+                            NFCS.2021.Demographics$StressGroup)
 
-barplot(IncomeStressGroups, beside = TRUE,
-        xlab = "Nivel de Estrés", ylab = "Numero de Individups",
-        main = "Nivel de Ingresos por Nivel de Estrés")
+barplot(
+  IncomeStressGroups,
+  beside = TRUE,
+  xlab = "Nivel de Estrés",
+  ylab = "Numero de Individups",
+  main = "Ingresos por Nivel de Estrés"
+)
 
+#
+# Classification
+#
+
+# Full data set
+NFCS2021MLACS_sample <- sample(nrow(NFCS2021MLACS), nrow(NFCS2021MLACS) *
+                                 0.7)
+NFCS2021MLACS_train <- NFCS2021MLACS[NFCS2021MLACS_sample, ]
+NFCS2021MLACS_test <- NFCS2021MLACS[-NFCS2021MLACS_sample, ]
+prop.table(table(NFCS2021MLACS_train$StressGroup))
+prop.table(table(NFCS2021MLACS_test$StressGroup))
+
+NFCS2021MLACS_model <- rpart(StressGroup ~ A6 + A11, data = NFCS2021MLACS_train, method =
+                               "class")
+rpart.plot(NFCS2021MLACS_model, extra = 104, nn = TRUE)
+predictions <- predict(NFCS2021MLACS_model, NFCS2021MLACS_test, type = "class")
+table(predictions, NFCS2021MLACS_test$StressGroup)
+
+# Random Forest
+rf_model <- randomForest(StressGroup ~ A11 + A6 + B1 + B2 + M20, data = NFCS2021MLACS_train)
+print(rf_model)
+importance(rf_model)
+varImpPlot(rf_model)
+
+# SVM
+svm_model <- svm(
+  StressGroup ~ A11 + A6 + B1 + B2 + M20,
+  data = NFCS2021MLACS_train,
+  kernel = "sigmoid",
+  cost = 10,
+  gamma = 0.5
+)
+summary(svm_model)
+
+predictions <- predict(svm_model, newdata = NFCS2021MLACS_test)
+table(predictions, NFCS2021MLACS_test$StressGroup)
+
+#tuned_model <- tune(
+#  svm,
+#  StressGroup ~ A11 + A6 + B1 + B2 + M20,
+#  data = NFCS2021MLACS_train,
+#  ranges = list(cost = c(0.1, 1, 10), gamma = c(0.1, 0.5, 1))
+#)
+
+
+
+# naiveBayes
+nb_model <- naiveBayes(StressGroup ~ A11 + A6 + B1 + B2 + M20, data = NFCS2021MLACS_train)
+summary(nb_model)
+
+predictions <- predict(nb_model, newdata = NFCS2021MLACS_test)
+table(predictions, NFCS2021MLACS_test$StressGroup)
+
+# GBM
+gbm_model <- gbm(
+  StressGroup ~ A11 + A6 + B1 + B2 + M20,
+  data = NFCS2021MLACS,
+  distribution = "gaussian",
+  n.trees = 100,
+  interaction.depth = 3
+)
+
+summary(gbm_model)
+
+predictions <- predict(gbm_model, newdata = NFCS2021MLACS_test)
+table(predictions, NFCS2021MLACS_test$StressGroup)
