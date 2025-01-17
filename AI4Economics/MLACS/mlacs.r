@@ -24,6 +24,10 @@ set.seed(845904523)
 Sys.setenv(R_DATATABLE_NUM_THREADS = 8)
 
 # Loading dependencies
+if (!require(FactoMineR))
+  install.packages("FactoMinerR")
+library(FactoMineR)
+
 if (!require(ggplot2))
   install.packages("ggplot2")
 library(ggplot2)
@@ -66,21 +70,15 @@ library(C50)
 
 if (!require(randomForest))
   install.packages("randomForest")
-
 library(randomForest)
 
 if (!require(e1071))
   install.packages("e1071")
 library(e1071)
 
-
 if (!require(gbm))
   install.packages("gbm")
 library(gbm)
-
-if (!require(klaR))
-  install.packages("klaR")
-library(klaR)
 
 # Loading dataset
 NFCS.2021 <- read.csv('Datasets/nfcs-2021.csv', stringsAsFactors = TRUE)
@@ -93,6 +91,45 @@ source('stress.r')
 #
 # Preprocessing
 #
+
+#
+# Apriori
+# Principal component analysis for raw data
+# Multiple Correspondence Analysis
+#
+
+# Demographics
+nrows <- nrow(NFCS.2021.Demographics)
+NFCS.2021.Demographics.PA.Sample <- sample(nrows,nrows*0.1)
+NFCS.2021.Demographics.PA <- NFCS.2021.Demographics[NFCS.2021.Demographics.PA.Sample,-1]
+
+NFCS.2021.Demographics.PA.Result <- MCA(NFCS.2021.Demographics.PA)
+fviz_mca_biplot(NFCS.2021.Demographics.PA.Result)
+fviz_mca_ind(NFCS.2021.Demographics.PA.Result)
+fviz_eig(NFCS.2021.Demographics.PA.Result)
+fviz_mca_var(NFCS.2021.Demographics.PA.Result)
+
+# Financial Capabilities
+nrows <- nrow(NFCS.2021.Capabilities)
+NFCS.2021.Capabilities.PA.Sample <- sample(nrows,nrows*0.1)
+NFCS.2021.Capabilities.PA <- NFCS.2021.Capabilities[NFCS.2021.Capabilities.PA.Sample,-1]
+
+NFCS.2021.Capabilities.PA.Result <- MCA(NFCS.2021.Capabilities.PA)
+fviz_mca_biplot(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_ind(NFCS.2021.Capabilities.PA.Result)
+fviz_eig(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_var(NFCS.2021.Capabilities.PA.Result)
+
+# Financial Stress
+nrows <- nrow(NFCS.2021.Stress)
+NFCS.2021.Stress.PA.Sample <- sample(nrows,nrows*0.1)
+NFCS.2021.Stress.PA <- NFCS.2021.Stress[NFCS.2021.Stress.PA.Sample,-1]
+
+NFCS.2021.Stress.PA.Result <- MCA(NFCS.2021.Stress.PA)
+fviz_mca_biplot(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_ind(NFCS.2021.Capabilities.PA.Result)
+fviz_eig(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_var(NFCS.2021.Capabilities.PA.Result)
 
 # Missing values
 # Demographics
@@ -304,7 +341,7 @@ str(NFCS.2021.Stress)
 
 # Financial Capabilities
 # Evaluating Missing Values with missRanger (newest implementation of missForest)
-ImputedValues <- missRanger(NFCS.2021.Capabilities,pmm = TRUE, seed = 904584523)
+ImputedValues <- missRanger(NFCS.2021.Capabilities, pmm = TRUE, seed = 904584523)
 
 # Analyzing the results
 ImputedValuesAnalysis <- rbind(
@@ -317,21 +354,21 @@ ggplot(ImputedValuesAnalysis, aes(x = B14, fill = source)) +
   labs(title = "Comparación Distribución B14 Imputado vs Original", x = "Niveles B14", y = "Número") +
   theme_bw()
 
-# NOTE: missForest modify all the values, including the complete, and thus the 
+# NOTE: missForest modify all the values, including the complete, and thus the
 # data frame has to be imputed completely, and not just the features with missing
 # values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
 prop.table(table(ImputedValuesAnalysis$B14, ImputedValuesAnalysis$source),
            margin = 2)
 
 # Imputing Assigning the missing values
-# NOTE: missForest modify all the values, including the complete, and thus the 
+# NOTE: missForest modify all the values, including the complete, and thus the
 # data frame has to be imputed completely, and not just the features with missing
 # values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
 NFCS.2021.Capabilities <- ImputedValues
 
 # Financial Stress
 # Evaluating Missing Values with missRanger (newest implementation of missForest)
-ImputedValues <- missRanger(NFCS.2021.Stress,pmm = TRUE, seed = 452384590)
+ImputedValues <- missRanger(NFCS.2021.Stress, pmm = TRUE, seed = 452384590)
 
 # Analysing the result for all the variables
 for (var in c("F2_1", "F2_2", "F2_3", "F2_4", "F2_5", "F2_6")) {
@@ -354,7 +391,7 @@ for (var in c("F2_1", "F2_2", "F2_3", "F2_4", "F2_5", "F2_6")) {
   )
   
   # Print the proportion table
-  # NOTE: missForest modify all the values, including the complete, and thus the 
+  # NOTE: missForest modify all the values, including the complete, and thus the
   # data frame has to be imputed completely, and not just the features with missing
   # values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
   print(prop.table(
@@ -364,45 +401,49 @@ for (var in c("F2_1", "F2_2", "F2_3", "F2_4", "F2_5", "F2_6")) {
 }
 
 # Assigning missing values
-# NOTE: missForest modify all the values, including the complete, and thus the 
+# NOTE: missForest modify all the values, including the complete, and thus the
 # data frame has to be imputed completely, and not just the features with missing
 # values (NFCS.2021.Capabilities$B14 <- ImputedValues$ximp$B14)
 NFCS.2021.Stress <- ImputedValues
 
 
 #
-# one-hot coding
+# A posteriori 
+# Principal component analysis for raw data
+# Multiple Correspondence Analysis
 #
-
 # Demographics
-NFCS.2021.Demographics.1H <- one_hot(as.data.table(NFCS.2021.Demographics))
+nrows <- nrow(NFCS.2021.Demographics)
+NFCS.2021.Demographics.PA.Sample <- sample(nrows,nrows*0.1)
+NFCS.2021.Demographics.PA <- NFCS.2021.Demographics[NFCS.2021.Demographics.PA.Sample,-1]
+
+NFCS.2021.Demographics.PA.Result <- MCA(NFCS.2021.Demographics.PA)
+fviz_mca_biplot(NFCS.2021.Demographics.PA.Result)
+fviz_mca_ind(NFCS.2021.Demographics.PA.Result)
+fviz_eig(NFCS.2021.Demographics.PA.Result)
+fviz_mca_var(NFCS.2021.Demographics.PA.Result)
 
 # Financial Capabilities
-NFCS.2021.Capabilities.1H <- one_hot(as.data.table(NFCS.2021.Capabilities))
+nrows <- nrow(NFCS.2021.Capabilities)
+NFCS.2021.Capabilities.PA.Sample <- sample(nrows,nrows*0.1)
+NFCS.2021.Capabilities.PA <- NFCS.2021.Capabilities[NFCS.2021.Capabilities.PA.Sample,-1]
+
+NFCS.2021.Capabilities.PA.Result <- MCA(NFCS.2021.Capabilities.PA)
+fviz_mca_biplot(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_ind(NFCS.2021.Capabilities.PA.Result)
+fviz_eig(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_var(NFCS.2021.Capabilities.PA.Result)
 
 # Financial Stress
-NFCS.2021.Stress.1H <- one_hot(as.data.table(NFCS.2021.Stress))
+nrows <- nrow(NFCS.2021.Stress)
+NFCS.2021.Stress.PA.Sample <- sample(nrows,nrows*0.1)
+NFCS.2021.Stress.PA <- NFCS.2021.Stress[NFCS.2021.Stress.PA.Sample,-1]
 
-#
-# Saving curated data sets
-#
-
-# Demographics
-saveRDS(NFCS.2021.Demographics,
-        "./Datasets/NFCS.2021.Demographics.RData")
-saveRDS(NFCS.2021.Demographics.1H,
-        "./Datasets/NFCS.2021.Demographics1H.RData")
-
-# Financial Capabilities
-saveRDS(NFCS.2021.Capabilities,
-        "./Datasets/NFCS.2021.Capabilities.RData")
-saveRDS(NFCS.2021.Capabilities.1H,
-        "./Datasets/NFCS.2021.Capabilities1H.RData")
-
-# Financial Stress
-saveRDS(NFCS.2021.Stress, "./Datasets/NFCS.2021.Stress.RData")
-saveRDS(NFCS.2021.Stress.1H, "./Datasets/NFCS.2021.Stress1H.RData")
-
+NFCS.2021.Stress.PA.Result <- MCA(NFCS.2021.Stress.PA)
+fviz_mca_biplot(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_ind(NFCS.2021.Capabilities.PA.Result)
+fviz_eig(NFCS.2021.Capabilities.PA.Result)
+fviz_mca_var(NFCS.2021.Capabilities.PA.Result)
 
 #
 # Clustering Analysis
@@ -410,7 +451,7 @@ saveRDS(NFCS.2021.Stress.1H, "./Datasets/NFCS.2021.Stress1H.RData")
 
 # Financial Stress
 # kmodes Clustering
-StressTaxonomy <- kmodes(NFCS.2021.Stress[,-1], modes=3)
+StressTaxonomy <- kmodes(NFCS.2021.Stress[, -1], modes = 3)
 
 # Size of the clusters
 StressTaxonomy$size
@@ -418,74 +459,56 @@ StressTaxonomy$size
 # Centroids
 StressTaxonomy$modes
 
+# Distance
+StressTaxonomy$withindiff
+
 #
 # Extending the Financial Stress dataset including the Stress Group
 #
-
 StressGroup <- StressTaxonomy$cluster
 
 StressGroup <- factor(
   StressGroup,
-  levels = c(1, 2, 3),
+  levels = c(3, 2, 1),
   labels = c("No Stress", "Stress Risk", "Stress")
 )
 
 # New data frame for supervised learning
-NFCS2021MLACS <- merge(NFCS.2021.Demographics,
-                       NFCS.2021.Capabilities,
-                       by = 'NFCSID',
-                       all.x = TRUE)
-NFCS2021MLACS <- merge(NFCS2021MLACS,
-                       NFCS.2021.Stress,
-                       by = 'NFCSID',
-                       all.x = TRUE)
-NFCS2021MLACS$StressGroup <- StressGroup
-
-# One-hot version of the data frame. SVM will required this encoding.
-NFCS2021MLACS1H <- merge(
-  NFCS.2021.Demographics1H,
-  NFCS.2021.Capabilities1H,
-  by = 'NFCSID',
-  all.x = TRUE
-)
-NFCS2021MLACS1H <- merge(NFCS2021MLACS1H,
-                         NFCS.2021.Stress1H,
+NFCS.2021.MLACS <- merge(NFCS.2021.Demographics,
+                         NFCS.2021.Capabilities,
                          by = 'NFCSID',
                          all.x = TRUE)
-NFCS2021MLACS1H$StressGroup <- StressGroup
 
-NFCS.2021.Demographics1H$StressGroup <- StressGroup
-NFCS.2021.Capabilities1H <- StressGroup
+NFCS.2021.MLACS <- merge(NFCS.2021.MLACS,
+                         NFCS.2021.Stress,
+                         by = 'NFCSID',
+                         all.x = TRUE)
 
-NFCS2021MLACS1H <- one_hot(as.data.table(NFCS2021MLACS1H))
-NFCS.2021.Demographics1H <- one_hot(as.data.table(NFCS.2021.Demographics1H))
-NFCS.2021.Capabilities1H <- one_hot(as.data.table(NFCS.2021.Capabilities1H))
+NFCS.2021.MLACS$StressGroup <- StressGroup
 
-# Augmented data frame for analysis
+# Demographics
 NFCS.2021.Demographics$StressGroup <- StressGroup
+
+# Financial Capabilities
 NFCS.2021.Capabilities$StressGroup <- StressGroup
+
+# Financial Stress
 NFCS.2021.Stress$StressGroup <- StressGroup
 
-saveRDS(NFCS.2021.Demographics,
-        "./Datasets/NFCS.2021.Demographics_Stress.RData")
-saveRDS(NFCS.2021.Capabilities,
-        "./Datasets/NFCS.2021.Capabilities_Stress.RData")
-saveRDS(NFCS.2021.Stress,
-        "./Datasets/NFCS.2021.Stress_Stress.RData")
-
-stress_counts <- table(NFCS.2021.Stress$StressGroup)
-stress_counts <- data.frame(StressGroup = names(stress_counts),
-                            n = as.numeric(stress_counts))
+#
+# Analysis of the Stress Groups and economical analysis
+#
+StressCounts <- table(NFCS.2021.Stress$StressGroup)
+StressCounts <- data.frame(StressGroup = names(StressCounts),
+                           n = as.numeric(StressCounts))
 
 ggplot(NFCS.2021.Stress, aes(x = StressGroup)) +
   geom_bar(fill = "steelblue") +  # Use a light blue color for the bars
-  geom_text(data = stress_counts, aes(label = n, y = n), vjust = -0.5) +
+  geom_text(data = StressCounts, aes(label = n, y = n), vjust = -0.5) +
   labs(title = "Distribución del Nivel de Estrés", x = "Nivel de Estrés", y = "Número de Individuos") +
   theme_minimal()
 
-#
 # Demographic Analysis
-#
 StressGroupsState <- table(NFCS.2021.Demographics$StressGroup,
                            NFCS.2021.Demographics$STATEQ)
 
@@ -522,66 +545,238 @@ barplot(
 #
 # Classification
 #
+# Modelling StressGroup using Demographics information
+# A50A     Gender
+# A3Ar_w   Age group
+# A6       Marital Status
+# A11      Number of children
+# A9       Work Status
+# A8_2021  Income
+# A5_2015  Education
 
-# Full data set
-NFCS2021MLACS_sample <- sample(nrow(NFCS2021MLACS), nrow(NFCS2021MLACS) *
-                                 0.7)
-NFCS2021MLACS_train <- NFCS2021MLACS[NFCS2021MLACS_sample, ]
-NFCS2021MLACS_test <- NFCS2021MLACS[-NFCS2021MLACS_sample, ]
-prop.table(table(NFCS2021MLACS_train$StressGroup))
-prop.table(table(NFCS2021MLACS_test$StressGroup))
+# Training / Testing dataset
+nrows <- nrow(NFCS.2021.MLACS)
+NFCS.2021.MLACS.Sample <- sample(nrows, nrows * 0.7)
+NFCS.2021.MLACS.Train <- NFCS.2021.MLACS[NFCS.2021.MLACS.Sample, ]
+NFCS.2021.MLACS.Test <- NFCS.2021.MLACS[-NFCS.2021.MLACS.Sample, ]
 
-NFCS2021MLACS_model <- rpart(StressGroup ~ A6 + A11, data = NFCS2021MLACS_train, method =
-                               "class")
-rpart.plot(NFCS2021MLACS_model, extra = 104, nn = TRUE)
-predictions <- predict(NFCS2021MLACS_model, NFCS2021MLACS_test, type = "class")
-table(predictions, NFCS2021MLACS_test$StressGroup)
+prop.table(table(NFCS.2021.MLACS.Train$StressGroup))
+prop.table(table(NFCS.2021.MLACS.Test$StressGroup))
+
+#
+# Decision Tree
+#
+NFCS.2021.MLACS.D.DT.Model <- rpart(
+  StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015,
+  data = NFCS.2021.MLACS.Train,
+  method = "class"
+)
+
+rpart.plot(NFCS.2021.MLACS.D.DT.Model, extra = 104, nn = TRUE)
+NFCS.2021.MLACS.D.DT.Model.Prune <- prune(NFCS.2021.MLACS.D.DT.Model, cp = 0.01)  # Example cp value
+rpart.plot(NFCS.2021.MLACS.D.DT.Model.Prune,
+           extra = 104,
+           nn = TRUE)
+
+predictions.dt.d <- predict(NFCS.2021.MLACS.D.DT.Model, NFCS.2021.MLACS.Test, type = "class")
+table(predictions.dt.d, NFCS.2021.MLACS.Test$StressGroup)
 
 # Random Forest
-rf_model <- randomForest(StressGroup ~ A11 + A6 + B1 + B2 + M20, data = NFCS2021MLACS_train)
-print(rf_model)
-importance(rf_model)
-varImpPlot(rf_model)
+NFCS.2021.MLACS.D.RF.Model <- randomForest(StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015, data = NFCS.2021.MLACS.Train)
+print(NFCS.2021.MLACS.D.RF.Model)
+plot(NFCS.2021.MLACS.D.RF.Model)
+importance(NFCS.2021.MLACS.D.RF.Model)
+varImpPlot(NFCS.2021.MLACS.D.RF.Model)
 
-# SVM
-svm_model <- svm(
-  StressGroup ~ A11 + A6 + B1 + B2 + M20,
-  data = NFCS2021MLACS_train,
-  kernel = "sigmoid",
+predictions.rf.d <- predict(NFCS.2021.MLACS.D.RF.Model, NFCS.2021.MLACS.Test, type = "class")
+table(predictions.rf.d, NFCS.2021.MLACS.Test$StressGroup)
+
+# Support Vector Machine
+NFCS.2021.MLACS.D.SVM.Model <- svm(
+  StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015,
+  data = NFCS.2021.MLACS.Train,
+  kernel = "radial",
   cost = 10,
   gamma = 0.5
 )
-summary(svm_model)
+summary(NFCS.2021.MLACS.D.SVM.Model)
 
-predictions <- predict(svm_model, newdata = NFCS2021MLACS_test)
-table(predictions, NFCS2021MLACS_test$StressGroup)
+predictions.svm.d <- predict(NFCS.2021.MLACS.D.SVM.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.svm.d, NFCS.2021.MLACS.Test$StressGroup)
 
-#tuned_model <- tune(
-#  svm,
-#  StressGroup ~ A11 + A6 + B1 + B2 + M20,
-#  data = NFCS2021MLACS_train,
-#  ranges = list(cost = c(0.1, 1, 10), gamma = c(0.1, 0.5, 1))
-#)
+# Naive Bayes
+NFCS.2021.MLACS.D.NB.Model <- naiveBayes(StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015, data = NFCS.2021.MLACS.Train)
+summary(NFCS.2021.MLACS.D.NB.Model)
 
+predictions.nb.d <- predict(NFCS.2021.MLACS.D.NB.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.nb.d, NFCS.2021.MLACS.Test$StressGroup)
 
-
-# naiveBayes
-nb_model <- naiveBayes(StressGroup ~ A11 + A6 + B1 + B2 + M20, data = NFCS2021MLACS_train)
-summary(nb_model)
-
-predictions <- predict(nb_model, newdata = NFCS2021MLACS_test)
-table(predictions, NFCS2021MLACS_test$StressGroup)
-
-# GBM
-gbm_model <- gbm(
-  StressGroup ~ A11 + A6 + B1 + B2 + M20,
-  data = NFCS2021MLACS,
+# Gradient Boosting Machine
+NFCS.2021.MLACS.D.GBM.Model <- gbm(
+  StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015,
+  data = NFCS.2021.MLACS,
   distribution = "gaussian",
   n.trees = 100,
   interaction.depth = 3
 )
 
-summary(gbm_model)
+summary(NFCS.2021.MLACS.D.GBM.Model)
 
-predictions <- predict(gbm_model, newdata = NFCS2021MLACS_test)
-table(predictions, NFCS2021MLACS_test$StressGroup)
+predictions.gbm.d <- predict(NFCS.2021.MLACS.D.GBM.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.gbm.d, NFCS.2021.MLACS.Test$StressGroup)
+
+#
+# Classification
+#
+# Modelling StressGroup using Financial Capabilities information
+# B1       Checking Account
+# B2       Saving Account
+# B31      Mobile Payment
+# B42      Mobile Operation (transfers)
+# B43      Financial planning (Web/Mobile)
+# C1_2012  Retirement plans
+# B14      Investment
+# EA_1     Owned house
+# F1       Number of credit cards
+# M4       Financial knowledge
+#
+# Decision Tree
+#
+NFCS.2021.MLACS.C.DT.Model <- rpart(
+  StressGroup ~ B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+  data = NFCS.2021.MLACS.Train,
+  method = "class"
+)
+summary(NFCS.2021.MLACS.C.DT.Model)
+rpart.plot(NFCS.2021.MLACS.C.DT.Model, extra = 104, nn = TRUE)
+
+predictions.dt.c <- predict(NFCS.2021.MLACS.C.DT.Model, NFCS.2021.MLACS.Test, type = "class")
+table(predictions.dt.c, NFCS.2021.MLACS.Test$StressGroup)
+
+# Random Forest
+NFCS.2021.MLACS.C.RF.Model <- randomForest(StressGroup ~ B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+                                         data = NFCS.2021.MLACS.Train)
+summary(NFCS.2021.MLACS.C.RF.Model)
+plot(NFCS.2021.MLACS.C.RF.Model)
+importance(NFCS.2021.MLACS.C.RF.Model)
+varImpPlot(NFCS.2021.MLACS.C.RF.Model)
+
+predictions.rf.c <- predict(NFCS.2021.MLACS.C.RF.Model, NFCS.2021.MLACS.Test, type = "class")
+table(predictions.rf.c, NFCS.2021.MLACS.Test$StressGroup)
+
+# Support Vector Machine
+NFCS.2021.MLACS.C.SVM.Model <- svm(
+  StressGroup ~ B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+  data = NFCS.2021.MLACS.Train,
+  kernel = "radial",
+  cost = 10,
+  gamma = 0.5
+)
+summary(NFCS.2021.MLACS.C.SVM.Model)
+
+predictions.svm.c <- predict(NFCS.2021.MLACS.C.SVM.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.svm.c, NFCS.2021.MLACS.Test$StressGroup)
+
+# Naive Bayes
+NFCS.2021.MLACS.C.NB.Model <- naiveBayes(StressGroup ~ B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+                                       data = NFCS.2021.MLACS.Train)
+summary(NFCS.2021.MLACS.C.NB.Model)
+
+predictions.nb.c <- predict(NFCS.2021.MLACS.C.NB.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.nb.c, NFCS.2021.MLACS.Test$StressGroup)
+
+# Gradient Boosting Machine
+NFCS.2021.MLACS.C.GBM.Model <- gbm(
+  StressGroup ~ B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+  data = NFCS.2021.MLACS,
+  distribution = "gaussian",
+  n.trees = 100,
+  interaction.depth = 3
+)
+
+summary(NFCS.2021.MLACS.C.GBM.Model)
+
+predictions.gbm.c <- predict(NFCS.2021.MLACS.C.GBM.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.gbm.c, NFCS.2021.MLACS.Test$StressGroup)
+
+
+#
+# Classification
+#
+# Modelling StressGroup using Demographic and Financial Capabilities information 
+# A50A     Gender
+# A3Ar_w   Age group
+# A6       Marital Status
+# A11      Number of children
+# A9       Work Status
+# A8_2021  Income
+# A5_2015  Education
+# B1       Checking Account
+# B2       Saving Account
+# B31      Mobile Payment
+# B42      Mobile Operation (transfers)
+# B43      Financial planning (Web/Mobile)
+# C1_2012  Retirement plans
+# B14      Investment
+# EA_1     Owned house
+# F1       Number of credit cards
+# M4       Financial knowledge
+#
+# Decision Tree
+#
+NFCS.2021.MLACS.DT.Model <- rpart(
+  StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015 + B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+  data = NFCS.2021.MLACS.Train,
+  method = "class"
+)
+summary(NFCS.2021.MLACS.DT.Model)
+rpart.plot(NFCS.2021.MLACS.DT.Model, extra = 104, nn = TRUE)
+
+predictions.dt <- predict(NFCS.2021.MLACS.DT.Model, NFCS.2021.MLACS.Test, type = "class")
+table(predictions.dt, NFCS.2021.MLACS.Test$StressGroup)
+
+# Random Forest
+NFCS.2021.MLACS.RF.Model <- randomForest(StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015 + B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+                                           data = NFCS.2021.MLACS.Train)
+summary(NFCS.2021.MLACS.RF.Model)
+plot(NFCS.2021.MLACS.RF.Model)
+importance(NFCS.2021.MLACS.RF.Model)
+varImpPlot(NFCS.2021.MLACS.RF.Model)
+
+predictions.rf <- predict(NFCS.2021.MLACS.RF.Model, NFCS.2021.MLACS.Test, type = "class")
+table(predictions.rf, NFCS.2021.MLACS.Test$StressGroup)
+
+# Support Vector Machine
+NFCS.2021.MLACS.SVM.Model <- svm(
+  StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015 + B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+  data = NFCS.2021.MLACS.Train,
+  kernel = "radial",
+  cost = 10,
+  gamma = 0.5
+)
+summary(NFCS.2021.MLACS.SVM.Model)
+
+predictions.svm <- predict(NFCS.2021.MLACS.SVM.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.svm, NFCS.2021.MLACS.Test$StressGroup)
+
+# Naive Bayes
+NFCS.2021.MLACS.NB.Model <- naiveBayes(StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015 + B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+                                         data = NFCS.2021.MLACS.Train)
+summary(NFCS.2021.MLACS.NB.Model)
+
+predictions.nb <- predict(NFCS.2021.MLACS.NB.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.nb, NFCS.2021.MLACS.Test$StressGroup)
+
+# Gradient Boosting Machine
+NFCS.2021.MLACS.GBM.Model <- gbm(
+  StressGroup ~ A50A + A3Ar_w + A6 + A11 + A9 + A8_2021 + A5_2015 + B1 + B2 + B31 + B42 + B43 + C1_2012 + B14 + EA_1 + F1 + M4,
+  data = NFCS.2021.MLACS,
+  distribution = "gaussian",
+  n.trees = 100,
+  interaction.depth = 3
+)
+
+summary(NFCS.2021.MLACS.GBM.Model)
+
+predictions.gbm <- predict(NFCS.2021.MLACS.GBM.Model, newdata = NFCS.2021.MLACS.Test)
+table(predictions.gbm, NFCS.2021.MLACS.Test$StressGroup)
