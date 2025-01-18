@@ -83,3 +83,19 @@ library(e1071)
 if (!require(gbm))
   install.packages("gbm")
 library(gbm)
+
+if (!require(dplyr))
+  install.packages("dplyr")
+library(dplyr)
+
+if (!require(gmodels))
+  install.packages("gmodels")
+library(gmodels)
+
+if (!require(caret))
+  install.packages("caret")
+library(caret)
+
+if (!require(vcd))
+  install.packages("vcd")
+library(vcd)
