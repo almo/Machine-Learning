@@ -391,9 +391,10 @@ assoc(table(NFCS.2021.MLACS$A8_2021, NFCS.2021.MLACS$StressGroup),
       main = "Income vs Stress Group")
 
 # A11 - Number of kids
-mosaicplot(table(NFCS.2021.MLACS$A11, NFCS.2021.MLACS$StressGroup), 
+mosaicplot(table(NFCS.2021.MLACS$StressGroup,NFCS.2021.MLACS$A11), 
            shade = TRUE,  # Highlight significant associations
            main = "Número de hijos vs Grupo de Estrés",
+           las = 2,
            xlab = "A11 (Número de hijos)", ylab = "Grupo de Estrés")
 
 assoc(table(NFCS.2021.MLACS$A11, NFCS.2021.MLACS$StressGroup), 
@@ -465,3 +466,10 @@ mosaicplot(table(NFCS.2021.MLACS$H1, NFCS.2021.MLACS$StressGroup),
 assoc(table(NFCS.2021.MLACS$H1, NFCS.2021.MLACS$StressGroup), 
       shade = TRUE,  # Add shading for significance
       main = "H1 (Seguro médico) vs Grupo de Estrés")
+
+# A11 - Kids
+mosaicplot(table(NFCS.2021.MLACS$A11, NFCS.2021.MLACS$StressGroup), 
+           shade = TRUE,  # Highlight significant associations
+           main = "Educacion vs Grupo de Estrés",
+           las = 2,
+           xlab = "A5_2015 (Educación)", ylab = "Grupo de Estrés")

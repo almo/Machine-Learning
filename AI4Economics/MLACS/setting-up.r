@@ -99,3 +99,7 @@ library(caret)
 if (!require(vcd))
   install.packages("vcd")
 library(vcd)
+
+if (!require(Hmisc))
+  install.packages("Hmisc")
+library(Hmisc)
