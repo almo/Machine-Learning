@@ -47,7 +47,7 @@ Licencia CC BY-NC-ND 4.0\footnote{https://creativecommons.org/licenses/by-nc-nd/
 \clearpage
 \section{Introducción}
 \label{sec:introduction}
-En la actualidad, los individuos de las sociedad desarrolladas, cuentan con 
+En la actualidad, los individuos de las sociedades desarrolladas, cuentan con 
 un sinfín de mecanismos financieros, que dan soporte a la vida contemporánea
 y constituyen herramientas catalizadoras de proyectos personales y empresariales. 
 
@@ -128,7 +128,7 @@ genero, educación e ingresos.
 El cuestionario utilizado para recavar los datos contiene 126 variables explicativas, 
 identificadas con códigos alfanuméricos (J10, J41\_1, etc \dots) y que son de tipo nominal, 
 representadas numéricamente. Tanto la estructura del conjunto de datos, como la asignación de 
-valores numéricos y etiquetas, se encuentran descrito en el fichero \textit{NFCS 2021 State 
+valores numéricos y etiquetas, se encuentran descritos en el fichero \textit{NFCS 2021 State 
 Data File Info 220627} que se distribuye con los datos\footnote{Recursos disponibles online 
 https://finrafoundation.org/data-and-downloads}. 
 
@@ -183,13 +183,13 @@ analizan cómo se distribuyen los registros incompletos para las variables expli
 
 Comenzamos con las variables explicativas demográficas. La figure \ref{fig:demographic_features_missing_values}
 recoge el porcentaje de registros que carecen de valor. Como se puede observar, solo dos 
-variables explicativas tiene entradas sin definir: (1) \textbf{A10}, con un \textbf{41.99\%}
+variables explicativas tienen entradas sin definir: (1) \textbf{A10}, con un \textbf{41.99\%}
 de valores faltantes y (2) \textbf{A21\_2015}, con un \textbf{40.62\%} de valores faltantes. 
 
 Tal y como se puede consultar en la sección \ref{sec:features_description}, la 
 primera de las variables corresponde con el estado laboral de la pareja y la segunda informa 
 sobre estudiantes a tiempo parcial. Si bien son importantes, dado los elevados porcentajes de
-datos faltantes y el elevado numero de otras variables explicativas, se opta por eliminarlas
+datos faltantes y el elevado número de otras variables explicativas, se opta por eliminarlas
 del estudio.
 
 La figura \ref{fig:capabilities_features_missing_values} presenta el porcentaje de valores 
@@ -201,7 +201,8 @@ nuevo, tal y como se puede comprobar en la sección \ref{sec:features_descriptio
 referencia respectivamente a la inversión en acciones (B14), quién es el promotor de los planes de
 pensiones (C2\_2012), si se realizan contribuciones recurrentes al plan de pensiones (C5\_2012) y
 la existencia de una hipoteca (E7). En este caso, y siguiendo con el criterio introducido 
-anteriormente, se eliminarán del conjunto de datos las variables con elevados porcentaje del valores faltantes y se imputará, asignando un valor sintético, la variable B14.
+anteriormente, se eliminarán del conjunto de datos las variables con elevados porcentajes de
+valores faltantes y se imputará, asignando un valor sintético, la variable B14.
 
 \begin{figure}[ht]
     \centering
@@ -252,7 +253,7 @@ imputados y permanecer alerta para identificar sesgos derivados del proceso.
 
 \subsection{Datos: puesta a punto}
 \label{sec:data_grooming}
-Una vez revisados el conjunto de datos, se llevan a cabo operaciones de preparación y
+Una vez revisado el conjunto de datos, se llevan a cabo operaciones de preparación y
 puesta a punto. En el trabajo que nos ocupa, el proceso comenzará con la modelización
 de las variables categóricas como factores, estructuras del lenguaje R, que permiten
 el manejo automático de muchas de las operaciones que serán realizadas. 
@@ -262,7 +263,7 @@ Esto es necesario, ya que los datos de origen están codificados numéricamente.
 que contiene el código del proyecto \cite{ALMO25}.
 
 Seguidamente, se llevará a cabo el proceso de imputación o asignación de valores
-sintéticos para aquellas variables explicativas seleccionadas en el aparatado anterior.
+sintéticos para aquellas variables explicativas seleccionadas en el apartado anterior.
 Información técnica sobre este proceso y referencias forman parte del cuadro 
 explicativo incluido a continuación.
 \hspace{3em}
@@ -302,7 +303,7 @@ que hacen que el algoritmo de \textit{random forest} resulte en imputaciones lig
 Por último, como ya se ha mencionado, el conjunto de datos NFCS 2021 esta formado por
 variables categóricas, nominales, que representan las respuestas de los participantes
 al cuestionario del estudio. Si bien existe un elevado número de funciones en R que 
-admiten directamente variables explicativas codificadas como factores, en el algunos
+admiten directamente variables explicativas codificadas como factores, en algunos
 casos puede ser necesario la codificación numérica de estas. 
 
 Anticipando esta situación,
@@ -379,7 +380,7 @@ para afrontar imprevistos) o J32 (rating crediticio).
 
 En la figura \ref{fig:mca_stress_categories} se recogen las contribuciones a nivel 
 de categorías, combinación variable explicativa y valor. Esta combinación resultará
-de utilidad una vez se evalúe los grupos de individuos clasificados de manera no 
+de utilidad una vez se evalúen los grupos de individuos clasificados de manera no 
 supervisada. A continuación se ha realizado el análisis de las variables explicativas 
 que según hemos visto en el párrafo anterior, permiten explicar una elevada proporción
 de la varianza. La figura \ref{fig:mca_stress_fX_Y_ellipses} recoge los resultados para
@@ -405,23 +406,22 @@ con claridad algunas agrupaciones, que sin duda también resultarán de utilidad
     \label{fig:mca_stress_j20_j32_ellipses}
 \end{figure}
 
-Una vez completado el análisis exploratorio, el siguiente paso será lleva a cabo 
+Una vez completado el análisis exploratorio, el siguiente paso será llevar a cabo 
 clasificación no supervisada, para lo que se empleará el algoritmo de k medias
-\cite{Hastie23}. En este caso, una vez mas, debido a que nuestro conjunto
-de datos es de carácter categórico nominal, se utilizará la variantes denominada
+\cite{Hastie23}. En este caso, una vez más, debido a que nuestro conjunto
+de datos es de carácter categórico nominal, se utilizará la variante denominada
 k modas. En cualquier caso, el algoritmo requiere un parámetro principal: el número
 de grupos a definir. 
 
-Tal y como hemos visto durante el análisis exploratorio, un 
-número entre 3 y 5 puede ser razonable. Desde un punto de vista de la investigación, 
-parece sensato reducir el número al máximo para facilitar el análisis. Es más, teniendo
-en cuenta que el proceso es no supervisado, parece recomendable una primera aproximación 
-de grano grueso. En cualquier caso, existen técnicas para obtener una recomendación en
-base a un análisis cualitativo, que se fundamentan en una métrica de coherencia entre
-los grupos identificados. 
+Tal y como hemos visto durante el análisis exploratorio, un número entre 3 y 5 puede ser
+razonable. Desde un punto de vista de la investigación, parece sensato reducir el número
+al máximo para facilitar el análisis. Es más, teniendo en cuenta que el proceso es no
+supervisado, parece recomendable una primera aproximación de grano grueso. En cualquier
+caso, existen técnicas para obtener una recomendación en base a un análisis cualitativo,
+que se fundamentan en una métrica de coherencia entre los grupos identificados. 
 
 En esta investigación utilizaremos las técnicas \textit{Elbow Method} y \textit{Silhouette Method},
-ambas basadas la denominada distancia inter grupos, que hacen uso de una métrica adaptada 
+ambas basadas en la denominada distancia inter grupos, que hacen uso de una métrica adaptada 
 para variables categóricas. Realizando una comparativa para grupos de entre 2 y 10 categorías, 
 los resultados para ambas técnicas pueden comprobarse en la figura \ref{fig:k-modes-hyperparameters}. De acuerdo con el \textit{Elbow Method} no existe un valor claro,
 mientras que siguiendo el \textit{Silhouette Method}, el valor recomendado sería de 3 grupos.
@@ -505,14 +505,13 @@ requeridos. La secuencia que se sigue es la siguiente:
     su validación.
     \item[Entrenamiento] Con la información preparada en el paso anterior
     se realiza el entrenamiento, limitando la muestra de los datos y ajustando los parámetros
-    que sean necesarios. El clasificador deberá calcular el grupo de estés haciendo uso de 
+    que sean necesarios. El clasificador deberá calcular el grupo de estos haciendo uso de 
     las 25 variables explicativas\footnote{La lista de variables es la siguiente: STATEQ, A50A,
     A3Ar\_w, A50B, A5\_2015, A6, A7, A11, A8\_2021, A9, A40, A41, B1, B2, B31, B42, B43, C1\_2012,
     B14, EA\_1, F1, H1, M1\_1, M4 y M20. La descripción de todas ellas se puede consultar en la sección \ref{sec:features_description}.} que forman el conjunto de datos, tras el proceso de
     preparación. 
     \item[Validación] Completada la fase de entrenamiento, el clasificador se 
-    valida evaluando los resultados con la muestra de datos de prueba. El resultado será una
-    matriz confusión que
+    valida evaluando los resultados con la muestra de datos de prueba.
 \end{description}
 Los resultados se muestran en la tabla \ref{tab:clasifiers_comparative}, que incluye la
 precisión del clasificador, más la precisión que se obtendría respondiendo siempre con la
@@ -690,14 +689,14 @@ Como consecuencia de todo ello, cuenta con \textit{credit score} bueno (\textbf{
 Por último, el Grupo 3, del que podemos afirmar que sufre \textbf{Bajo Estrés Financiero}, 
 cuenta con un nivel mínimo (1) de satisfacción con sus finanzas personales (\textbf{J1}),
 reflejo de la situación que reflejan el resto de variables explicativas. Sus gastos están
-por encima de su nivel de ingresos (\textbf{J3}), por lo encuentra alguna dificultad para
+por encima de su nivel de ingresos (\textbf{J3}), por lo que encuentra alguna dificultad para
 cubrir sus gastos mensuales y pagar sus facturas (\textbf{J4}); no cuentan con ningún
 fondo de emergencia que les permita sus gastos por tres meses (\textbf{F5}), y no podría 
 hacer frente a un gasto imprevisto de \$2.000 (\textbf{J20}), ya que su nivel de ingresos 
 de los últimos 12 meses ha sufrido alguna variación importante (\textbf{J10}). 
 Además, durante el último año no pudo pagar la factura completa de su tarjeta de crédito,
 (\textbf{F2\_1}) y se vio obligado a financiarla (\textbf{F2\_2}), reduciéndola al mínimo
-(\textbf{F2\_3}), pagando penalizaciones por por retrasos (\textbf{F2\_4}), o por exceso de
+(\textbf{F2\_3}), pagando penalizaciones por los retrasos (\textbf{F2\_4}), o por exceso de
 crédito (\textbf{F2\_5}), y haciendo uso de \textit{pay back} (\textbf{F2\_6)}.
 Con todo, no tiene facturas médicas pendientes (\textbf{G20}), pero si ha tenido que lidiar
 con agencias de reclamación de facturas(\textbf{G38}). Resultado de lo anterior, cuenta con \textit{credit score} por encima de la media (\textbf{J32})\footnote{El valor 
@@ -710,7 +709,7 @@ Con los datos obtenidos hasta el momento se pueden realizar interesantes anális
 solo elaborar tablas que comparan la distribución del estrés de acuerdo con alguna variable
 de interés. Adicionalmente, segmentando los datos de acuerdo con el nivel de estrés sería 
 posible realizar un nuevo análisis de correspondencia múltiple, buscando agrupaciones,
-limitadas ya las información demográfica o de alfabetización financiera. 
+limitada ya la información demográfica o de alfabetización financiera. 
 
 En este apartado nos limitaremos a un análisis sencillo, con objeto de 
 mostrar la potencia de los métodos empleados, pero dejando un análisis profundo
@@ -722,7 +721,7 @@ relaciones entre variables demográficas y los grupos de estrés:
     \item ¿Cómo influye la renta?¿el número de hijos?¿son más vulnerables las personas
     divorciadas?
     \item ¿el estado laboral afecta? ¿el nivel de estudios?
-    \item ¿Se trata de un fenómeno generacional que afecta mas a las personas mayores? ¿las
+    \item ¿Se trata de un fenómeno generacional que afecta más a las personas mayores? ¿las
     mujeres son vulnerables en mayor proporción que los hombres?
 \end{itemize}
 
@@ -746,7 +745,10 @@ recogen en cuadro \ref{tab:stress_vs_gender}:
 
 Como se puede apreciar, las mujeres sufren más el estrés financiero que los 
 hombres, presentando porcentajes superiores en las categorías de riesgo y estrés. 
-Para el análisis del impacto del estrés por estado, a modo ilustrativo, se presentará los resultados para los dos estados más ricos y los dos mas pobres, en términos de PIB\footnote{U.S. Bureau of Economic Analysis (BEA) - www.bea.gov}.
+Para el análisis del impacto del estrés por estado, a modo ilustrativo, se presentarán
+los resultados para los dos estados más ricos y los dos más pobres, 
+en términos de PIB\footnote{U.S. Bureau of Economic Analysis (BEA) 
+- www.bea.gov}.
 Los resultados se recogen en el cuadro \ref{tab:stress_vs_states}:
 
 \begin{table}[ht]
@@ -812,7 +814,7 @@ se obtienen son consistentes con otros estudios: estar casado (o haberlo estado)
 ayuda a no tener estrés financiero. Del resto de categorías, sorprende la de 
 individuos separados, que en su gran mayoría se encuentra en situación de riesgo.
 Habría que analizar la situación más detalladamente, pero podría confirmar la 
-situación de desesperanza que invade un parte importante de la sociedad americana.
+situación de desesperanza que invade una parte importante de la sociedad americana.
 
 \begin{table}[ht]
 \centering
@@ -835,7 +837,7 @@ Pasando ahora al análisis de como la alfabetización financiera influye en los
 grupos de estrés, se recogen a continuación algunas de las preguntas que 
 podrían responderse con los datos obtenidos:
 \begin{itemize}
-    \item ¿Cómo influye Contar con cuentas corriente o de ahorro ?
+    \item ¿Cómo influye Contar con cuenta corriente o de ahorro ?
     \item ¿El seguro sanitario es fuente de estrés financiero?
     \item ¿Cuál es el impacto de las tarjetas de crédito?
     \item ¿El uso de banca móvil ayuda?
@@ -896,12 +898,13 @@ categorías. Como reflexión quizás extemporánea, y a la luz de sucesos de
 rabiosa actualidad, no parece que esto lleve a los estadounidenses a buscar
 soluciones alternativas, constituyendo parte de la idiosincrasia de muchos 
 ciudadanos. Por buscar similitudes cercanas, podría compararse con la situación
-de elevado desempleo que tiene muchos países en Europa, cuyos ciudadanos descartan
+de elevado desempleo que tienen muchos países en Europa, cuyos ciudadanos descartan
 soluciones alternativas, aceptando la lacra del desempleo como sustancial de sus
-sociedades. Quizás un tanto frívolamente, podríamos decir que a los estadounidenses les produce más estrés estar sin empleo que sin seguro médico.
+sociedades. Quizás un tanto frívolamente, podríamos decir que a los estadounidenses
+les produce más estrés estar sin empleo que sin seguro médico.
 
-A continuación, se analiza el impacto que el contar con tarjetas de crédito
-tiene en el estrés financiero. 
+A continuación, se analiza el impacto que tiene el contar con tarjetas de crédito
+en el estrés financiero. 
 
 \begin{table}[ht]
 \centering
@@ -915,7 +918,7 @@ tiene en el estrés financiero.
 \textbf{Entre 4 y 8 } & 3406 (64.5 \%) &	1056 (20 \%) &	816 (15.4 \%)\\
 \textbf{Entre 9 y 12} & 398 (53 \%) &	150 (20 \%) &	202 (26.9 \%)\\
 \textbf{Entre 13 y 20} & 137 (43.7 \%) &	60 (19.1 \%) &	116 (37 \%) \\
-\textbf{Mas de 20} & 61 (36.9 \%) &	36 (21.8 \%) &	68 (41.2 \%)\\
+\textbf{Más de 20} & 61 (36.9 \%) &	36 (21.8 \%) &	68 (41.2 \%)\\
 \bottomrule
 \end{tabular}
 \caption{Estrés Financiero vs Tarjetas de Crédito}
@@ -923,8 +926,8 @@ tiene en el estrés financiero.
 \end{table}
 Las personas sin tarjetas se encuentran en riesgo o situación de estrés en
 un 74\%. Los porcentajes inician una senda decreciente hasta llegar al 
-segmento de aquellos que poseen entre nueve y doce, en el que alcanza una 
-proporción rayando el 50\%, para comenzar a crecer desde eses punto y no 
+segmento de aquellos que poseen entre nueve y doce, en el que se alcanza una 
+proporción rayando el 50\%, para comenzar a crecer desde ese punto y no 
 situarse nunca más por debajo de esa cifra. Los datos parecen aportar evidencia
 que en aquellos grupos con más de 8 tarjetas, sólo se encuentran los que las 
 necesitan y aquellos que las utilizan casi como desechables, lo que podría ser
@@ -968,7 +971,7 @@ situaciones de estrés financiero. Los resultados se muestran en las tablas
 Un resultado apreciable es como se comporta el estrés financiero cuando se
 incrementa el uso del móvil: ya sea en pagos o en transferencia, el
 incremento de uso se traduce en un segmento libre de riesgo menor. El efecto
-que se observa para los segmentos en riesgo o situación de estrés, es es
+que se observa para los segmentos en riesgo o situación de estrés, es el
 inverso, aumentando los individuos en tales segmentos.
 
 En definitiva, y para cerrar este segmento, una vez obtenidos los segmentos 
@@ -985,15 +988,15 @@ Frente a las técnicas tradicionales de la econometría, el aprendizaje automát
 (\textit{machine learning}) resulta apropiado cuando, disponiendo de conjuntos de
 datos suficientemente grandes, los problemas presentan una elevada dimensionalidad
 y/o la relación funcional entre la variable dependiente y las variables explicativas
-no responde al caso lineal. En estos casos, las técnicas de predicción del ámbito del
+no responden al caso lineal. En estos casos, las técnicas de predicción del ámbito del
 aprendizaje automático proporcionan también métodos más potentes, abriendo la puerta a
 aplicaciones microeconómicas variadas.
 
 El problema que se ha abordado en este trabajo de investigación presenta los retos 
-adecuados. Por un lado, la elevada dimensionalidad de partida, se vea incrementada
+adecuados. Por un lado, la elevada dimensionalidad de partida, se ve incrementada
 por la necesaria codificación\footnote{En R, la mayoría de las funciones trabajan
 de manera transparente con variables categóricas, lo que no significa que no exista una
-codificación implícita.} de las variables explicativas categóricas. Por otra lado, 
+codificación implícita.} de las variables explicativas categóricas. Además, 
 aun no contando con información a priori,  no es del todo descabellado afirmar que
 la relación funcional que conecta el estrés financiero con el conjunto de variables
 demográficas y de alfabetización financiera dista de ser lineal. Esto, sumado a la 
@@ -1010,7 +1013,7 @@ de naturaleza económica.
 \label{sec:sub:conclusions_ml}
 A la vista de los resultados, es posible afirmar que el algoritmo de k medias adaptado
 a variables categóricas (k modas), conduce a una solución aceptable, permitiendo introducir
-una taxonomía que clasifica los individuos de la muestra en grupos de estrés financiero. 
+una taxonomía que clasifica a los individuos de la muestra en grupos de estrés financiero. 
 Esto es fundamental, ya que permite explorar técnicas de clasificación supervisada. 
 
 Los resultados relativos a los clasificadores supervisados evaluados, \textit{Random Forest}, 
@@ -1025,7 +1028,7 @@ computacionales mayores, sino una dedicada labor artesanal para encontrar modelo
 aplicación real.
 
 Finalmente, es importante resaltar que la elevada dimensionalidad, la búsqueda de relaciones
-funcionales no lineas y conjuntos de datos de gran tamaño, se traducen en elevadas 
+funcionales no lineales y conjuntos de datos de gran tamaño, se traducen en elevadas 
 demandas computacionales\footnote{Sin duda los recursos utilizados en esta investigación
 han sido limitados. Estos pueden consultarse en el apéndice \ref{sec:infrastructure}}.
 En nuestro caso, esto se hizo patente en diferentes momentos. Durante el análisis
@@ -1043,9 +1046,9 @@ relación funcional todas las variables explicativas, no requirió excesivos rec
 computacionales. El ajuste automático de parámetros (\textit{tuning}) no proporcionó
 resultados en un tiempo razonable y de nuevo la técnica fue descartada. 
 
-En resume, el uso de las técnicas de aprendizaje automático abren nuevas áreas para 
+En resumen, el uso de las técnicas de aprendizaje automático abren nuevas áreas para 
 la investigación, aunque distan de ser inmediatas y tiene una elevada componente de 
-artesanía. La mejorar de los clasificadores supervisados, junto con las otras limitaciones 
+artesanía. La mejora de los clasificadores supervisados, junto con las otras limitaciones 
 identificadas, tendrán que ser abordados en investigaciones futuras, adecuadamente
 dimensionados y con los recursos computacionales adecuados.
 
@@ -1055,7 +1058,7 @@ La importancia de la alfabetización financiera tiene su reflejo, no solo en
 aspectos personales, sino también sociales, influyendo en decisiones que van desde
 el establecimiento de una reserva económica para imprevistos, seleccionar la mejor
 opción para financiar la compra de una casa o decidir el sentido del voto tras 
-analizar las propuestas económicas que se debaten en una elecciones. 
+analizar las propuestas económicas que se debaten en unas elecciones. 
 Todo esto está detrás del interés que organismos nacionales e internacionales 
 prestan al asunto. 
 
@@ -1065,7 +1068,7 @@ a priori, se ha definido formalmente en base a un conjunto de variables explicat
 de conjunto de datos bajo estudio. Esto en si mismo, ya es un interesante resultado, 
 ya que formaliza un aspecto que de otra forma podría ser escurridizo, pero que 
 contando con una definición formal, por cuestionable que sea, abre la posibilidad 
-a estudio adicionales.
+a estudios adicionales.
 
 El primero de los objetivos, la introducción de una taxonomía del estrés financiero, se
 ha completado satisfactoriamente. En este apartado se resumen brevemente las evidencias
@@ -1073,11 +1076,11 @@ encontradas. Por otra parte, el segundo de los objetivos, el desarrollo de un cl
 que partiendo de datos demográficos y de alfabetización financiera determinará el grupo
 de estrés del individuo, no habiéndose logrado completamente, no compromete la valoración
 de los resultados económicos, pues se trata de una herramienta operativa para la aplicación
-práctica bien en casos reales, bien en investigaciones futuras. Pasemos pues a valora 
+práctica bien en casos reales, bien en investigaciones futuras. Pasemos pues a valorar 
 los resultados.
 
 En primer lugar la taxonomía introducida (ver sección \ref{sec:financial_stress_taxonomy})
-presenta un nivel aceptable, sin contradicciones palpables. Existe no obstante cierto nivel
+presenta un nivel aceptable, sin contradicciones palpables. Existe, no obstante, cierto nivel
 de solape entre los grupos \textbf{Riesgo de Estrés} y \textbf{Estrés}, que se hace patente,
 por ejemplo, en los valores asignados a las variables \textbf{J4}, dificultad para afrontar
 los gastos mensuales y \textbf{J32}, \textit{rating} crediticio. Las respuestas obtenidas
@@ -1090,7 +1093,7 @@ clasificadores supervisados, parecen respaldar, salvo los casos extremos, la uni
 del estrés financiero, que responde más a un modo de vida que a niveles de ingreso, 
 estudios, etc... No se si resulta procedente mencionarlo en un trabajo académico, pero
 parecen responder a principios de la sabiduría popular tales como \textit{tanto tienes,
-tanto gastas} o \textit{no es más rico el que más tiene, sino que menos necesita}.
+tanto gastas} o \textit{no es más rico el que más tiene, sino el que menos necesita}.
 
 \section{Trabajos Futuros}
 \label{sec:next_steps}
@@ -1101,11 +1104,11 @@ explorar otras geografías como la europea o países en desarrollo.
 
 El desarrollo y mejora de los clasificadores automáticos puede ser una herramienta
 excepcional para entidades financieras, no ya evaluando la oferta de servicio, sino
-también educando a sus clientes existente para evitar situaciones de riesgo, estimar
+también educando a sus clientes existentes para evitar situaciones de riesgo, estimar
 la viabilidad de recuperación de situaciones de quiebra financiera o establecer 
 itinerarios de desarrollo socioeconómico. 
 
-Por último, el desarrollo de conjunto de datos enriquecidos con información digital 
+Por último, el desarrollo del conjunto de datos enriquecidos con información digital 
 podría superar las barreras que introducen baja periodicidad del estudio original, así
 como aportar evidencias adicionales que pudieran mejorar los resultados y ampliar el
 alcance de los mismos.
