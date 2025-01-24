@@ -338,7 +338,7 @@ fviz_mca_ind(mca_result,
 
 # Stress
 nrows <- nrow(NFCS.2021.MLACS.Stress)
-NFCS.2021.MLACS.StressSample <- sample(nrows, nrows * 0.7)
+NFCS.2021.MLACS.Stress.Sample <- sample(nrows, nrows * 0.7)
 NFCS.2021.MLACS.Stress.Train <- NFCS.2021.MLACS.Stress[NFCS.2021.MLACS.Stress.Sample, ]
 NFCS.2021.MLACS.Stress.Test <- NFCS.2021.MLACS.Stress[-NFCS.2021.MLACS.Stress.Sample, ]
 # MCA
