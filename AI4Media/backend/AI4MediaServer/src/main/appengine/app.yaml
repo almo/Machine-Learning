@@ -1,6 +1,6 @@
 runtime: java21
 instance_class: F1
-entrypoint: 'java -jar AI4Media-all.jar'
+entrypoint: 'java -jar AI4MediaServer-all.jar'
 
 handlers:
   - url: .*

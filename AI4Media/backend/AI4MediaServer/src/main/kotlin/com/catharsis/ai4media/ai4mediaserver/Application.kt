@@ -1,4 +1,4 @@
-package com.example
+package com.catharsis.ai4media.ai4mediaserver
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*
