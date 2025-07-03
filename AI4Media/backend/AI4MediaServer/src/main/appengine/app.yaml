@@ -1,0 +1,17 @@
+runtime: java21
+instance_class: F1
+entrypoint: 'java -jar AI4Media-all.jar'
+
+handlers:
+  - url: .*
+    script: auto
+    secure: always
+    
+service: backend
+
+automatic_scaling:
+  min_idle_instances: automatic
+  max_idle_instances: automatic
+  min_pending_latency: automatic
+  max_pending_latency: automatic
+  max_instances: 2
