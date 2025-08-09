@@ -4,6 +4,12 @@ val ktor_version: String by project
 val kotlin_version: String by project
 val gce_logback_version: String by project
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 plugins {
     application
     id("org.jetbrains.kotlin.jvm") version "2.2.0"
