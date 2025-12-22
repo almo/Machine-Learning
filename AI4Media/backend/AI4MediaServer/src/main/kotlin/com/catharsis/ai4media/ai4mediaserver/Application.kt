@@ -3,59 +3,60 @@ package com.catharsis.ai4media.ai4mediaserver
 import com.google.ortools.Loader
 import com.google.ortools.linearsolver.MPSolver
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.plugins.contentnegotiation.*
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class SocialMediaPost(
+    val text: String,
+    val url: String?,
+    val hashtags: List<String> = emptyList(),
+    val tag: String,
+    val scheduled: String? = null, // Date and time for posting
+    val status: String = "pending", // e.g., "pending", "posted", "failed"
+    val socialURL: String? = null // Link to the post online after it's published
+)
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
+val socialMediaPosts = mutableListOf<SocialMediaPost>(
+    SocialMediaPost(
+        text = "This is a mock post for testing purposes.",
+        url = "https://example.com/mock-post",
+        hashtags = listOf("#mock", "#testing", "#AI4Media"),
+        tag = "test",
+        status = "posted",
+        socialURL = null
+    )
+)
+
 fun Application.module() {
+    install(ContentNegotiation) {
+        json()
+    }
+
     routing {
         get("/") {
-             try {
-                // Load the native OR-Tools library.
-                Loader.loadNativeLibraries()
-
-                // Create the linear solver with the GLOP backend.
-                val solver: MPSolver = MPSolver.createSolver("GLOP")
-
-                // Create the variables x and y.
-                val x = solver.makeNumVar(0.0, 1.0, "x")
-                val y = solver.makeNumVar(0.0, 2.0, "y")
-
-                // Create a linear constraint, 0 <= x + y <= 2.
-                val ct = solver.makeConstraint(0.0, 2.0, "ct")
-                ct.setCoefficient(x, 1.0)
-                ct.setCoefficient(y, 1.0)
-
-                // Create the objective function, 3 * x + y.
-                val objective = solver.objective()
-                objective.setCoefficient(x, 3.0)
-                objective.setCoefficient(y, 1.0)
-                objective.setMaximization()
-
-                // Solve the problem AND check the result.
-                val resultStatus = solver.solve()
-
-                // Create the response text based on the solver's status.
-                val responseText = if (resultStatus == MPSolver.ResultStatus.OPTIMAL) {
-                    """
-                    Solution found! ✅
-                    Objective value = ${objective.value()}
-                    x = ${x.solutionValue()}
-                    y = ${y.solutionValue()}
-                    """.trimIndent()
-                } else {
-                    """
-                    Could not solve the problem. 😢
-                    Solver status: $resultStatus
-                    """.trimIndent()
-                }
-
-                call.respondText(responseText)
-
-            } catch (e: Exception) {
-                call.respondText("An error occurred: ${e.message}")
+            call.respondText("Hello, AAI4Media Server!")
+        }
+        
+        get("/social-media-posts") {
+            if (socialMediaPosts.isEmpty()) {
+                call.respond(HttpStatusCode.NotFound, "No social media posts found.")
+            } else {
+                call.respond(socialMediaPosts)
             }
+        }
+
+        post("/social-media-post") {
+            val post = call.receive<SocialMediaPost>().copy(status = "pending") // Ensure new posts are pending
+            socialMediaPosts.add(post)
+            call.respond(HttpStatusCode.OK, "Post received and stored.")
         }
     }
 }
