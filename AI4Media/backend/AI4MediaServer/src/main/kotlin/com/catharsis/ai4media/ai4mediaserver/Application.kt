@@ -1,62 +1,72 @@
 package com.catharsis.ai4media.ai4mediaserver
 
-import com.google.ortools.Loader
-import com.google.ortools.linearsolver.MPSolver
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseToken
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
+import io.ktor.server.auth.*
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.plugins.contentnegotiation.*
-import kotlinx.serialization.Serializable
 
-@Serializable
-data class SocialMediaPost(
-    val text: String,
-    val url: String?,
-    val hashtags: List<String> = emptyList(),
-    val tag: String,
-    val scheduled: String? = null, // Date and time for posting
-    val status: String = "pending", // e.g., "pending", "posted", "failed"
-    val socialURL: String? = null // Link to the post online after it's published
-)
+data class User(val userId: String, val email: String, val tenantId: String?)
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-val socialMediaPosts = mutableListOf<SocialMediaPost>(
-    SocialMediaPost(
-        text = "This is a mock post for testing purposes.",
-        url = "https://example.com/mock-post",
-        hashtags = listOf("#mock", "#testing", "#AI4Media"),
-        tag = "test",
-        status = "posted",
-        socialURL = null
-    )
-)
-
 fun Application.module() {
-    install(ContentNegotiation) {
-        json()
+
+    if (FirebaseApp.getApps().isEmpty()) {
+        try {
+            val options =
+                    FirebaseOptions.builder()
+                            .setCredentials(GoogleCredentials.getApplicationDefault())
+                            .setProjectId("meta-gear-464720-g3")
+                            .build()
+            FirebaseApp.initializeApp(options)
+            log.info("Firebase Initialized")
+        } catch (e: Exception) {
+            log.error("Firebase Init Failed", e)
+        }
+    }
+
+    install(ContentNegotiation) { json() }
+
+    install(Authentication) {
+        // "bearer" is a built-in Ktor auth scheme for Token headers
+        bearer("firebase-auth") {
+            realm = "AI4Media Access"
+            authenticate { tokenCredential ->
+                try {
+                    val token = tokenCredential.token
+                    // Verify with Firebase
+                    val decodedToken: FirebaseToken =
+                            FirebaseAuth.getInstance().verifyIdToken(token)
+
+                    // Extract Tenant ID
+                    val tenantId = decodedToken.claims["tenantProjectId"] as? String
+
+                    // Return the Principal (Success) or null (Failure)
+                    User(userId = decodedToken.uid, email = decodedToken.email, tenantId = tenantId)
+                } catch (e: Exception) {
+                    // Log the error and return null to reject the request
+                    this@module.log.error("Firebase Auth Failed", e)
+                }
+            }
+        }
     }
 
     routing {
-        get("/") {
-            call.respondText("Hello, AAI4Media Server!")
-        }
-        
-        get("/social-media-posts") {
-            if (socialMediaPosts.isEmpty()) {
-                call.respond(HttpStatusCode.NotFound, "No social media posts found.")
-            } else {
-                call.respond(socialMediaPosts)
-            }
-        }
+        staticResources("/", "static")
 
-        post("/social-media-post") {
-            val post = call.receive<SocialMediaPost>().copy(status = "pending") // Ensure new posts are pending
-            socialMediaPosts.add(post)
-            call.respond(HttpStatusCode.OK, "Post received and stored.")
+        authenticate("firebase-auth") {
+            get("/api/dashboard") { 
+                call.respondText("Hello, AAI4Media Server!") 
+            }
         }
     }
 }

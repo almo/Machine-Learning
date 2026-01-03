@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI4Media Login Portal</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        button { background-color: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        button:hover { background-color: #357ae8; }
+        #status { margin-top: 15px; color: #555; font-size: 0.9em; }
+        code { display: block; background: #eee; padding: 10px; margin-top: 10px; word-break: break-all; text-align: left; font-size: 0.8em; max-height: 100px; overflow-y: scroll; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Welcome to AI4Media Platform</h2>
+    <p>Sign in to access your workspace</p>
+    
+    <button id="google-signin-btn">Sign in with Google</button>
+    
+    <div id="status">Not signed in</div>
+    <code id="token-display"></code>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // 2. Your Firebase Configuration
+  // COPY THIS FROM FIREBASE CONSOLE: Project Settings -> General -> Your Apps
+  const firebaseConfig = {
+    apiKey: "AIzaSyA7Lu4dYSKDIcttm_TtzSLQNGHtRVKTAGM",
+    authDomain: "meta-gear-464720-g3.firebaseapp.com",
+    projectId: "meta-gear-464720-g3",
+    storageBucket: "meta-gear-464720-g3.firebasestorage.app",
+    messagingSenderId: "873718077819",
+    appId: "1:873718077819:web:5380f57e84580cb7ea85de",
+    measurementId: "G-VLK8TVSCLV"
+  };
+
+  // 3. Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const btn = document.getElementById('google-signin-btn');
+  const status = document.getElementById('status');
+  const tokenDisplay = document.getElementById('token-display');
+
+  // 4. Handle Login Click
+  btn.addEventListener('click', () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log("User signed in:", result.user);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        status.innerText = "Error: " + error.message;
+      });
+  });
+
+  // 5. Listen for Auth State Changes
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      status.innerText = `Signed in as: ${user.email}`;
+      btn.style.display = 'none'; // Hide login button
+
+      // GET THE TOKEN
+      // This is the token you must send to your Kotlin backend
+      const token = await user.getIdToken(); 
+      
+      tokenDisplay.style.display = 'block';
+      tokenDisplay.innerText = token;
+      console.log("Backend Token:", token);
+      
+      // OPTIONAL: Auto-redirect or call your backend API here
+      fetch('/api/dashboard', { headers: { 'Authorization': 'Bearer ' + token} })
+        .then(response => response.text()) // Assuming the backend returns plain text
+        .then(data => {
+          console.log("Backend Response:", data);
+          const backendResponseDisplay = document.createElement('code');
+          backendResponseDisplay.style.display = 'block';
+          backendResponseDisplay.innerText = "Backend Response: " + data;
+          tokenDisplay.parentNode.insertBefore(backendResponseDisplay, tokenDisplay.nextSibling);
+        })
+        .catch(error => {
+          console.error("Error calling backend:", error);
+        });
+      
+    } else {
+      status.innerText = "Not signed in";
+      tokenDisplay.style.display = 'none';
+      btn.style.display = 'inline-block';
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -22,6 +22,7 @@ application {
 }
 
 repositories {
+    google()
     mavenCentral()
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
 }
@@ -31,7 +32,7 @@ configure<AppEngineAppYamlExtension> {
         setArtifact("build/libs/${project.name}-all.jar")
     }
     deploy {
-        version = "alpha001"
+        version = "alpha002"
         projectId = "meta-gear-464720-g3"
     }
 }
@@ -44,9 +45,6 @@ dependencies {
 
     // Core Google ADK library for Java
     implementation("com.google.adk:google-adk:0.1.0")
-    
-    // LogBack 
-    implementation("com.google.cloud:google-cloud-logging-logback:$gce_logback_version")
 
     // Kotlin, Ktor and Netty
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
@@ -56,4 +54,47 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-server-sessions:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
+
+    //
+    // Firebase
+    //
+    // Import the BoM (Bill of Materials) to manage versions
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+
+    // The Admin SDK for server-side operations
+    implementation("com.google.firebase:firebase-admin:9.2.0")
+    
+    // Standard App Engine/Servlet dependencies (likely already there)
+    implementation("javax.servlet:javax.servlet-api:4.0.1")
+
+    //
+    // Logback 
+    // 
+    implementation("com.google.cloud:google-cloud-logging-logback:$gce_logback_version")
+    // 1.- Logback core
+    implementation("ch.qos.logback:logback-core:1.4.14")
+    // Upgrade Logback to 1.4.x (compatible with Java 11+ and SLF4J 2.x)
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+
+    // 2. JSON Layout extensions for Logback
+    implementation("ch.qos.logback.contrib:logback-json-classic:0.1.5")
+    implementation("ch.qos.logback.contrib:logback-jackson:0.1.5")
+    
+    // 3. Jackson (Standard JSON processor, likely already in your project, but ensure it's there)
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
+
+    //
+    // Google Cloud 
+    //
+    // Import the BoM (Bill of Materials) to manage versions
+    implementation(platform("com.google.cloud:libraries-bom:26.72.0"))
+    
+    implementation("com.google.cloud:google-cloud-resourcemanager:1.80.0")
+    implementation("com.google.cloud:google-cloud-billing:2.80.0")
+    
+    implementation("com.google.cloud:google-cloud-service-usage")
+    implementation("com.google.cloud:google-cloud-tasks")
 }
