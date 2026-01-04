@@ -1,0 +1,106 @@
+<head>
+    <script type="module">
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+
+        // 2. Your Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7Lu4dYSKDIcttm_TtzSLQNGHtRVKTAGM",
+            authDomain: "meta-gear-464720-g3.firebaseapp.com",
+            projectId: "meta-gear-464720-g3",
+            storageBucket: "meta-gear-464720-g3.firebasestorage.app",
+            messagingSenderId: "873718077819",
+            appId: "1:873718077819:web:5380f57e84580cb7ea85de",
+            measurementId: "G-VLK8TVSCLV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+ 
+        // 2. The Guard Check
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // A. User is legit. Reveal the UI.
+                console.log("Welcome back, user:", user.uid);
+                document.getElementById("secret-content").style.display = "block";
+
+                currentUser = user;
+            } else {
+                // B. Intruder! No token found. Kick them out.
+                window.location.href = "index.html"; // Go back to login
+            }
+        });
+
+        // 2. ATTACH THE LOGOUT LISTENER HERE
+        // Wait for the DOM to load, then attach the event
+        window.addEventListener('DOMContentLoaded', () => {
+            const logoutBtn = document.getElementById("logout-btn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", () => {
+                    signOut(auth).then(() => {
+                        console.log("Signed out successfully");
+                        // Redirect is handled by onAuthStateChanged above
+                    }).catch((error) => {
+                        console.error("Sign out error", error);
+                    });
+                });
+            }
+            else {
+                console.error("Logout button not found");
+            }
+
+            const scheduleBtn = document.getElementById("schedule-btn");
+            if (scheduleBtn) {
+                scheduleBtn.addEventListener("click", async () => {
+
+                    if (!currentUser) return; // Safety check
+
+                    console.log("Processing schedule request...");
+
+                    try {
+                        // 1. Get a FRESH token right now (handles expiration automatically)
+                        const token = await currentUser.getIdToken();
+
+                        // 2. Send it to backend
+                        const response = await fetch('/api/schedule_post', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            },
+                            
+                        });
+
+                        const data = await response.text();
+
+                        console.log("Backend success:", data);
+                        alert("Post Scheduled!");
+
+                    } catch (error) {
+                        console.error("Backend error:", error);
+                        alert("Failed to schedule post.");
+                    }
+                });
+            }
+            else {
+                console.error("Schedule button not found");
+            }
+
+        });
+    </script>
+</head>
+
+<body>
+    <div id="secret-content" style="display:none;">
+        <h1>Top Secret Dashboard</h1>
+        <p>Only logged in users see this.</p>
+
+        <button id="schedule-btn">Schedule New Post</button>
+        <br>
+        <br>    
+
+        <button id="logout-btn">Logout</button>
+    </div>
+</body>

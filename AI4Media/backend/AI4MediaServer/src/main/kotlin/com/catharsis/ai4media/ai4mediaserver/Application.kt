@@ -64,8 +64,9 @@ fun Application.module() {
         staticResources("/", "static")
 
         authenticate("firebase-auth") {
-            get("/api/dashboard") { 
-                call.respondText("Hello, AAI4Media Server!") 
+            get("/api/schedule_post") { 
+                val user = call.principal<User>()
+                call.respondText("Hello ${user?.userId}, Welcome to the AI4Media Server!") 
             }
         }
     }

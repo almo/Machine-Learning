@@ -30,7 +30,6 @@
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   // 2. Your Firebase Configuration
-  // COPY THIS FROM FIREBASE CONSOLE: Project Settings -> General -> Your Apps
   const firebaseConfig = {
     apiKey: "AIzaSyA7Lu4dYSKDIcttm_TtzSLQNGHtRVKTAGM",
     authDomain: "meta-gear-464720-g3.firebaseapp.com",
@@ -54,7 +53,7 @@
   btn.addEventListener('click', () => {
     signInWithPopup(auth, provider)
       .then((result) => {
-        console.log("User signed in:", result.user);
+        console.log("User signed in!");
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -67,28 +66,9 @@
     if (user) {
       status.innerText = `Signed in as: ${user.email}`;
       btn.style.display = 'none'; // Hide login button
-
-      // GET THE TOKEN
-      // This is the token you must send to your Kotlin backend
-      const token = await user.getIdToken(); 
-      
-      tokenDisplay.style.display = 'block';
-      tokenDisplay.innerText = token;
-      console.log("Backend Token:", token);
-      
-      // OPTIONAL: Auto-redirect or call your backend API here
-      fetch('/api/dashboard', { headers: { 'Authorization': 'Bearer ' + token} })
-        .then(response => response.text()) // Assuming the backend returns plain text
-        .then(data => {
-          console.log("Backend Response:", data);
-          const backendResponseDisplay = document.createElement('code');
-          backendResponseDisplay.style.display = 'block';
-          backendResponseDisplay.innerText = "Backend Response: " + data;
-          tokenDisplay.parentNode.insertBefore(backendResponseDisplay, tokenDisplay.nextSibling);
-        })
-        .catch(error => {
-          console.error("Error calling backend:", error);
-        });
+     
+      // Auto-redirect to dashboard.html
+      window.location.href = "dashboard.html";
       
     } else {
       status.innerText = "Not signed in";
