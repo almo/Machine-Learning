@@ -15,3 +15,9 @@ automatic_scaling:
   min_pending_latency: automatic
   max_pending_latency: automatic
   max_instances: 2
+
+env_variables:
+  # App Engine automatically sets GOOGLE_CLOUD_PROJECT
+  # Define your production URL here:
+  APPENGINE_BASE_URL: "meta-gear-464720-g3.oa.r.appspot.com" 
+  

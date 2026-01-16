@@ -5,27 +5,37 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseToken
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.http.content.staticResources
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.sessions.*
 
 data class User(val userId: String, val email: String, val tenantId: String?)
+
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module() {
 
+    // Initialize Firebase: 
+    // Retrieve Google Cloud Project ID from environment variables
+    val projectId = System.getenv("GOOGLE_CLOUD_PROJECT") 
+        ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
+
+    // Determine the base URL for callbacks, defaulting to localhost for development
+    val baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") ?: "http://localhost:8080"
+
+    // Initialize Firebase App if not already initialized
     if (FirebaseApp.getApps().isEmpty()) {
         try {
             val options =
                     FirebaseOptions.builder()
                             .setCredentials(GoogleCredentials.getApplicationDefault())
-                            .setProjectId("meta-gear-464720-g3")
+                            .setProjectId(projectId)
                             .build()
             FirebaseApp.initializeApp(options)
             log.info("Firebase Initialized")
@@ -34,6 +44,13 @@ fun Application.module() {
         }
     }
 
+    // Retrieve client IDs and secrets for Twitter and LinkedIn from Google Secret Manager
+    val twitterClientId = SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID")
+    val twitterClientSecret = SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET")
+    val linkedinClientId = SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID")
+    val linkedinClientSecret = SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET")
+
+    // Install ContentNegotiation feature for automatic JSON serialization/deserialization
     install(ContentNegotiation) { json() }
 
     install(Authentication) {
@@ -58,16 +75,43 @@ fun Application.module() {
                 }
             }
         }
-    }
 
-    routing {
-        staticResources("/", "static")
-
-        authenticate("firebase-auth") {
-            get("/api/schedule_post") { 
-                val user = call.principal<User>()
-                call.respondText("Hello ${user?.userId}, Welcome to the AI4Media Server!") 
+        // --- OAuth Schemes ---
+        // Twitter OAuth 2.0
+        oauth("auth-twitter") {
+            urlProvider = { "$baseUrl/auth/twitter/callback" } // Callback URL for Twitter OAuth
+            providerLookup = {
+                OAuthServerSettings.OAuth2ServerSettings(
+                    name = "twitter",
+                    authorizeUrl = "https://twitter.com/i/oauth2/authorize",
+                    accessTokenUrl = "https://api.twitter.com/2/oauth2/token",
+                    requestMethod = HttpMethod.Post,
+                    clientId = twitterClientId,
+                    clientSecret = twitterClientSecret,
+                    defaultScopes = listOf("tweet.read", "tweet.write", "users.read", "offline.access") // offline.access needed for refresh
+                )
             }
+            client = HttpClient(CIO)
+        }
+
+        // LinkedIn OAuth 2.0
+        oauth("auth-linkedin") {
+            urlProvider = { "$baseUrl/auth/linkedin/callback" } // Callback URL for LinkedIn OAuth
+            providerLookup = {
+                OAuthServerSettings.OAuth2ServerSettings(
+                    name = "linkedin",
+                    authorizeUrl = "https://www.linkedin.com/oauth/v2/authorization",
+                    accessTokenUrl = "https://www.linkedin.com/oauth/v2/accessToken",
+                    requestMethod = HttpMethod.Post,
+                    clientId = linkedinClientId,
+                    clientSecret = linkedinClientSecret,
+                    defaultScopes = listOf("r_liteprofile", "r_emailaddress", "w_member_social")
+                )
+            }
+            client = HttpClient(CIO)
         }
     }
+
+    // Configure application routing
+    this.configureRouting()
 }

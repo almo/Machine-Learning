@@ -57,6 +57,13 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-sessions:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version") // To make refresh requests
+    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+    implementation("io.ktor:ktor-client-auth:$ktor_version")
+    implementation("io.ktor:ktor-client-json:$ktor_version")
+
 
     //
     // Firebase
@@ -97,4 +104,6 @@ dependencies {
     
     implementation("com.google.cloud:google-cloud-service-usage")
     implementation("com.google.cloud:google-cloud-tasks")
+
+    implementation("com.google.cloud:google-cloud-secretmanager:2.81.0")
 }
