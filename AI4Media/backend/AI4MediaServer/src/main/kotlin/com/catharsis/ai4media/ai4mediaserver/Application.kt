@@ -13,9 +13,18 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.sessions.*
+import io.ktor.util.*
 
 data class User(val userId: String, val email: String, val tenantId: String?)
 
+val cloudProjectId = AttributeKey<String>("CLOUD_PROJECT_ID")
+val cloudLocationId = AttributeKey<String>("CLOUD_LOCATION_ID")
+val cloudTasksQueueId = AttributeKey<String>("CLOUD_TASKS_QUEUE_ID")
+
+val twitterClientId = AttributeKey<String>("TWITTER_CLIENT_ID")
+val twitterClientSecret = AttributeKey<String>("TWITTER_CLIENT_SECRET")
+val linkedinClientId = AttributeKey<String>("LINKEDIN_CLIENT_ID")
+val linkedinClientSecret = AttributeKey<String>("LINKEDIN_CLIENT_SECRET")
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -27,7 +36,8 @@ fun Application.module() {
         ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
 
     // Determine the base URL for callbacks, defaulting to localhost for development
-    val baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") ?: "http://localhost:8080"
+    val baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") 
+        ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
 
     // Initialize Firebase App if not already initialized
     if (FirebaseApp.getApps().isEmpty()) {
@@ -44,11 +54,16 @@ fun Application.module() {
         }
     }
 
-    // Retrieve client IDs and secrets for Twitter and LinkedIn from Google Secret Manager
-    val twitterClientId = SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID")
-    val twitterClientSecret = SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET")
-    val linkedinClientId = SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID")
-    val linkedinClientSecret = SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET")
+    // Setting up cloud conf
+    attributes.put(cloudProjectId,projectId)
+    attributes.put(cloudLocationId,SecretManager.getSecret(projectId, "CLOUD_LOCATION_ID"))
+    attributes.put(cloudTasksQueueId,SecretManager.getSecret(projectId, "CLOUD_TASKS_QUEUE_ID"))
+    
+    // Retrieve client IDs and secrets for Twitter and LinkedIn from Google Secret Manager, setting up attributes
+    attributes.put(twitterClientId,SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID"))
+    attributes.put(twitterClientSecret,SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET"))
+    attributes.put(linkedinClientId,SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID"))
+    attributes.put(linkedinClientSecret,SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET"))
 
     // Install ContentNegotiation feature for automatic JSON serialization/deserialization
     install(ContentNegotiation) { json() }
@@ -86,8 +101,8 @@ fun Application.module() {
                     authorizeUrl = "https://twitter.com/i/oauth2/authorize",
                     accessTokenUrl = "https://api.twitter.com/2/oauth2/token",
                     requestMethod = HttpMethod.Post,
-                    clientId = twitterClientId,
-                    clientSecret = twitterClientSecret,
+                    clientId = attributes[twitterClientId],
+                    clientSecret = attributes[twitterClientSecret],
                     defaultScopes = listOf("tweet.read", "tweet.write", "users.read", "offline.access") // offline.access needed for refresh
                 )
             }
@@ -103,8 +118,8 @@ fun Application.module() {
                     authorizeUrl = "https://www.linkedin.com/oauth/v2/authorization",
                     accessTokenUrl = "https://www.linkedin.com/oauth/v2/accessToken",
                     requestMethod = HttpMethod.Post,
-                    clientId = linkedinClientId,
-                    clientSecret = linkedinClientSecret,
+                    clientId = attributes[linkedinClientId],
+                    clientSecret = attributes[linkedinClientSecret],
                     defaultScopes = listOf("r_liteprofile", "r_emailaddress", "w_member_social")
                 )
             }

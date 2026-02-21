@@ -103,7 +103,7 @@ dependencies {
     implementation("com.google.cloud:google-cloud-billing:2.80.0")
     
     implementation("com.google.cloud:google-cloud-service-usage")
-    implementation("com.google.cloud:google-cloud-tasks")
+    implementation("com.google.cloud:google-cloud-tasks:2.81.0")
 
     implementation("com.google.cloud:google-cloud-secretmanager:2.81.0")
 }
