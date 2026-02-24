@@ -112,6 +112,13 @@
                 console.log("Welcome back, user:", user.uid);
                 document.getElementById("secret-content").style.display = "block"; // Reveal dashboard
 
+                const now = new Date();
+                const loginTime = now.toLocaleString('en-US', {
+                    month: 'short', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                });
+                document.getElementById("user-identity").innerText = `Signed in as: ${user.email || user.uid} on ${loginTime}`;
+
                 currentUser = user;
             } else {
                 // B. Intruder! No token found. Kick them out.
@@ -188,6 +195,7 @@
         <div id="secret-content">
             <div class="dashboard-card">
                 <h1>Workspace Dashboard</h1>
+                <p id="user-identity" style="color: var(--primary); font-weight: 500;"></p>
                 <p>Welcome to your secure area. You can manage your media posts and schedules here.</p>
                 <button id="schedule-btn" class="btn-primary">Schedule New Post</button>
             </div>
