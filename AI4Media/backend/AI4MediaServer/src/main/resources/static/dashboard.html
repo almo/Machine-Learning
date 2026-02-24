@@ -1,7 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI4Media Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f9fafb;
+            --surface: #ffffff;
+            --text-main: #111827;
+            --text-sub: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand { font-weight: 600; font-size: 1.25rem; color: var(--primary); }
+
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .dashboard-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        h1 { margin-top: 0; font-size: 1.5rem; font-weight: 600; }
+        p { color: var(--text-sub); line-height: 1.6; }
+
+        button {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            margin-top: 1.5rem;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-logout {
+            background-color: transparent;
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+        }
+        .btn-logout:hover {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        #secret-content { display: none; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
     <script type="module">
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
         // 2. Your Firebase Configuration
         const firebaseConfig = {
@@ -24,7 +110,7 @@
             if (user) {
                 // A. User is legit. Reveal the UI.
                 console.log("Welcome back, user:", user.uid);
-                document.getElementById("secret-content").style.display = "block";
+                document.getElementById("secret-content").style.display = "block"; // Reveal dashboard
 
                 currentUser = user;
             } else {
@@ -93,14 +179,19 @@
 </head>
 
 <body>
-    <div id="secret-content" style="display:none;">
-        <h1>Top Secret Dashboard</h1>
-        <p>Only logged in users see this.</p>
+    <header>
+        <div class="brand">AI4Media</div>
+        <button id="logout-btn" class="btn-logout">Sign Out</button>
+    </header>
 
-        <button id="schedule-btn">Schedule New Post</button>
-        <br>
-        <br>    
-
-        <button id="logout-btn">Logout</button>
+    <div class="container">
+        <div id="secret-content">
+            <div class="dashboard-card">
+                <h1>Workspace Dashboard</h1>
+                <p>Welcome to your secure area. You can manage your media posts and schedules here.</p>
+                <button id="schedule-btn" class="btn-primary">Schedule New Post</button>
+            </div>
+        </div>
     </div>
 </body>
+</html>
