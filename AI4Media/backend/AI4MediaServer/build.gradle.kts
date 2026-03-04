@@ -31,7 +31,8 @@ configure<AppEngineAppYamlExtension> {
     stage {
         setArtifact("build/libs/${project.name}-all.jar")
     }
-    deploy {
+
+    deploy {       
         version = "alpha002"
         projectId = "meta-gear-464720-g3"
     }
@@ -63,8 +64,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-client-auth:$ktor_version")
     implementation("io.ktor:ktor-client-json:$ktor_version")
-
-
+    
     //
     // Firebase
     //
@@ -106,4 +106,6 @@ dependencies {
     implementation("com.google.cloud:google-cloud-tasks:2.81.0")
 
     implementation("com.google.cloud:google-cloud-secretmanager:2.81.0")
+
+    implementation("com.google.cloud:google-cloud-datastore:2.18.0")
 }

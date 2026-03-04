@@ -3,21 +3,21 @@ instance_class: F1
 entrypoint: 'java -jar AI4MediaServer-all.jar'
 
 handlers:
-  - url: .*
-    script: auto
-    secure: always
+- url: /favicon.ico
+  static_files: static/favicon.ico
+  upload: static/favicon.ico
+
+- url: .*
+  script: auto
+  secure: always
     
 service: backend
 
 automatic_scaling:
-  min_idle_instances: automatic
-  max_idle_instances: automatic
-  min_pending_latency: automatic
-  max_pending_latency: automatic
   max_instances: 2
 
 env_variables:
   # App Engine automatically sets GOOGLE_CLOUD_PROJECT
   # Define your production URL here:
-  APPENGINE_BASE_URL: "meta-gear-464720-g3.oa.r.appspot.com" 
+  APPENGINE_BASE_URL: "https://planner.catharsis.computer" 
   

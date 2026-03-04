@@ -14,8 +14,15 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.sessions.*
 import io.ktor.util.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
+
+@Serializable
 data class User(val userId: String, val email: String, val tenantId: String?)
+
+@Serializable
+data class OAuthSession(val userId: String)
 
 val cloudProjectId = AttributeKey<String>("CLOUD_PROJECT_ID")
 val cloudLocationId = AttributeKey<String>("CLOUD_LOCATION_ID")
@@ -26,18 +33,22 @@ val twitterClientSecret = AttributeKey<String>("TWITTER_CLIENT_SECRET")
 val linkedinClientId = AttributeKey<String>("LINKEDIN_CLIENT_ID")
 val linkedinClientSecret = AttributeKey<String>("LINKEDIN_CLIENT_SECRET")
 
+val oAuthSessionKey = AttributeKey<String>("OAUTH_SESSION_SECRET_KEY")
+
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module() {
 
-    // Initialize Firebase: 
+    // Initialize Firebase:
     // Retrieve Google Cloud Project ID from environment variables
-    val projectId = System.getenv("GOOGLE_CLOUD_PROJECT") 
-        ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
+    val projectId =
+            System.getenv("GOOGLE_CLOUD_PROJECT")
+                    ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
 
     // Determine the base URL for callbacks, defaulting to localhost for development
-    val baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") 
-        ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
+    val baseUrl =
+            System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/")
+                    ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
 
     // Initialize Firebase App if not already initialized
     if (FirebaseApp.getApps().isEmpty()) {
@@ -51,22 +62,42 @@ fun Application.module() {
             log.info("Firebase Initialized")
         } catch (e: Exception) {
             log.error("Firebase Init Failed", e)
+            throw IllegalStateException("Firebase Init Failed")
         }
     }
 
     // Setting up cloud conf
-    attributes.put(cloudProjectId,projectId)
-    attributes.put(cloudLocationId,SecretManager.getSecret(projectId, "CLOUD_LOCATION_ID"))
-    attributes.put(cloudTasksQueueId,SecretManager.getSecret(projectId, "CLOUD_TASKS_QUEUE_ID"))
-    
-    // Retrieve client IDs and secrets for Twitter and LinkedIn from Google Secret Manager, setting up attributes
-    attributes.put(twitterClientId,SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID"))
-    attributes.put(twitterClientSecret,SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET"))
-    attributes.put(linkedinClientId,SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID"))
-    attributes.put(linkedinClientSecret,SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET"))
+    attributes.put(cloudProjectId, projectId)
+    attributes.put(cloudLocationId, SecretManager.getSecret(projectId, "CLOUD_LOCATION_ID"))
+    attributes.put(cloudTasksQueueId, SecretManager.getSecret(projectId, "CLOUD_TASKS_QUEUE_ID"))
+
+    // Retrieve client IDs and secrets for Twitter and LinkedIn from Google Secret Manager, setting
+    // up attributes
+    attributes.put(twitterClientId, SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID"))
+    attributes.put(twitterClientSecret, SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET"))
+    attributes.put(linkedinClientId, SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID"))
+    attributes.put(
+            linkedinClientSecret,
+            SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET")
+    )
+
+    // Retrieve oAuth Session Key from Google Secret Manager, setting up attribute
+    val oAuthSessionSecretString = SecretManager.getSecret(projectId, "OAUTH_SESSION_SECRET_KEY")
+    attributes.put(oAuthSessionKey, oAuthSessionSecretString)
 
     // Install ContentNegotiation feature for automatic JSON serialization/deserialization
     install(ContentNegotiation) { json() }
+
+   // install(Sessions) {
+   //     cookie<OAuthSession>("OAUTH_SESSION") {
+   //         cookie.path = "/"
+   //         cookie.httpOnly = true 
+   //         cookie.secure = true   
+   //         cookie.maxAgeInSeconds = 300 
+   //                     
+   //         transform(SessionTransportTransformerMessageAuthentication(oAuthSessionSecretString.toByteArray()))
+   //     }
+   // }
 
     install(Authentication) {
         // "bearer" is a built-in Ktor auth scheme for Token headers
@@ -97,13 +128,19 @@ fun Application.module() {
             urlProvider = { "$baseUrl/auth/twitter/callback" } // Callback URL for Twitter OAuth
             providerLookup = {
                 OAuthServerSettings.OAuth2ServerSettings(
-                    name = "twitter",
-                    authorizeUrl = "https://twitter.com/i/oauth2/authorize",
-                    accessTokenUrl = "https://api.twitter.com/2/oauth2/token",
-                    requestMethod = HttpMethod.Post,
-                    clientId = attributes[twitterClientId],
-                    clientSecret = attributes[twitterClientSecret],
-                    defaultScopes = listOf("tweet.read", "tweet.write", "users.read", "offline.access") // offline.access needed for refresh
+                        name = "twitter",
+                        authorizeUrl = "https://twitter.com/i/oauth2/authorize",
+                        accessTokenUrl = "https://api.twitter.com/2/oauth2/token",
+                        requestMethod = HttpMethod.Post,
+                        clientId = this@module.attributes[twitterClientId],
+                        clientSecret = this@module.attributes[twitterClientSecret],
+                        defaultScopes =
+                                listOf(
+                                        "tweet.read",
+                                        "tweet.write",
+                                        "users.read",
+                                        "offline.access"
+                                ) // offline.access needed for refresh
                 )
             }
             client = HttpClient(CIO)
@@ -114,13 +151,13 @@ fun Application.module() {
             urlProvider = { "$baseUrl/auth/linkedin/callback" } // Callback URL for LinkedIn OAuth
             providerLookup = {
                 OAuthServerSettings.OAuth2ServerSettings(
-                    name = "linkedin",
-                    authorizeUrl = "https://www.linkedin.com/oauth/v2/authorization",
-                    accessTokenUrl = "https://www.linkedin.com/oauth/v2/accessToken",
-                    requestMethod = HttpMethod.Post,
-                    clientId = attributes[linkedinClientId],
-                    clientSecret = attributes[linkedinClientSecret],
-                    defaultScopes = listOf("r_liteprofile", "r_emailaddress", "w_member_social")
+                        name = "linkedin",
+                        authorizeUrl = "https://www.linkedin.com/oauth/v2/authorization",
+                        accessTokenUrl = "https://www.linkedin.com/oauth/v2/accessToken",
+                        requestMethod = HttpMethod.Post,
+                        clientId = this@module.attributes[linkedinClientId],
+                        clientSecret = this@module.attributes[linkedinClientSecret],
+                        defaultScopes = listOf("openid", "profile", "email", "w_member_social")
                 )
             }
             client = HttpClient(CIO)

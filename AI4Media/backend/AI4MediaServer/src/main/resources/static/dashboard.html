@@ -1,205 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI4Media Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f9fafb;
-            --surface: #ffffff;
-            --text-main: #111827;
-            --text-sub: #6b7280;
-            --border: #e5e7eb;
-        }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            color: var(--text-main);
-        }
-
-        header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
         }
 
-        .brand { font-weight: 600; font-size: 1.25rem; color: var(--primary); }
-
-        .container {
-            max-width: 800px;
-            margin: 3rem auto;
-            padding: 0 1.5rem;
-        }
-
-        .dashboard-card {
-            background: var(--surface);
-            border-radius: 12px;
+        .card {
+            background: white;
             padding: 2.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            text-align: left;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            width: 350px;
         }
 
-        h1 { margin-top: 0; font-size: 1.5rem; font-weight: 600; }
-        p { color: var(--text-sub); line-height: 1.6; }
+        h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
 
-        button {
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
             border: none;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
+            border-radius: 6px;
             color: white;
-            margin-top: 1.5rem;
-        }
-        .btn-primary:hover { background-color: var(--primary-hover); }
-
-        .btn-logout {
-            background-color: transparent;
-            color: var(--text-sub);
-            border: 1px solid var(--border);
-        }
-        .btn-logout:hover {
-            background-color: #fee2e2;
-            color: #b91c1c;
-            border-color: #fecaca;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+            box-sizing: border-box;
         }
 
-        #secret-content { display: none; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .btn-twitter {
+            background-color: #1DA1F2;
+        }
+
+        .btn-linkedin {
+            background-color: #0077B5;
+        }
+
+        .success-msg {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+            border: 1px solid #c3e6cb;
+        }
+
+        #user-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .error-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+            border: 1px solid #f5c6cb;
+        }
     </style>
-
-    <script type="module">
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-        // 2. Your Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7Lu4dYSKDIcttm_TtzSLQNGHtRVKTAGM",
-            authDomain: "meta-gear-464720-g3.firebaseapp.com",
-            projectId: "meta-gear-464720-g3",
-            storageBucket: "meta-gear-464720-g3.firebasestorage.app",
-            messagingSenderId: "873718077819",
-            appId: "1:873718077819:web:5380f57e84580cb7ea85de",
-            measurementId: "G-VLK8TVSCLV"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        let currentUser = null;
- 
-        // 2. The Guard Check
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // A. User is legit. Reveal the UI.
-                console.log("Welcome back, user:", user.uid);
-                document.getElementById("secret-content").style.display = "block"; // Reveal dashboard
-
-                const now = new Date();
-                const loginTime = now.toLocaleString('en-US', {
-                    month: 'short', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit', hour12: false
-                });
-                document.getElementById("user-identity").innerText = `Signed in as: ${user.email || user.uid} on ${loginTime}`;
-
-                currentUser = user;
-            } else {
-                // B. Intruder! No token found. Kick them out.
-                window.location.href = "index.html"; // Go back to login
-            }
-        });
-
-        // 2. ATTACH THE LOGOUT LISTENER HERE
-        // Wait for the DOM to load, then attach the event
-        window.addEventListener('DOMContentLoaded', () => {
-            const logoutBtn = document.getElementById("logout-btn");
-            if (logoutBtn) {
-                logoutBtn.addEventListener("click", () => {
-                    signOut(auth).then(() => {
-                        console.log("Signed out successfully");
-                        // Redirect is handled by onAuthStateChanged above
-                    }).catch((error) => {
-                        console.error("Sign out error", error);
-                    });
-                });
-            }
-            else {
-                console.error("Logout button not found");
-            }
-
-            const scheduleBtn = document.getElementById("schedule-btn");
-            if (scheduleBtn) {
-                scheduleBtn.addEventListener("click", async () => {
-
-                    if (!currentUser) return; // Safety check
-
-                    console.log("Processing schedule request...");
-
-                    try {
-                        // 1. Get a FRESH token right now (handles expiration automatically)
-                        const token = await currentUser.getIdToken();
-
-                        // 2. Send it to backend
-                        const response = await fetch('/api/schedule_post', {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Content-Type': 'application/json'
-                            },
-                            
-                        });
-
-                        const data = await response.text();
-
-                        console.log("Backend success:", data);
-                        alert("Post Scheduled!");
-
-                    } catch (error) {
-                        console.error("Backend error:", error);
-                        alert("Failed to schedule post.");
-                    }
-                });
-            }
-            else {
-                console.error("Schedule button not found");
-            }
-
-        });
-    </script>
 </head>
 
 <body>
-    <header>
-        <div class="brand">AI4Media</div>
-        <button id="logout-btn" class="btn-logout">Sign Out</button>
-    </header>
-
-    <div class="container">
-        <div id="secret-content">
-            <div class="dashboard-card">
-                <h1>Workspace Dashboard</h1>
-                <p id="user-identity" style="color: var(--primary); font-weight: 500;"></p>
-                <p>Welcome to your secure area. You can manage your media posts and schedules here.</p>
-                <button id="schedule-btn" class="btn-primary">Schedule New Post</button>
-            </div>
+    <div class="card">
+        <div id="user-profile" class="user-info">
+            <img id="user-photo" src="" alt="Profile">
+            <h3 id="user-name">Welcome!</h3>
         </div>
+
+        <h2>Dashboard</h2>
+        
+        <div id="success-msg" class="success-msg">
+            <i class="fas fa-check-circle"></i> Account Connected!
+        </div>
+        <div id="error-msg" class="error-msg">
+            <i class="fas fa-times-circle"></i> Connection Failed!
+        </div>
+
+        <p style="color: var(--text-sub); margin-bottom: 20px; font-size: 0.9rem;">
+            Connect your social accounts to enable auto-posting.
+        </p>
+        
+        <a id="twitter-link" href="#" class="btn btn-twitter"><i class="fab fa-twitter"></i> Connect Twitter</a>
+        <a id="linkedin-link" href="#" class="btn btn-linkedin"><i class="fab fa-linkedin"></i> Connect LinkedIn</a>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+        
+        <a id="logout-btn" href="#">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+        </a>
     </div>
+    
+    <script type="module">
+        import { auth } from "./firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Check URL parameters for success/error flags
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            document.getElementById('success-msg').style.display = 'block';
+        } else if (urlParams.get('success') === 'false' || urlParams.get('error')) {
+            document.getElementById('error-msg').style.display = 'block';
+        }
+
+        // Lógica de autenticación que ya teníamos
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.body.style.display = "flex";
+                if (user.photoURL) {
+                    document.getElementById('user-photo').src = user.photoURL;
+                }
+                if (user.displayName) {
+                    document.getElementById('user-name').innerText = "Welcome, " + user.displayName + "!";
+                }
+
+                document.getElementById('twitter-link').href = `/login/twitter?userId=${user.uid}`;
+                document.getElementById('linkedin-link').href = `/login/linkedin?userId=${user.uid}`;
+            } else {
+                window.location.replace("index.html");
+            }
+        });
+
+        // NUEVA: Lógica para cerrar sesión
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que el enlace recargue la página
+            signOut(auth).then(() => {
+                console.log("Sesión cerrada");
+                // onAuthStateChanged se encargará de redirigir a index.html automáticamente
+            }).catch((error) => {
+                console.error("Error al cerrar sesión:", error);
+            });
+        });
+    </script>
 </body>
+
 </html>

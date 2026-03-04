@@ -1,142 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI4Media Login Portal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            --surface: #ffffff;
-            --text-main: #111827;
-            --text-sub: #6b7280;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI4Media Login Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      --surface: #ffffff;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: var(--bg-gradient);
-            margin: 0;
-            color: var(--text-main);
-        }
+    body {
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: var(--bg-gradient);
+      margin: 0;
+      color: var(--text-main);
+    }
 
-        .card {
-            background: var(--surface);
-            padding: 3rem;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-            transition: transform 0.2s ease;
-        }
+    .card {
+      background: var(--surface);
+      padding: 3rem;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      transition: transform 0.2s ease;
+    }
 
-        h2 {
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            letter-spacing: -0.025em;
-        }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
 
-        p {
-            color: var(--text-sub);
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
-        }
+    p {
+      color: var(--text-sub);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
 
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            width: 100%;
-            transition: background-color 0.2s;
-        }
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      width: 100%;
+      transition: background-color 0.2s;
+    }
 
-        button:hover { background-color: var(--primary-hover); }
-        
-        #status { margin-top: 1.5rem; color: var(--text-sub); font-size: 0.875rem; min-height: 1.25rem; }
-        code { display: block; background: #f9fafb; border: 1px solid #e5e7eb; padding: 10px; margin-top: 10px; border-radius: 6px; word-break: break-all; text-align: left; font-size: 0.75rem; color: #ef4444; display: none; }
-    </style>
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    #status {
+      margin-top: 1.5rem;
+      color: var(--text-sub);
+      font-size: 0.875rem;
+      min-height: 1.25rem;
+    }
+
+    code {
+      display: block;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      word-break: break-all;
+      text-align: left;
+      font-size: 0.75rem;
+      color: #ef4444;
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="card">
+  <div class="card">
     <h2>AI4Media Platform</h2>
     <p>Sign in to access your workspace</p>
-    
+
     <button id="google-signin-btn">Sign in with Google</button>
-    
+
     <div id="status">Not signed in</div>
     <code id="token-display"></code>
-</div>
+  </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  <script type="module">
+    import { auth, provider } from "./firebase-config.js";
+    import { signInWithPopup, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // 2. Your Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyA7Lu4dYSKDIcttm_TtzSLQNGHtRVKTAGM",
-    authDomain: "meta-gear-464720-g3.firebaseapp.com",
-    projectId: "meta-gear-464720-g3",
-    storageBucket: "meta-gear-464720-g3.firebasestorage.app",
-    messagingSenderId: "873718077819",
-    appId: "1:873718077819:web:5380f57e84580cb7ea85de",
-    measurementId: "G-VLK8TVSCLV"
-  };
+    const btn = document.getElementById('google-signin-btn');
+    const status = document.getElementById('status');
 
-  // 3. Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
-
-  const btn = document.getElementById('google-signin-btn');
-  const status = document.getElementById('status');
-  const tokenDisplay = document.getElementById('token-display');
-
-  // 4. Handle Login Click
-  btn.addEventListener('click', () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("User signed in!");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+    btn.addEventListener('click', () => {
+      signInWithPopup(auth, provider).catch((error) => {
         status.innerText = "Error: " + error.message;
       });
-  });
+    });
 
-  // 5. Listen for Auth State Changes
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      status.innerText = `Signed in as: ${user.email}`;
-      btn.style.display = 'none'; // Hide login button
-     
-      // Auto-redirect to dashboard.html
-      window.location.href = "dashboard.html";
-      
-    } else {
-      status.innerText = "Not signed in";
-      tokenDisplay.style.display = 'none';
-      btn.style.display = 'inline-block';
-    }
-  });
-</script>
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // back disable
+        window.location.replace("dashboard.html");
+      } else {
+        status.innerText = "Not signed in";
+        btn.style.display = 'inline-block';
+      }
+    });
+  </script>
 
 </body>
+
 </html>

@@ -1,10 +1,12 @@
 package com.catharsis.ai4media.ai4mediaserver
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import java.time.Instant
 
 fun Application.configureRouting() {
@@ -14,8 +16,6 @@ fun Application.configureRouting() {
         authenticate("firebase-auth") {
             // Post Schedule
             get("/api/schedule_post") {
-                var respondText = "Scheduled Post"
-
                 try {
                     CloudTasks.createHttpTask(
                             call.application.attributes[cloudProjectId],
@@ -24,61 +24,87 @@ fun Application.configureRouting() {
                             "http://www.google.com",
                             Instant.now().plusSeconds(10000)
                     )
+                    call.application.log.info("Scheduled Post")
+                    call.respondText("Scheduled Post", status = HttpStatusCode.OK)
                 } catch (e: Exception) {
-                    respondText = e.toString()
+                    val errorText = e.stackTraceToString()
+                    call.application.log.error("Error scheduling Post: $errorText")
+                    call.respondText(errorText, status = HttpStatusCode.InternalServerError)
                 }
-
-                call.respondText(respondText)
             }
         }
         // --- OAuth Handlers (Browser Redirects) ---
 
         // Note: These routes initiate the OAuth dance.
         // We capture the userId from query params to pass into 'state'.
-        authenticate("auth-twitter") {
-            get("/login/twitter") {
-                // Ktor automatically redirects to Twitter
-            }
+        get("/login/twitter") {
+            val userId = call.parameters["userId"] ?: throw IllegalArgumentException("Missing userId")
+           // call.sessions.set(OAuthSession(userId))
+            call.respondRedirect("/auth/twitter/authorize")
+        }
 
+        authenticate("auth-twitter") {
+            get("/auth/twitter/authorize") { /* Redirects to Twitter */ }
             get("/auth/twitter/callback") {
                 val principal = call.authentication.principal<OAuthAccessTokenResponse.OAuth2>()
-                // In a real app, you must decode the 'state' parameter to recover the userId
-                // For this example, we assume we can identify the user or the session is active.
 
-                if (principal != null) {
-                    // Ideally, extract userId from 'state' or session.
-                    // Hardcoding a demo ID or assuming session for this snippet:
-                    val userId = "demo-user-id"
+               // val session = call.sessions.get<OAuthSession>()
+
+               val session = "session.userId;"
+
+                if (principal != null && session != null) {
 
                     TokenService.saveToken(
-                            userId = userId,
+                            userId = "session.userId",
                             provider = "twitter",
                             accessToken = principal.accessToken,
                             refreshToken = principal.refreshToken,
                             expiresIn = principal.expiresIn.toInt()
                     )
-                    call.respondText("Twitter Linked Successfully!")
+                   // call.sessions.clear<OAuthSession>()
+
+                    call.respondRedirect("/dashboard.html?success=true")
+                } else {
+                    call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Expired Session or Invalid Credentials"
+                    )
                 }
             }
         }
 
-        authenticate("auth-linkedin") {
-            get("/login/linkedin") { /* Redirects */}
+        get("/login/linkedin") {
+            val userId = call.parameters["userId"] ?: throw IllegalArgumentException("Missing userId")
+            //call.sessions.set(OAuthSession(userId))
+            call.respondRedirect("/auth/linkedin/authorize")
+        }
 
+        authenticate("auth-linkedin") {
+            get("/auth/linkedin/authorize") { /* Redirects to LinkedIn */ }
             get("/auth/linkedin/callback") {
                 val principal = call.authentication.principal<OAuthAccessTokenResponse.OAuth2>()
 
-                if (principal != null) {
-                    val userId = "demo-user-id" // Retrieve from state/session
+               // val session = call.sessions.get<OAuthSession>()
+                val session = "session.userId;"
+
+                if (principal != null && session != null) {
 
                     TokenService.saveToken(
-                            userId = userId,
+                            userId = "session.userId",
                             provider = "linkedin",
                             accessToken = principal.accessToken,
                             refreshToken = principal.refreshToken,
                             expiresIn = principal.expiresIn.toInt()
                     )
-                    call.respondText("LinkedIn Linked Successfully!")
+
+                   // call.sessions.clear<OAuthSession>()
+
+                    call.respondRedirect("/dashboard.html?success=true")
+                } else {
+                    call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Expired Session or Invalid Credentials"
+                    )
                 }
             }
         }
