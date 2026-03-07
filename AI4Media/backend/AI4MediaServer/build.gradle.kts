@@ -15,6 +15,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "2.2.0"
     id("com.google.cloud.tools.appengine-appyaml") version "2.8.0"
     id("com.gradleup.shadow") version "8.3.6"
+    kotlin("plugin.serialization") version "2.2.20"
 }
 
 application {

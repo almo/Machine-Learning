@@ -132,6 +132,30 @@
 
         const logoutBtn = document.getElementById('logout-btn');
 
+        // Function to initiate secure OAuth flow
+        async function startAuth(provider) {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                const token = await user.getIdToken();
+                const response = await fetch(`/api/auth/init-${provider}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    window.location.href = data.url; // Navigate to the provider (Twitter/LinkedIn)
+                } else {
+                    console.error("Failed to initialize auth");
+                    document.getElementById('error-msg').style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error starting auth:", error);
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
         // Check URL parameters for success/error flags
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === 'true') {
@@ -139,6 +163,17 @@
         } else if (urlParams.get('success') === 'false' || urlParams.get('error')) {
             document.getElementById('error-msg').style.display = 'block';
         }
+
+        // Attach click handlers for OAuth buttons
+        document.getElementById('twitter-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            startAuth('twitter');
+        });
+
+        document.getElementById('linkedin-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            startAuth('linkedin');
+        });
 
         // Lógica de autenticación que ya teníamos
         onAuthStateChanged(auth, (user) => {
@@ -150,15 +185,12 @@
                 if (user.displayName) {
                     document.getElementById('user-name').innerText = "Welcome, " + user.displayName + "!";
                 }
-
-                document.getElementById('twitter-link').href = `/login/twitter?userId=${user.uid}`;
-                document.getElementById('linkedin-link').href = `/login/linkedin?userId=${user.uid}`;
             } else {
                 window.location.replace("index.html");
             }
         });
 
-        // NUEVA: Lógica para cerrar sesión
+        // Closing session
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault(); // Evita que el enlace recargue la página
             signOut(auth).then(() => {

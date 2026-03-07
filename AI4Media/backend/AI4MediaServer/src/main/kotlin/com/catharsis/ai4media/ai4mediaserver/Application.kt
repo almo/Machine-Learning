@@ -14,15 +14,12 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.sessions.*
 import io.ktor.util.*
+import java.util.Base64
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
+@Serializable data class User(val userId: String, val email: String, val tenantId: String?)
 
-@Serializable
-data class User(val userId: String, val email: String, val tenantId: String?)
-
-@Serializable
-data class OAuthSession(val userId: String)
+@Serializable data class AI4MediaSession(val userId: String)
 
 val cloudProjectId = AttributeKey<String>("CLOUD_PROJECT_ID")
 val cloudLocationId = AttributeKey<String>("CLOUD_LOCATION_ID")
@@ -33,7 +30,8 @@ val twitterClientSecret = AttributeKey<String>("TWITTER_CLIENT_SECRET")
 val linkedinClientId = AttributeKey<String>("LINKEDIN_CLIENT_ID")
 val linkedinClientSecret = AttributeKey<String>("LINKEDIN_CLIENT_SECRET")
 
-val oAuthSessionKey = AttributeKey<String>("OAUTH_SESSION_SECRET_KEY")
+val sessionKey = AttributeKey<String>("OAUTH_SESSION_SECRET_KEY")
+val secretEncryptKey = AttributeKey<String>("SECRET_ENCRYPT_KEY")
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -44,11 +42,13 @@ fun Application.module() {
     val projectId =
             System.getenv("GOOGLE_CLOUD_PROJECT")
                     ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
+    log.info("Env: Google Cloud Project ID set...")
 
     // Determine the base URL for callbacks, defaulting to localhost for development
     val baseUrl =
             System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/")
                     ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
+    log.info("Env: Base URL set...")
 
     // Initialize Firebase App if not already initialized
     if (FirebaseApp.getApps().isEmpty()) {
@@ -59,45 +59,64 @@ fun Application.module() {
                             .setProjectId(projectId)
                             .build()
             FirebaseApp.initializeApp(options)
-            log.info("Firebase Initialized")
         } catch (e: Exception) {
             log.error("Firebase Init Failed", e)
             throw IllegalStateException("Firebase Init Failed")
         }
     }
+    log.info("Firebase initialized...")
 
     // Setting up cloud conf
     attributes.put(cloudProjectId, projectId)
     attributes.put(cloudLocationId, SecretManager.getSecret(projectId, "CLOUD_LOCATION_ID"))
     attributes.put(cloudTasksQueueId, SecretManager.getSecret(projectId, "CLOUD_TASKS_QUEUE_ID"))
+    log.info("Secret Manager: Google Cloud configuration set...")
 
     // Retrieve client IDs and secrets for Twitter and LinkedIn from Google Secret Manager, setting
     // up attributes
     attributes.put(twitterClientId, SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID"))
     attributes.put(twitterClientSecret, SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET"))
+    log.info("Secret Manager: Twitter oauth configuration set...")
+
     attributes.put(linkedinClientId, SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID"))
     attributes.put(
             linkedinClientSecret,
             SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET")
     )
+    log.info("Secret Manager: LinkedIn oauth configuration set...")
 
-    // Retrieve oAuth Session Key from Google Secret Manager, setting up attribute
-    val oAuthSessionSecretString = SecretManager.getSecret(projectId, "OAUTH_SESSION_SECRET_KEY")
-    attributes.put(oAuthSessionKey, oAuthSessionSecretString)
+    // Retrieve Signature and Encryption Keys from Google Secret Manager, setting up attribute
+    val sessionSecretString = SecretManager.getSecret(projectId, "OAUTH_SESSION_SECRET_KEY")
+    attributes.put(sessionKey, sessionSecretString)
+    log.info("Secret Manager: AI4Media session signature secret set...")
+
+    val sessionEncryptKey = SecretManager.getSecret(projectId, "SECRET_ENCRYPT_KEY")
+    attributes.put(secretEncryptKey, sessionEncryptKey)
+    log.info("Secret Manager: AI4Media session encryptioin secret set...")
 
     // Install ContentNegotiation feature for automatic JSON serialization/deserialization
     install(ContentNegotiation) { json() }
+    log.info("Content negotiation set...")
 
-   // install(Sessions) {
-   //     cookie<OAuthSession>("OAUTH_SESSION") {
-   //         cookie.path = "/"
-   //         cookie.httpOnly = true 
-   //         cookie.secure = true   
-   //         cookie.maxAgeInSeconds = 300 
-   //                     
-   //         transform(SessionTransportTransformerMessageAuthentication(oAuthSessionSecretString.toByteArray()))
-   //     }
-   // }
+    // Install Sessions feature for managing user sessions
+    install(Sessions) {
+        cookie<AI4MediaSession>("AI4MEDIA_SESSION") {
+            cookie.path = "/"
+            cookie.httpOnly = true
+            cookie.secure = true
+            cookie.maxAgeInSeconds = 180
+
+            transform(
+                    SessionTransportTransformerEncrypt(
+                            Base64.getDecoder().decode(sessionEncryptKey),
+                            Base64.getDecoder().decode(sessionSecretString),
+                            encryptAlgorithm = "AES", 
+                            signAlgorithm = "HmacSHA256"
+                    )
+            )
+        }
+    }
+    log.info("Session management set...")
 
     install(Authentication) {
         // "bearer" is a built-in Ktor auth scheme for Token headers
@@ -163,6 +182,7 @@ fun Application.module() {
             client = HttpClient(CIO)
         }
     }
+    log.info("Authentication set...")
 
     // Configure application routing
     this.configureRouting()
