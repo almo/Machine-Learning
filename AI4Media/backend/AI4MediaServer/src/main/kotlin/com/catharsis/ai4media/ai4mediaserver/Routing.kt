@@ -20,9 +20,9 @@ fun Application.configureRouting() {
                     val user = call.principal<User>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                     CloudTasks.createHttpTask(
-                            call.application.attributes[cloudProjectId],
-                            call.application.attributes[cloudLocationId],
-                            call.application.attributes[cloudTasksQueueId],
+                            AppConfig.projectId,
+                            AppConfig.cloudLocationId,
+                            AppConfig.cloudTasksQueueId,
                             "http://www.google.com?$user",
                             Instant.now().plusSeconds(10000)
                     )
