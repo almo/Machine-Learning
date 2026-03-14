@@ -1,14 +1,10 @@
 package com.catharsis.ai4media.ai4mediaserver
 
-import java.util.Base64
-
-
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseToken
-
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
@@ -18,42 +14,51 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.sessions.*
 import io.ktor.util.*
-import kotlinx.serialization.Serializable
+import java.util.Base64
 import kotlin.system.exitProcess
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import java.security.SecureRandom
 
-@Serializable data class User(val userId: String, val email: String, val tenantId: String?)
+@Serializable data class User(val userId: String, val email: String)
 
 @Serializable data class AI4MediaSession(val userId: String)
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module() {
-    try {
-        install(ContentNegotiation) { json() }
-        log.info("Content negotiation set...")
-    }catch (e: Exception){
-        log.error("Critical error initializing the AI4Media server: ${e.message}")
-        exitProcess(1)
-    }
 
     // Initialize Firebase App if not already initialized
     try {
-            if (FirebaseApp.getApps().isEmpty()) {
-                val options =
+        if (FirebaseApp.getApps().isEmpty()) {
+            val options =
                     FirebaseOptions.builder()
                             .setCredentials(GoogleCredentials.getApplicationDefault())
                             .setProjectId(AppConfig.projectId)
                             .build()
-                FirebaseApp.initializeApp(options)
-            }
-        } catch (e: Exception) {
-            log.error("Firebase Init Failed", e)
-            throw IllegalStateException("Firebase Init Failed")
+            FirebaseApp.initializeApp(options)
+        }
+    } catch (e: Exception) {
+        log.error("Firebase Init Failed", e)
+        throw IllegalStateException("Firebase Init Failed")
     }
     log.info("Firebase initialized...")
 
     // Install ContentNegotiation feature for automatic JSON serialization/deserialization
-
+    try {
+        install(ContentNegotiation) {
+            json(
+                    Json {
+                        ignoreUnknownKeys = true
+                        prettyPrint = true
+                    }
+            )
+        }
+        log.info("Content negotiation set...")
+    } catch (e: Exception) {
+        log.error("Critical error initializing the AI4Media server: ${e.message}")
+        exitProcess(1)
+    }
 
     // Install Sessions feature for managing user sessions
     install(Sessions) {
@@ -67,8 +72,9 @@ fun Application.module() {
                     SessionTransportTransformerEncrypt(
                             Base64.getDecoder().decode(AppConfig.sessionEncryptKey),
                             Base64.getDecoder().decode(AppConfig.sessionSecretString),
-                            encryptAlgorithm = "AES", 
-                            signAlgorithm = "HmacSHA256"
+                            encryptAlgorithm = "AES",
+                            signAlgorithm = "HmacSHA256",
+                            ivGenerator = {SecureRandom().generateSeed(16)}
                     )
             )
         }
@@ -86,14 +92,24 @@ fun Application.module() {
                     val decodedToken: FirebaseToken =
                             FirebaseAuth.getInstance().verifyIdToken(token)
 
-                    // Extract Tenant ID
-                    val tenantId = decodedToken.claims["tenantProjectId"] as? String
-
                     // Return the Principal (Success) or null (Failure)
-                    User(userId = decodedToken.uid, email = decodedToken.email, tenantId = tenantId)
+                    User(userId = decodedToken.uid, email = decodedToken.email)
                 } catch (e: Exception) {
                     // Log the error and return null to reject the request
                     this@module.log.error("Firebase Auth Failed", e)
+                    null
+                }
+            }
+        }
+
+        // Cloud Task
+        bearer("google-cloud-tasks") {
+            realm = "AI4Media Access - Google Cloud Tasks"
+            authenticate { credential ->
+                if (TokenVerifier.verify(credential.token)) {
+                    User(userId = "google-cloud-service-account", email = AppConfig.serviceAccount)
+                } else {
+                    null
                 }
             }
         }
@@ -101,7 +117,9 @@ fun Application.module() {
         // --- OAuth Schemes ---
         // Twitter OAuth 2.0
         oauth("auth-twitter") {
-            urlProvider = { "$AppConfig.baseUrl/auth/twitter/callback" } // Callback URL for Twitter OAuth
+            urlProvider = {
+                "${AppConfig.baseUrl}/auth/twitter/callback"
+            } // Callback URL for Twitter OAuth
             providerLookup = {
                 OAuthServerSettings.OAuth2ServerSettings(
                         name = "twitter",
@@ -124,7 +142,9 @@ fun Application.module() {
 
         // LinkedIn OAuth 2.0
         oauth("auth-linkedin") {
-            urlProvider = { "$AppConfig.baseUrl/auth/linkedin/callback" } // Callback URL for LinkedIn OAuth
+            urlProvider = {
+                "${AppConfig.baseUrl}/auth/linkedin/callback"
+            } // Callback URL for LinkedIn OAuth
             providerLookup = {
                 OAuthServerSettings.OAuth2ServerSettings(
                         name = "linkedin",

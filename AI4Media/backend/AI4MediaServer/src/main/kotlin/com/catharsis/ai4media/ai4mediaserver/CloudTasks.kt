@@ -1,3 +1,5 @@
+package com.catharsis.ai4media.ai4mediaserver
+
 import com.google.cloud.tasks.v2.*
 import com.google.protobuf.ByteString
 import com.google.protobuf.Timestamp
@@ -16,6 +18,7 @@ object CloudTasks {
      * @param locationId The Cloud region (e.g., "us-central1").
      * @param queueId The ID of the Cloud Tasks queue.
      * @param url The target URL for the HTTP request.
+     * @param serviceAccountEmail The service account email used for OIDC authentication.
      * @param scheduleTime The time at which the task should be executed.
      */
     fun createHttpTask(
@@ -23,6 +26,7 @@ object CloudTasks {
             locationId: String,
             queueId: String,
             url: String,
+            serviceAccountEmail: String,
             scheduleTime: Instant
     ) {
         // Initialize the Cloud Tasks client
@@ -34,11 +38,18 @@ object CloudTasks {
         val jsonPayload = """{"url": "$url"}"""
         val body = ByteString.copyFrom(jsonPayload, StandardCharsets.UTF_8)
 
+        // Configurar el token OIDC para la autenticación de la llamada por Cloud Task
+        val oidcToken = OidcToken.newBuilder()
+        .setServiceAccountEmail(serviceAccountEmail)
+        .setAudience("${AppConfig.baseUrl}")
+        .build()
+
         // Build the HTTP Request object for the task
         val httpRequest =
                 HttpRequest.newBuilder()
                         .setHttpMethod(HttpMethod.POST)
                         .setUrl(url)
+                        .setOidcToken(oidcToken)
                         .setBody(body)
                         .putHeaders("Content-Type", "application/json")
                         .build()

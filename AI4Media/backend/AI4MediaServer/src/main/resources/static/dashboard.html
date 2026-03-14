@@ -1,206 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI4Media Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f2f5;
-            margin: 0;
-        }
-
-        .card {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            text-align: center;
-            width: 350px;
-        }
-
-        h2 {
-            color: #333;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            margin: 12px 0;
-            border: none;
-            border-radius: 6px;
-            color: white;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 600;
-            transition: opacity 0.2s;
-            box-sizing: border-box;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .btn i {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
-
-        .btn-twitter {
-            background-color: #1DA1F2;
-        }
-
-        .btn-linkedin {
-            background-color: #0077B5;
-        }
-
-        .success-msg {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            display: none;
-            border: 1px solid #c3e6cb;
-        }
-
-        #user-photo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 10px;
-        }
-
-        .error-msg {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            display: none;
-            border: 1px solid #f5c6cb;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="card">
-        <div id="user-profile" class="user-info">
-            <img id="user-photo" src="" alt="Profile">
-            <h3 id="user-name">Welcome!</h3>
-        </div>
-
-        <h2>Dashboard</h2>
-        
-        <div id="success-msg" class="success-msg">
-            <i class="fas fa-check-circle"></i> Account Connected!
-        </div>
-        <div id="error-msg" class="error-msg">
-            <i class="fas fa-times-circle"></i> Connection Failed!
-        </div>
-
-        <p style="color: var(--text-sub); margin-bottom: 20px; font-size: 0.9rem;">
-            Connect your social accounts to enable auto-posting.
-        </p>
-        
-        <a id="twitter-link" href="#" class="btn btn-twitter"><i class="fab fa-twitter"></i> Connect Twitter</a>
-        <a id="linkedin-link" href="#" class="btn btn-linkedin"><i class="fab fa-linkedin"></i> Connect LinkedIn</a>
-
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-        
-        <a id="logout-btn" href="#">
-            <i class="fas fa-sign-out-alt"></i> Sign Out
-        </a>
-    </div>
     
+    <!-- Cargar la lógica en orden antes de AlpineJS -->
     <script type="module">
         import { auth } from "./firebase-config.js";
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const logoutBtn = document.getElementById('logout-btn');
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('dashboard', () => ({
+                isAutomaticSchedule: false,
+                tagsInput: '',
+                post: {
+                    userId: '',
+                    textContent: '',
+                    urlContent: '',
+                    scheduledTime: new Date().toISOString().slice(0, 16),
+                    tags: []
+                },
+                message: '',
+                status: '',
+                token: null,
+                
+                init() {
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            this.post.userId = user.uid;
+                            this.token = await user.getIdToken();
+                        } else {
+                            window.location.replace("index.html");
+                        }
+                    });
+                },
 
-        // Function to initiate secure OAuth flow
-        async function startAuth(provider) {
-            const user = auth.currentUser;
-            if (!user) return;
+                async schedulePost() {
+                    if (!this.token) {
+                        this.message = "Authentication required";
+                        this.status = "error";
+                        return;
+                    }
+                    
+                    if (!this.post.textContent.trim()) {
+                        this.message = "El contenido del post es obligatorio";
+                        this.status = "error";
+                        return;
+                    }
 
-            try {
-                const token = await user.getIdToken();
-                const response = await fetch(`/api/auth/init-${provider}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                    const payload = {
+                        ...this.post,
+                        tags: this.tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0)
+                    };
 
-                if (response.ok) {
-                    const data = await response.json();
-                    window.location.href = data.url; // Navigate to the provider (Twitter/LinkedIn)
-                } else {
-                    console.error("Failed to initialize auth");
-                    document.getElementById('error-msg').style.display = 'block';
+                    if (this.isAutomaticSchedule) {
+                        payload.scheduledTime = "AUTOMATIC";
+                    }
+
+                    try {
+                        const response = await fetch('/schedule', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (response.ok) {
+                            this.status = 'success';
+                            this.message = 'Post planificado con éxito (ID: ' + result.id + ')';
+                            this.post.textContent = '';
+                            this.post.urlContent = '';
+                            this.tagsInput = '';
+                        } else {
+                            this.status = 'error';
+                            this.message = result.error || 'Error al planificar el post.';
+                        }
+                    } catch (error) {
+                        console.error("Scheduling Error:", error);
+                        this.status = 'error';
+                        this.message = 'Error de red o servidor al intentar planificar el post.';
+                    }
+                },
+
+                async logout() {
+                    try {
+                        await signOut(auth);
+                        // onAuthStateChanged se encargará de hacer el redireccionamiento
+                    } catch (error) {
+                        console.error("Logout Error:", error);
+                    }
                 }
-            } catch (error) {
-                console.error("Error starting auth:", error);
-                document.getElementById('error-msg').style.display = 'block';
-            }
-        }
-
-        // Check URL parameters for success/error flags
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === 'true') {
-            document.getElementById('success-msg').style.display = 'block';
-        } else if (urlParams.get('success') === 'false' || urlParams.get('error')) {
-            document.getElementById('error-msg').style.display = 'block';
-        }
-
-        // Attach click handlers for OAuth buttons
-        document.getElementById('twitter-link').addEventListener('click', (e) => {
-            e.preventDefault();
-            startAuth('twitter');
-        });
-
-        document.getElementById('linkedin-link').addEventListener('click', (e) => {
-            e.preventDefault();
-            startAuth('linkedin');
-        });
-
-        // Lógica de autenticación que ya teníamos
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.body.style.display = "flex";
-                if (user.photoURL) {
-                    document.getElementById('user-photo').src = user.photoURL;
-                }
-                if (user.displayName) {
-                    document.getElementById('user-name').innerText = "Welcome, " + user.displayName + "!";
-                }
-            } else {
-                window.location.replace("index.html");
-            }
-        });
-
-        // Closing session
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Evita que el enlace recargue la página
-            signOut(auth).then(() => {
-                console.log("Sesión cerrada");
-                // onAuthStateChanged se encargará de redirigir a index.html automáticamente
-            }).catch((error) => {
-                console.error("Error al cerrar sesión:", error);
-            });
+            }));
         });
     </script>
-</body>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8" x-data="dashboard">
+    <div class="max-w-4xl mx-auto bg-white rounded shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold">Post Scheduler</h1>
+            <button @click="logout()" class="text-red-600 hover:text-red-800 text-sm font-semibold">Sign Out</button>
+        </div>
+        
+        <!-- Post Form -->
+        <div class="mb-8">
+            <div class="mb-4">
+                <label class="block text-gray-700">Content</label>
+                <textarea x-model="post.textContent" class="w-full border p-2 rounded" rows="4"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="flex items-center space-x-2 text-gray-700 mb-2 cursor-pointer">
+                        <input type="checkbox" x-model="isAutomaticSchedule" class="form-checkbox h-4 w-4 text-blue-600">
+                        <span>Planificación automática</span>
+                    </label>
+                    <div x-show="!isAutomaticSchedule">
+                        <label class="block text-gray-700 text-sm mb-1">Fecha y hora específica</label>
+                        <input type="datetime-local" x-model="post.scheduledTime" class="w-full border p-2 rounded">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm mb-1">URL Content</label>
+                    <input type="text" x-model="post.urlContent" class="w-full border p-2 rounded" placeholder="https://...">
+                </div>
+            </div>
 
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm mb-1">Tags (separados por coma)</label>
+                <input type="text" x-model="tagsInput" class="w-full border p-2 rounded" placeholder="AI, MachineLearning">
+            </div>
+
+            <button @click="schedulePost()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Schedule Post
+            </button>
+
+            <div x-show="message" class="mt-4 p-2 rounded" :class="status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                <span x-text="message"></span>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

@@ -1,5 +1,7 @@
 package com.catharsis.ai4media.ai4mediaserver
 
+import java.time.ZoneId
+
 /**
  * Central configuration object for the AI4MediaServer application.
  *
@@ -21,6 +23,12 @@ object AppConfig {
      * Loaded from the `APPENGINE_BASE_URL` environment variable.
      */
     val baseUrl: String
+
+    /**
+     * The Google Cloud Service Account email used for authentication.
+     * Retrieved from Secret Manager ("GOOGLE_CLOUD_SERVICE_ACCOUNT").
+     */
+    val serviceAccount: String
 
     /**
      * The Google Cloud region ID (e.g., "us-central1").
@@ -70,16 +78,23 @@ object AppConfig {
      */
     val sessionEncryptKey: String
 
+    /**
+     * The timezone of the application
+     */
+    val timeZone : ZoneId
+
     init {
         projectId = System.getenv("GOOGLE_CLOUD_PROJECT") ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
         baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
         cloudLocationId      =   SecretManager.getSecret(projectId, "CLOUD_LOCATION_ID") 
         cloudTasksQueueId    =   SecretManager.getSecret(projectId, "CLOUD_TASKS_QUEUE_ID") 
+        serviceAccount       =   SecretManager.getSecret(projectId, "GOOGLE_CLOUD_SERVICE_ACCOUNT") 
         twitterClientId      =   SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID") 
         twitterClientSecret  =   SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET") 
         linkedinClientId     =   SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID") 
         linkedinClientSecret =   SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET") 
         sessionSecretString  =   SecretManager.getSecret(projectId, "OAUTH_SESSION_SECRET_KEY") 
         sessionEncryptKey    =   SecretManager.getSecret(projectId, "SECRET_ENCRYPT_KEY") 
+        timeZone             =   ZoneId.of("Europe/Zurich")
     }
 }
