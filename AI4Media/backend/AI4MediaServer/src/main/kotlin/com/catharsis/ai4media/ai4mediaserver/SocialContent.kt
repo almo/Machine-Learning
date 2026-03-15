@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
  * @property id Unique identifier for the social content.
  * @property userId The ID of the user who owns this content.
  * @property textContent The main text body of the post.
+ * @property urlContent The url to the context of the post.
  * @property targetUrn The Uniform Resource Name (URN) identifying the post target or location.
  * @property scheduledTime The time when the post is scheduled to be published.
  * @property createdTime The timestamp when this record was created.
@@ -31,7 +32,8 @@ data class SocialContent(
         val id: UUID = UUID.randomUUID(),
         val userId: String,
         val textContent: String,
-        val targetUrn: String,
+        val urlContent: String,
+        val targetUrn: String? = null,
         val scheduledTime: LocalDateTime,
         val createdTime: LocalDateTime,
         val media: MediaContent? = null,

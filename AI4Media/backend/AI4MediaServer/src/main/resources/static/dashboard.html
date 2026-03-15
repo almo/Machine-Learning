@@ -24,8 +24,27 @@
                 message: '',
                 status: '',
                 token: null,
+                twitterConnected: localStorage.getItem('twitterConnected') === 'true',
+                linkedinConnected: localStorage.getItem('linkedinConnected') === 'true',
+                authMessage: '',
                 
                 init() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('success') === 'true') {
+                        const intent = sessionStorage.getItem('oauth_intent');
+                        if (intent === 'twitter') {
+                            this.twitterConnected = true;
+                            localStorage.setItem('twitterConnected', 'true');
+                        } else if (intent === 'linkedin') {
+                            this.linkedinConnected = true;
+                            localStorage.setItem('linkedinConnected', 'true');
+                        }
+                        this.authMessage = '¡Autenticación completada con éxito!';
+                        sessionStorage.removeItem('oauth_intent');
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        setTimeout(() => this.authMessage = '', 5000);
+                    }
+
                     onAuthStateChanged(auth, async (user) => {
                         if (user) {
                             this.post.userId = user.uid;
@@ -34,6 +53,38 @@
                             window.location.replace("index.html");
                         }
                     });
+                },
+
+                async connectTwitter() {
+                    if (!this.token) return;
+                    sessionStorage.setItem('oauth_intent', 'twitter');
+                    try {
+                        const response = await fetch('/api/auth/init-twitter', {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        });
+                        const data = await response.json();
+                        if (data.url) {
+                            window.location.href = data.url;
+                        }
+                    } catch (e) {
+                        console.error("Error al iniciar autenticación con Twitter:", e);
+                    }
+                },
+
+                async connectLinkedin() {
+                    if (!this.token) return;
+                    sessionStorage.setItem('oauth_intent', 'linkedin');
+                    try {
+                        const response = await fetch('/api/auth/init-linkedin', {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        });
+                        const data = await response.json();
+                        if (data.url) {
+                            window.location.href = data.url;
+                        }
+                    } catch (e) {
+                        console.error("Error al iniciar autenticación con LinkedIn:", e);
+                    }
                 },
 
                 async schedulePost() {
@@ -108,6 +159,31 @@
             <button @click="logout()" class="text-red-600 hover:text-red-800 text-sm font-semibold">Sign Out</button>
         </div>
         
+        <!-- Cuentas Sociales -->
+        <div class="mb-8 p-5 bg-gray-50 rounded border">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800">Cuentas Sociales</h2>
+            <div class="flex space-x-4">
+                <!-- Twitter -->
+                <button @click="connectTwitter()" class="flex items-center space-x-2 px-4 py-2 rounded text-white transition shadow-sm"
+                        :class="twitterConnected ? 'bg-green-600 hover:bg-green-700' : 'bg-black hover:bg-gray-800'">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                    </svg>
+                    <span x-text="twitterConnected ? 'Twitter Conectado' : 'Conectar Twitter'"></span>
+                </button>
+                
+                <!-- LinkedIn -->
+                <button @click="connectLinkedin()" class="flex items-center space-x-2 px-4 py-2 rounded text-white transition shadow-sm"
+                        :class="linkedinConnected ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-700 hover:bg-blue-800'">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span x-text="linkedinConnected ? 'LinkedIn Conectado' : 'Conectar LinkedIn'"></span>
+                </button>
+            </div>
+            <div x-show="authMessage" class="mt-4 p-3 bg-green-100 text-green-800 font-medium rounded border border-green-200" x-text="authMessage" x-transition></div>
+        </div>
+
         <!-- Post Form -->
         <div class="mb-8">
             <div class="mb-4">

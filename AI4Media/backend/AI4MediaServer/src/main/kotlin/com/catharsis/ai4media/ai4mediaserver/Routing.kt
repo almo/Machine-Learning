@@ -42,7 +42,7 @@ fun Application.configureRouting() {
                             SocialContent(
                                     userId = user.userId,
                                     textContent = request.textContent,
-                                    targetUrn = request.urlContent,
+                                    urlContent = request.urlContent,
                                     scheduledTime = parsedTime,
                                     createdTime = LocalDateTime.now(AppConfig.timeZone)
                             )
@@ -57,7 +57,7 @@ fun Application.configureRouting() {
                             Entity.newBuilder(key)
                                     .set("userId", content.userId)
                                     .set("textContent", content.textContent)
-                                    .set("targetUrn", content.targetUrn)
+                                    .set("urlContent", content.urlContent)
                                     .set("scheduledTime", Timestamp.of(java.sql.Timestamp.valueOf(content.scheduledTime)))
                                     .set("createdTime", Timestamp.of(java.sql.Timestamp.valueOf(content.createdTime)))
                                     .set("status", content.status.name)
@@ -127,9 +127,39 @@ fun Application.configureRouting() {
                     return@post
                 }
 
-                call.application.log.info("Post published (ID: $postId)")
-                
-                call.respond(HttpStatusCode.OK)
+                try {
+                    val userId = entity.getString("userId")
+                    val textContent = entity.getString("textContent")
+                    val urlContent = if (entity.contains("urlContent")) entity.getString("urlContent") else null
+                    
+                    // Recuperamos los tags si existiesen en Datastore
+                    val tags = if (entity.contains("tags")) {
+                        entity.getList<com.google.cloud.datastore.Value<*>>("tags").map { it.get().toString() }
+                    } else emptyList()
+
+                    val targetUrn = LinkedinConnector.publishToOrganizationTimeline(
+                        userId = userId,
+                        textContent = textContent,
+                        urlContent = urlContent,
+                        tags = tags
+                    )
+
+                    val updatedEntity = Entity.newBuilder(entity)
+                        .set("targetUrn", targetUrn)
+                        .set("status", PostStatus.PUBLISHED.name)
+                        .build()
+                    datastore.put(updatedEntity)
+
+                    call.application.log.info("Post published successfully (ID: $postId, URN: $targetUrn)")
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    call.application.log.error("Failed to publish post (ID: $postId)", e)
+                    val failedEntity = Entity.newBuilder(entity)
+                        .set("status", PostStatus.FAILED.name)
+                        .build()
+                    datastore.put(failedEntity)
+                    call.respond(HttpStatusCode.InternalServerError, "Error publishing post: ${e.message}")
+                }
             }
         }
         // --- OAuth Handlers (Browser Redirects) ---

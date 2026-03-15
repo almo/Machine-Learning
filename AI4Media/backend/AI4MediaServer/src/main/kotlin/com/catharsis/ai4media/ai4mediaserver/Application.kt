@@ -134,10 +134,12 @@ fun Application.module() {
                                         "tweet.write",
                                         "users.read",
                                         "offline.access"
-                                ) // offline.access needed for refresh
+                                )
                 )
             }
-            client = HttpClient(CIO)
+            client = HttpClient(CIO) {
+                        install(io.ktor.client.plugins.auth.Auth) 
+            }
         }
 
         // LinkedIn OAuth 2.0
@@ -153,10 +155,12 @@ fun Application.module() {
                         requestMethod = HttpMethod.Post,
                         clientId = AppConfig.linkedinClientId,
                         clientSecret = AppConfig.linkedinClientSecret,
-                        defaultScopes = listOf("openid", "profile", "email", "w_member_social")
+                        defaultScopes = listOf("openid", "profile", "email", "w_member_social", "w_organization_social", "r_organization_social", "rw_organization_admin")
                 )
             }
-            client = HttpClient(CIO)
+            client = HttpClient(CIO) {
+                        install(io.ktor.client.plugins.auth.Auth) 
+            }
         }
     }
     log.info("Authentication set...")
