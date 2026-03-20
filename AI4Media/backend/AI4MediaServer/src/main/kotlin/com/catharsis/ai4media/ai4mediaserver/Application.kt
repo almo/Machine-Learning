@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseToken
+import com.catharsis.ai4media.ai4mediaserver.oAuthPKCE
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
@@ -14,15 +15,19 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.sessions.*
 import io.ktor.util.*
+import java.security.SecureRandom
 import java.util.Base64
 import kotlin.system.exitProcess
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.security.SecureRandom
 
 @Serializable data class User(val userId: String, val email: String)
 
-@Serializable data class AI4MediaSession(val userId: String)
+@Serializable
+data class AI4MediaSession(
+        val userId: String,
+        val codeVerifier: String = oAuthPKCE.generateCodeVerifier()
+)
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -74,7 +79,7 @@ fun Application.module() {
                             Base64.getDecoder().decode(AppConfig.sessionSecretString),
                             encryptAlgorithm = "AES",
                             signAlgorithm = "HmacSHA256",
-                            ivGenerator = {SecureRandom().generateSeed(16)}
+                            ivGenerator = { SecureRandom().generateSeed(16) }
                     )
             )
         }
@@ -121,6 +126,11 @@ fun Application.module() {
                 "${AppConfig.baseUrl}/auth/twitter/callback"
             } // Callback URL for Twitter OAuth
             providerLookup = {
+                val session = sessions.get<AI4MediaSession>()
+                
+                val codeVerifier = session?.codeVerifier ?: oAuthPKCE.generateCodeVerifier()
+                val codeChallenge = oAuthPKCE.generateCodeChallenge(codeVerifier)
+
                 OAuthServerSettings.OAuth2ServerSettings(
                         name = "twitter",
                         authorizeUrl = "https://twitter.com/i/oauth2/authorize",
@@ -128,18 +138,20 @@ fun Application.module() {
                         requestMethod = HttpMethod.Post,
                         clientId = AppConfig.twitterClientId,
                         clientSecret = AppConfig.twitterClientSecret,
+                        accessTokenRequiresBasicAuth = true,
                         defaultScopes =
+                                listOf("tweet.read", "tweet.write", "users.read", "offline.access"),
+                        extraAuthParameters =
                                 listOf(
-                                        "tweet.read",
-                                        "tweet.write",
-                                        "users.read",
-                                        "offline.access"
-                                )
+                                        "code_challenge" to codeChallenge,
+                                        "code_challenge_method" to "S256"
+                                ),
+                        accessTokenInterceptor = {
+                            url.parameters.append("code_verifier", codeVerifier)
+                        }
                 )
             }
-            client = HttpClient(CIO) {
-                        install(io.ktor.client.plugins.auth.Auth) 
-            }
+            client = HttpClient(CIO) { install(io.ktor.client.plugins.auth.Auth) }
         }
 
         // LinkedIn OAuth 2.0
@@ -155,12 +167,19 @@ fun Application.module() {
                         requestMethod = HttpMethod.Post,
                         clientId = AppConfig.linkedinClientId,
                         clientSecret = AppConfig.linkedinClientSecret,
-                        defaultScopes = listOf("openid", "profile", "email", "w_member_social", "w_organization_social", "r_organization_social", "rw_organization_admin")
+                        defaultScopes =
+                                listOf(
+                                        "openid",
+                                        "profile",
+                                        "email",
+                                        "w_member_social",
+                                        "w_organization_social",
+                                        "r_organization_social",
+                                        "rw_organization_admin"
+                                )
                 )
             }
-            client = HttpClient(CIO) {
-                        install(io.ktor.client.plugins.auth.Auth) 
-            }
+            client = HttpClient(CIO) { install(io.ktor.client.plugins.auth.Auth) }
         }
     }
     log.info("Authentication set...")
