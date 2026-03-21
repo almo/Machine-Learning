@@ -5,7 +5,6 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseToken
-import com.catharsis.ai4media.ai4mediaserver.oAuthPKCE
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
@@ -126,9 +125,14 @@ fun Application.module() {
                 "${AppConfig.baseUrl}/auth/twitter/callback"
             } // Callback URL for Twitter OAuth
             providerLookup = {
-                val session = sessions.get<AI4MediaSession>()
-                
-                val codeVerifier = session?.codeVerifier ?: oAuthPKCE.generateCodeVerifier()
+                var session = sessions.get<AI4MediaSession>()
+
+                if (session == null) {
+                    session = AI4MediaSession("unknown_user") 
+                    sessions.set(session)
+                }
+
+                val codeVerifier = session.codeVerifier 
                 val codeChallenge = oAuthPKCE.generateCodeChallenge(codeVerifier)
 
                 OAuthServerSettings.OAuth2ServerSettings(

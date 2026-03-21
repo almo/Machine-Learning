@@ -5,11 +5,11 @@ import com.google.cloud.datastore.Entity
 import com.google.cloud.datastore.EntityValue
 import com.google.cloud.datastore.FullEntity
 import com.google.cloud.datastore.IncompleteKey
-import com.google.cloud.datastore.Key
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -68,11 +68,12 @@ object TokenService {
         val transaction = datastore.newTransaction()
         try {
             val existingEntity = transaction.get(key)
-            val builder = if (existingEntity != null) {
-                Entity.newBuilder(existingEntity)
-            } else {
-                Entity.newBuilder(key)
-            }
+            val builder =
+                    if (existingEntity != null) {
+                        Entity.newBuilder(existingEntity)
+                    } else {
+                        Entity.newBuilder(key)
+                    }
 
             val expiresAt = System.currentTimeMillis() + (expiresIn * 1000L)
 
@@ -113,7 +114,10 @@ object TokenService {
 
         // 3. Mapear a una estructura local para trabajar fácilmente
         val accessToken = providerEntity.getString("accessToken")
-        val storedRefreshToken = if (providerEntity.contains("refreshToken")) providerEntity.getString("refreshToken") else null
+        val storedRefreshToken =
+                if (providerEntity.contains("refreshToken"))
+                        providerEntity.getString("refreshToken")
+                else null
         val expiresAt = providerEntity.getLong("expiresAt") // Timestamp en milisegundos
 
         // 4. Verificar si ha expirado (usando un margen de 60 segundos)
@@ -161,10 +165,16 @@ object TokenService {
                                             Parameters.build {
                                                 append("grant_type", "refresh_token")
                                                 append("refresh_token", oldToken.refreshToken)
-                                                append("client_id", clientId)
-                                                append("client_secret", clientSecret)
+                                                if (oldToken.provider == "linkedin") {
+                                                    append("client_id", clientId)
+                                                    append("client_secret", clientSecret)
+                                                }
                                             }
-                            )
+                            ) {
+                                if (oldToken.provider == "twitter") {
+                                    basicAuth(clientId, clientSecret)
+                                }
+                            }
                             .body()
 
             // Update Store
@@ -182,5 +192,3 @@ object TokenService {
         }
     }
 }
-
-
