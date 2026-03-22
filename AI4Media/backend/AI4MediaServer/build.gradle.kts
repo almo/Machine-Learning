@@ -66,6 +66,11 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-client-auth:$ktor_version")
     implementation("io.ktor:ktor-client-json:$ktor_version")
+
+    // Scrapping
+    implementation("it.skrape:skrapeit:1.2.2"){
+        exclude(group = "ch.qos.logback")
+    }
        
     //
     // Firebase

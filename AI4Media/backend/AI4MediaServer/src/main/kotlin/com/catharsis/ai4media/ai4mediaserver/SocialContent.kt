@@ -25,7 +25,8 @@ data class SocialContentRequest(
     val textContent: String,
     val urlContent: String,
     val scheduledTime: String,
-    val tags: List<String> = emptyList()
+    val tags: String="",
+    val networks: String=""
 )
 
 data class SocialContent(
@@ -35,42 +36,12 @@ data class SocialContent(
         val urlContent: String,
         val targetUrn: String? = null,
         val scheduledTime: LocalDateTime,
-        val createdTime: LocalDateTime,
-        val media: MediaContent? = null,
+        val createdTime: LocalDateTime,        
         val firstComment: String? = null,
         val tags: List<String> = emptyList(),
-        val status: PostStatus = PostStatus.DRAFT
+        val status: PostStatus = PostStatus.DRAFT,        
+        val network: SocialNetwork = SocialNetwork.LINKEDIN
 )
-
-/**
- * Represents the media content associated with a social post. Supported types are [Image], [Video],
- * and [Document].
- */
-sealed class MediaContent {
-    /**
-     * Represents an image media item.
-     *
-     * @property url The publicly accessible URL of the image.
-     * @property altText Alternative text for accessibility and SEO.
-     */
-    data class Image(val url: String, val altText: String?) : MediaContent()
-
-    /**
-     * Represents a video media item.
-     *
-     * @property url The publicly accessible URL of the video.
-     * @property title The title or caption of the video.
-     */
-    data class Video(val url: String, val title: String?) : MediaContent()
-
-    /**
-     * Represents a generic document (e.g., PDF).
-     *
-     * @property url The publicly accessible URL of the document.
-     * @property title The title or name of the document.
-     */
-    data class Document(val url: String, val title: String?) : MediaContent()
-}
 
 /** Enumerates the possible states of a [SocialContent] post. */
 enum class PostStatus {
@@ -81,5 +52,13 @@ enum class PostStatus {
     /** The post has been successfully published to the target platform. */
     PUBLISHED,
     /** The post failed to publish. */
-    FAILED
+    FAILED,
+    /** The post is currently being published. */
+    PUBLISHING
+}
+
+/** Enumerates the supported social networks for publishing. */
+enum class SocialNetwork {
+    LINKEDIN,
+    TWITTER
 }

@@ -2,6 +2,7 @@ package com.catharsis.ai4media.ai4mediaserver
 
 import java.time.ZoneId
 
+
 /**
  * Central configuration object for the AI4MediaServer application.
  *

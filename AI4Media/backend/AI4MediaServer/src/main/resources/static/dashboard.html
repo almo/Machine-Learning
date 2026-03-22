@@ -12,14 +12,16 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboard', () => ({
-                isAutomaticSchedule: false,
+                scheduleMode: 'specific',
                 tagsInput: '',
+                selectedNetworks: [],
                 post: {
                     userId: '',
                     textContent: '',
                     urlContent: '',
                     scheduledTime: new Date().toISOString().slice(0, 16),
-                    tags: []
+                    tags: '',
+                    networks: ''
                 },
                 message: '',
                 status: '',
@@ -39,7 +41,7 @@
                             this.linkedinConnected = true;
                             localStorage.setItem('linkedinConnected', 'true');
                         }
-                        this.authMessage = '¡Autenticación completada con éxito!';
+                        this.authMessage = 'Authentication completed successfully!';
                         sessionStorage.removeItem('oauth_intent');
                         window.history.replaceState({}, document.title, window.location.pathname);
                         setTimeout(() => this.authMessage = '', 5000);
@@ -67,7 +69,7 @@
                             window.location.href = data.url;
                         }
                     } catch (e) {
-                        console.error("Error al iniciar autenticación con Twitter:", e);
+                        console.error("Error starting Twitter authentication:", e);
                     }
                 },
 
@@ -83,7 +85,7 @@
                             window.location.href = data.url;
                         }
                     } catch (e) {
-                        console.error("Error al iniciar autenticación con LinkedIn:", e);
+                        console.error("Error starting LinkedIn authentication:", e);
                     }
                 },
 
@@ -95,18 +97,28 @@
                     }
                     
                     if (!this.post.textContent.trim()) {
-                        this.message = "El contenido del post es obligatorio";
+                        this.message = "Post content is required";
+                        this.status = "error";
+                        return;
+                    }
+                    
+                    if (this.selectedNetworks.length === 0) {
+                        this.message = "You must select at least one target social network.";
                         this.status = "error";
                         return;
                     }
 
+                    this.post.networks = this.selectedNetworks.join('|');
+                    this.post.tags = this.tagsInput
+
                     const payload = {
-                        ...this.post,
-                        tags: this.tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0)
+                        ...this.post                      
                     };
 
-                    if (this.isAutomaticSchedule) {
+                    if (this.scheduleMode === 'automatic') {
                         payload.scheduledTime = "AUTOMATIC";
+                    } else if (this.scheduleMode === 'now') {
+                        payload.scheduledTime = "NOW";
                     }
 
                     try {
@@ -123,18 +135,21 @@
                         
                         if (response.ok) {
                             this.status = 'success';
-                            this.message = 'Post planificado con éxito (ID: ' + result.id + ')';
+                            this.message = 'Post scheduled successfully (ID: ' + result.id + ')';
                             this.post.textContent = '';
                             this.post.urlContent = '';
                             this.tagsInput = '';
+                            this.selectedNetworks = [];
+                            this.post.networks = '';
+                            this.scheduleMode = 'specific';
                         } else {
                             this.status = 'error';
-                            this.message = result.error || 'Error al planificar el post.';
+                            this.message = result.error || 'Error scheduling the post.';
                         }
                     } catch (error) {
                         console.error("Scheduling Error:", error);
                         this.status = 'error';
-                        this.message = 'Error de red o servidor al intentar planificar el post.';
+                        this.message = 'Network or server error when trying to schedule the post.';
                     }
                 },
 
@@ -161,7 +176,7 @@
         
         <!-- Cuentas Sociales -->
         <div class="mb-8 p-5 bg-gray-50 rounded border">
-            <h2 class="text-lg font-semibold mb-4 text-gray-800">Cuentas Sociales</h2>
+            <h2 class="text-lg font-semibold mb-4 text-gray-800">Social Accounts</h2>
             <div class="flex space-x-4">
                 <!-- Twitter -->
                 <button @click="connectTwitter()" class="flex items-center space-x-2 px-4 py-2 rounded text-white transition shadow-sm"
@@ -169,7 +184,7 @@
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
                     </svg>
-                    <span x-text="twitterConnected ? 'Twitter Conectado' : 'Conectar Twitter'"></span>
+                    <span x-text="twitterConnected ? 'Twitter Connected' : 'Connect Twitter'"></span>
                 </button>
                 
                 <!-- LinkedIn -->
@@ -178,7 +193,7 @@
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd"></path>
                     </svg>
-                    <span x-text="linkedinConnected ? 'LinkedIn Conectado' : 'Conectar LinkedIn'"></span>
+                    <span x-text="linkedinConnected ? 'LinkedIn Connected' : 'Connect LinkedIn'"></span>
                 </button>
             </div>
             <div x-show="authMessage" class="mt-4 p-3 bg-green-100 text-green-800 font-medium rounded border border-green-200" x-text="authMessage" x-transition></div>
@@ -193,12 +208,23 @@
             
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="flex items-center space-x-2 text-gray-700 mb-2 cursor-pointer">
-                        <input type="checkbox" x-model="isAutomaticSchedule" class="form-checkbox h-4 w-4 text-blue-600">
-                        <span>Planificación automática</span>
-                    </label>
-                    <div x-show="!isAutomaticSchedule">
-                        <label class="block text-gray-700 text-sm mb-1">Fecha y hora específica</label>
+                    <label class="block text-gray-700 text-sm mb-2 font-semibold">Schedule Mode</label>
+                    <div class="flex space-x-4 mb-2">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" x-model="scheduleMode" value="specific" class="form-radio h-4 w-4 text-blue-600">
+                            <span class="text-gray-700 text-sm">Specific time</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" x-model="scheduleMode" value="now" class="form-radio h-4 w-4 text-blue-600">
+                            <span class="text-gray-700 text-sm">Now</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" x-model="scheduleMode" value="automatic" class="form-radio h-4 w-4 text-blue-600">
+                            <span class="text-gray-700 text-sm">Automatic</span>
+                        </label>
+                    </div>
+                    <div x-show="scheduleMode === 'specific'">
+                        <label class="block text-gray-700 text-sm mb-1">Specific date and time</label>
                         <input type="datetime-local" x-model="post.scheduledTime" class="w-full border p-2 rounded">
                     </div>
                 </div>
@@ -209,11 +235,27 @@
             </div>
 
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm mb-1">Tags (separados por coma)</label>
+                <label class="block text-gray-700 text-sm mb-1">Tags (space-separated)</label>
                 <input type="text" x-model="tagsInput" class="w-full border p-2 rounded" placeholder="AI, MachineLearning">
             </div>
 
-            <button @click="schedulePost()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm mb-2 font-semibold">Target Social Networks</label>
+                <div class="flex space-x-6">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" x-model="selectedNetworks" value="linkedin" class="form-checkbox h-5 w-5 text-blue-700 rounded">
+                        <span class="text-gray-700">LinkedIn</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" x-model="selectedNetworks" value="twitter" class="form-checkbox h-5 w-5 text-blue-400 rounded">
+                        <span class="text-gray-700">Twitter</span>
+                    </label>
+                </div>
+            </div>
+
+            <button @click="schedulePost()" 
+                    :disabled="selectedNetworks.length === 0"
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
                 Schedule Post
             </button>
 
