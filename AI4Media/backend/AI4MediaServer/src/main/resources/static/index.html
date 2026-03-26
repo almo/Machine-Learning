@@ -1,122 +1,624 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI4Media Login Portal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-      --surface: #ffffff;
-      --text-main: #111827;
-      --text-sub: #6b7280;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI4Media Login Portal</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    body {
-      font-family: 'Inter', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: var(--bg-gradient);
-      margin: 0;
-      color: var(--text-main);
-    }
+    <!-- Application logic script -->
+    <script>
+        function app() {
+            return {
+                lang: 'en', // Default language
+                currentView: 'login', // Views: login, rss, compose, scheduled, stats
+                isGenerating: false,
+                contentGenerated: false,
+                
+                // Patterns for login background
+                patterns: ['bg-pattern-1', 'bg-pattern-2', 'bg-pattern-3', 'bg-pattern-4', 'bg-pattern-5', 'bg-pattern-6'],
+                currentPattern: '',
 
-    .card {
-      background: var(--surface);
-      padding: 3rem;
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      transition: transform 0.2s ease;
-    }
+                // Auto-run on initialization
+                init() {
+                    // Pick a random pattern
+                    this.currentPattern = this.patterns[Math.floor(Math.random() * this.patterns.length)];
+                },
 
-    h2 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      letter-spacing: -0.025em;
-    }
+                // Translations dictionary
+                i18n: {
+                    en: {
+                        login: { title: "AI4Media Platform", sub: "Sign in to access your workspace", google_btn: "Sign in with Google" },
+                        nav: { rss: "Sources & News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                        rss: { title: "RSS Sources & Curation", add: "Add Source", cat: "Categories", tech: "Technology", mkt: "Marketing", dev: "Development", read: "Read original", curate: "Curate & Schedule", time_ago: "ago", hours: "hours", show_read: "Show read", hide_read: "Hide read", mark_read: "Mark as read", mark_unread: "Mark as unread", read_badge: "Read" },
+                        compose: { title: "Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All" },
+                        sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:" },
+                        stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month" },
+                        alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?" }
+                    },
+                    es: {
+                        login: { title: "Plataforma AI4Media", sub: "Inicia sesión para acceder a tu espacio", google_btn: "Iniciar sesión con Google" },
+                        nav: { rss: "Fuentes y Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                        rss: { title: "Fuentes RSS y Curación", add: "Añadir Fuente", cat: "Categorías", tech: "Tecnología", mkt: "Marketing", dev: "Desarrollo", read: "Leer original", curate: "Curar y Programar", time_ago: "Hace", hours: "horas", show_read: "Mostrar leídos", hide_read: "Ocultar leídos", mark_read: "Marcar como leído", mark_unread: "Marcar como no leído", read_badge: "Leído" },
+                        compose: { title: "Generador de Contenido", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 horas)", bump2: "Bump 2", bump2_sub: "(+24 horas)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo" },
+                        sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:" },
+                        stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior" },
+                        alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?" }
+                    }
+                },
 
-    p {
-      color: var(--text-sub);
-      margin-bottom: 2rem;
-      font-size: 0.95rem;
-    }
+                // Helper to get translation
+                t(key) {
+                    return key.split('.').reduce((o, i) => (o ? o[i] : null), this.i18n[this.lang]) || key;
+                },
 
-    button {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
-      width: 100%;
-      transition: background-color 0.2s;
-    }
+                // Toggle language
+                toggleLang() {
+                    this.lang = this.lang === 'en' ? 'es' : 'en';
+                },
+                
+                // Show/Hide read articles flag
+                showRead: true,
 
-    button:hover {
-      background-color: var(--primary-hover);
-    }
+                // Toggle read status
+                toggleRead(id) {
+                    const news = this.rssNews.find(n => n.id === id);
+                    if (news) news.read = !news.read;
+                },
 
-    #status {
-      margin-top: 1.5rem;
-      color: var(--text-sub);
-      font-size: 0.875rem;
-      min-height: 1.25rem;
-    }
+                // Mock data for RSS
+                rssNews: [
+                    {
+                        id: 1,
+                        source: 'TechCrunch',
+                        time: 'Hace 2 horas',
+                        title: 'El nuevo modelo de IA reduce el consumo energético en un 40%',
+                        description: 'Una startup emergente ha publicado un nuevo paper detallando cómo su arquitectura de red neuronal optimizada logra resultados estado-del-arte consumiendo una fracción de la energía.',
+                        url: 'https://techcrunch.com/ejemplo-ia-energia',
+                        read: false
+                    },
+                    {
+                        id: 2,
+                        source: 'Xataka',
+                        time: 'Hace 4 horas',
+                        title: 'Ktor 3.0 lanzado oficialmente: Mejoras de rendimiento y plugins',
+                        description: 'El framework de JetBrains para Kotlin recibe una actualización masiva centrada en la concurrencia y simplificación del ecosistema de plugins.',
+                        url: 'https://xataka.com/ejemplo-ktor-3',
+                        read: true // Simulated as read
+                    },
+                    {
+                        id: 3,
+                        source: 'HackerNews',
+                        time: 'Hace 5 horas',
+                        title: 'Por qué AlpineJS es suficiente para el 80% de las aplicaciones web',
+                        description: 'Un análisis profundo sobre el peso de los frameworks modernos y cómo herramientas mínimas están recuperando terreno en el desarrollo frontend.',
+                        url: 'https://news.ycombinator.com/ejemplo-alpine',
+                        read: false
+                    }
+                ],
 
-  </style>
+                // Editor/composer state
+                composeData: {
+                    url: '',
+                    linkedin: '',
+                    twitter: '',
+                    bump1: '',
+                    bump2: ''
+                },
+
+                // List of scheduled posts
+                scheduledList: [
+                    { id: 101, network: 'linkedin', type: 'Main Post', content: '¿Sabías que Ktor acaba de lanzar su versión 3.0? Las mejoras en concurrencia son impresionantes. Lo estamos usando en nuestro backend y la diferencia es notable. 🚀 #Kotlin #Ktor #Backend', scheduledTime: 'Hoy, 14:00' },
+                    { id: 102, network: 'twitter', type: 'Main Post', content: 'Ktor 3.0 ya está aquí 🔥. JetBrains ha hecho un trabajo excelente mejorando el sistema de plugins. ¿Alguien más actualizando sus servidores hoy? #Kotlin', scheduledTime: 'Hoy, 14:00' },
+                    { id: 103, network: 'twitter', type: 'Bump 1', content: 'Por cierto, aquí os dejo el enlace a las notas de lanzamiento completas por si os perdisteis algún detalle: [Enlace]', scheduledTime: 'Hoy, 17:30' }
+                ],
+
+                // Application functions
+                logout() {
+                    // Sign out from Firebase (this will trigger 'auth-logout' automatically)
+                    if(window.firebaseSignOut) window.firebaseSignOut();
+                    
+                    // Reset state
+                    this.contentGenerated = false;
+                    this.composeData = { url: '', linkedin: '', twitter: '', bump1: '', bump2: '' };
+                },
+
+                curateNews(url, id) {
+                    this.composeData.url = url;
+                    this.contentGenerated = false; // Reset editor state
+                    this.currentView = 'compose';
+                    
+                    // Auto-mark as read when curated
+                    const news = this.rssNews.find(n => n.id === id);
+                    if (news) news.read = true;
+                },
+
+                generateContent() {
+                    if (!this.composeData.url) return;
+                    
+                    this.isGenerating = true;
+                    this.contentGenerated = false;
+                    
+                    // Simulate backend call (Ktor)
+                    setTimeout(() => {
+                        this.composeData.linkedin = `He estado leyendo este artículo muy interesante sobre ${this.composeData.url.split('/').pop().replace(/-/g, ' ')}. \n\nCreo que el impacto en nuestra industria va a ser significativo durante este año. ¿Qué opináis vosotros? \n\nDejo el enlace en los comentarios. 👇\n\n#Innovacion #Tecnologia #Tendencias`;
+                        
+                        this.composeData.twitter = `Nuevo artículo interesante detectado 🚨\n\nExplican a fondo los cambios en la industria y me ha parecido muy acertado. Hilo corto 🧵👇\n\n${this.composeData.url}\n#TechNews`;
+                        
+                        this.composeData.bump1 = `(Continuación) Lo que más me ha llamado la atención es la parte donde hablan de optimización de recursos. Totalmente aplicable a nuestros proyectos actuales.`;
+                        
+                        this.composeData.bump2 = `En caso de que os lo perdierais ayer, sigo pensando que este artículo es una lectura obligatoria para esta semana. ¡Buen inicio de día! ☕️ \n${this.composeData.url}`;
+                        
+                        this.isGenerating = false;
+                        this.contentGenerated = true;
+                    }, 1500); // 1.5s loading simulation
+                },
+
+                schedulePosts() {
+                    // Add mock posts to the list
+                    const newId = Date.now();
+                    this.scheduledList.unshift({
+                        id: newId, network: 'linkedin', type: 'Main', content: this.composeData.linkedin.substring(0, 100) + '...', scheduledTime: this.lang === 'en' ? 'Tomorrow, 09:00' : 'Mañana, 09:00'
+                    });
+                    this.scheduledList.unshift({
+                        id: newId + 1, network: 'twitter', type: 'Main', content: this.composeData.twitter.substring(0, 100) + '...', scheduledTime: this.lang === 'en' ? 'Tomorrow, 09:00' : 'Mañana, 09:00'
+                    });
+                    
+                    alert(this.t('alerts.success'));
+                    
+                    // Clear and redirect
+                    this.composeData = { url: '', linkedin: '', twitter: '', bump1: '', bump2: '' };
+                    this.contentGenerated = false;
+                    this.currentView = 'scheduled';
+                },
+
+                deleteScheduled(id) {
+                    if(confirm(this.t('alerts.delete'))) {
+                        this.scheduledList = this.scheduledList.filter(post => post.id !== id);
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- AlpineJS for reactivity -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#10B981', // Emerald 500
+                        linkedin: '#0A66C2',
+                        twitter: '#1DA1F2'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Hide Alpine elements until loaded to prevent flickering */
+        [x-cloak] { display: none !important; }
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* CSS Tessellation Patterns (Subtle gray over gray-50) */
+        .bg-pattern-1 { background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px); background-size: 24px 24px; }
+        .bg-pattern-2 { background-image: linear-gradient(45deg, #f1f5f9 25%, transparent 25%, transparent 75%, #f1f5f9 75%, #f1f5f9), linear-gradient(45deg, #f1f5f9 25%, transparent 25%, transparent 75%, #f1f5f9 75%, #f1f5f9); background-size: 20px 20px; background-position: 0 0, 10px 10px; }
+        .bg-pattern-3 { background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #e2e8f0 19px, #e2e8f0 20px), repeating-linear-gradient(-90deg, transparent, transparent 19px, #e2e8f0 19px, #e2e8f0 20px); background-size: 20px 20px; }
+        .bg-pattern-4 { background: repeating-linear-gradient(45deg, transparent, transparent 10px, #e2e8f0 10px, #e2e8f0 11px); }
+        .bg-pattern-5 { background-image: radial-gradient(#cbd5e1 2px, transparent 2px), radial-gradient(#cbd5e1 2px, transparent 2px); background-size: 32px 32px; background-position: 0 0, 16px 16px; }
+        .bg-pattern-6 { background-image: repeating-linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0), repeating-linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0); background-position: 0 0, 20px 20px; background-size: 40px 40px; }
+    </style>
 </head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased h-screen overflow-hidden" 
+      x-data="app()" 
+      x-cloak
+      @auth-success.window="currentView = 'rss'"
+      @auth-logout.window="currentView = 'login'">
 
-<body>
+    <!-- LOGIN SCREEN -->
+    <div x-show="currentView === 'login'" x-transition class="fixed inset-0 bg-gray-50 flex items-center justify-center z-50 transition-colors duration-500" :class="currentPattern">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md relative z-10 border border-gray-100">
+            
+            <!-- Language toggle in login -->
+            <div class="absolute top-4 right-4">
+                <button type="button" @click="toggleLang()" class="text-sm font-medium text-gray-500 hover:text-primary transition-colors bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">
+                    <i class="fa-solid fa-language mr-1"></i> <span x-text="lang === 'en' ? 'ES' : 'EN'"></span>
+                </button>
+            </div>
 
-  <div class="card">
-    <h2>AI4Media Platform</h2>
-    <p>Sign in to access your workspace</p>
+            <div class="text-center mb-8 mt-4">
+                <div class="bg-primary/10 text-primary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-rocket text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900" x-text="t('login.title')"></h1>
+                <p class="text-gray-500 mt-2" x-text="t('login.sub')"></p>
+            </div>
+            
+            <!-- Google Sign-in Button -->
+            <button id="google-signin-btn" class="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-3 mt-4">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span x-text="t('login.google_btn')"></span>
+            </button>
+            
+            <div id="status" class="mt-4 text-center text-sm text-red-500 min-h-[1.25rem]"></div>
+        </div>
+    </div>
 
-    <button id="google-signin-btn">Sign in with Google</button>
+    <!-- MAIN APPLICATION (Appears via view change) -->
+    <div x-show="currentView !== 'login'" class="flex h-screen" style="display: none;">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between hidden md:flex">
+            <div>
+                <div class="h-16 flex items-center px-6 border-b border-gray-100">
+                    <i class="fa-solid fa-rocket text-primary text-xl mr-3"></i>
+                    <span class="text-lg font-bold text-gray-800">AI4Media</span>
+                </div>
+                <nav class="p-4 space-y-1">
+                    <button @click="currentView = 'rss'" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'rss', 'text-gray-600 hover:bg-gray-50': currentView !== 'rss'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <i class="fa-solid fa-rss w-6 text-center"></i>
+                        <span x-text="t('nav.rss')"></span>
+                    </button>
+                    <button @click="currentView = 'compose'" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'compose', 'text-gray-600 hover:bg-gray-50': currentView !== 'compose'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <i class="fa-solid fa-pen-nib w-6 text-center"></i>
+                        <span x-text="t('nav.compose')"></span>
+                    </button>
+                    <button @click="currentView = 'scheduled'" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'scheduled', 'text-gray-600 hover:bg-gray-50': currentView !== 'scheduled'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <i class="fa-regular fa-calendar-check w-6 text-center"></i>
+                        <span x-text="t('nav.scheduled')"></span>
+                    </button>
+                    <button @click="currentView = 'stats'" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'stats', 'text-gray-600 hover:bg-gray-50': currentView !== 'stats'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <i class="fa-solid fa-chart-simple w-6 text-center"></i>
+                        <span x-text="t('nav.stats')"></span>
+                    </button>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-gray-100 space-y-2">
+                <button @click="toggleLang" class="w-full flex items-center px-4 py-2 text-gray-500 hover:text-primary hover:bg-indigo-50 rounded-lg transition-colors">
+                    <i class="fa-solid fa-language w-6 text-center"></i>
+                    <span x-text="lang === 'en' ? t('nav.switch_es') : t('nav.switch_en')"></span>
+                </button>
+                <button @click="logout" class="w-full flex items-center px-4 py-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                    <i class="fa-solid fa-arrow-right-from-bracket w-6 text-center"></i>
+                    <span x-text="t('nav.logout')"></span>
+                </button>
+            </div>
+        </aside>
 
-    <div id="status">Not signed in</div>
-  </div>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50">
+            
+            <!-- Mobile Header (only visible on small screens) -->
+            <header class="md:hidden bg-white h-16 border-b flex items-center justify-between px-4">
+                <span class="font-bold text-lg text-gray-800">AI4Media</span>
+                <!-- Simple menu (for this prototype uses quick buttons) -->
+                <div class="flex space-x-2 text-sm items-center">
+                    <button @click="toggleLang()" class="px-2 font-bold text-primary" x-text="lang === 'en' ? 'ES' : 'EN'"></button>
+                    <button @click="currentView = 'rss'" class="p-2 text-gray-600"><i class="fa-solid fa-rss"></i></button>
+                    <button @click="currentView = 'compose'" class="p-2 text-gray-600"><i class="fa-solid fa-pen"></i></button>
+                    <button @click="currentView = 'scheduled'" class="p-2 text-gray-600"><i class="fa-regular fa-calendar"></i></button>
+                </div>
+            </header>
 
-  <script type="module">
-    import { auth, provider } from "./firebase-config.js";
-    import { signInWithPopup, onAuthStateChanged }
-      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+            <!-- Scrollable views area -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+                
+                <!-- VIEW: RSS AND NEWS -->
+                <div x-show="currentView === 'rss'" x-transition.opacity>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800" x-text="t('rss.title')"></h2>
+                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center">
+                            <i class="fa-solid fa-plus mr-2"></i> <span x-text="t('rss.add')"></span>
+                        </button>
+                    </div>
 
-    const btn = document.getElementById('google-signin-btn');
-    const status = document.getElementById('status');
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <!-- Left Panel: Categories/Sources -->
+                        <div class="w-full lg:w-1/4">
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                                <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3" x-text="t('rss.cat')"></h3>
+                                <ul class="space-y-2">
+                                    <li class="p-2 bg-blue-50 text-blue-700 rounded-lg font-medium flex justify-between cursor-pointer">
+                                        <span x-text="t('rss.tech')"></span> <span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full">12</span>
+                                    </li>
+                                    <li class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium flex justify-between cursor-pointer">
+                                        <span x-text="t('rss.mkt')"></span> <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">5</span>
+                                    </li>
+                                    <li class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium flex justify-between cursor-pointer">
+                                        <span x-text="t('rss.dev')"></span> <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">8</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
 
-    btn.addEventListener('click', () => {
-      signInWithPopup(auth, provider).catch((error) => {
-        status.innerText = "Error: " + error.message;
-      });
-    });
+                        <!-- Right Panel: News Feed -->
+                        <div class="w-full lg:w-3/4 space-y-4">
+                            <!-- Filter Toggle -->
+                            <div class="flex justify-between items-center px-1 mb-2">
+                                <span class="text-sm font-bold text-gray-500 uppercase tracking-wider" x-text="t('nav.rss')"></span>
+                                <button @click="showRead = !showRead" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid" :class="showRead ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    <span x-text="showRead ? t('rss.hide_read') : t('rss.show_read')"></span>
+                                </button>
+                            </div>
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // back disable
-        window.location.replace("dashboard.html");
-      } else {
-        status.innerText = "Not signed in";
-        btn.style.display = 'inline-block';
-      }
-    });
-  </script>
+                            <template x-for="news in rssNews.filter(n => showRead || !n.read)" :key="news.id">
+                                <div class="p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 hover:shadow-md transition relative group" :class="news.read ? 'bg-gray-50 opacity-75' : 'bg-white'">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center text-xs text-gray-500">
+                                                <span class="bg-gray-100 px-2 py-1 rounded text-gray-600 font-medium" x-text="news.source"></span>
+                                                <span class="mx-2">•</span>
+                                                <span x-text="lang === 'en' ? '2 ' + t('rss.hours') + ' ' + t('rss.time_ago') : t('rss.time_ago') + ' 2 ' + t('rss.hours')"></span>
+                                                <span x-show="news.read" class="ml-3 bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wide" x-text="t('rss.read_badge')"></span>
+                                            </div>
+                                            <!-- Manual Toggle Read Status -->
+                                            <button @click="toggleRead(news.id)" class="text-gray-400 hover:text-primary transition p-1" :title="news.read ? t('rss.mark_unread') : t('rss.mark_read')">
+                                                <i class="fa-solid" :class="news.read ? 'fa-envelope-open' : 'fa-envelope'"></i>
+                                            </button>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2" x-text="news.title"></h3>
+                                        <p class="text-gray-600 text-sm line-clamp-2 mb-4" x-text="news.description"></p>
+                                        <div class="flex items-center gap-3">
+                                            <a :href="news.url" target="_blank" class="text-primary text-sm font-medium hover:underline flex items-center">
+                                                <span x-text="t('rss.read')"></span> <i class="fa-solid fa-external-link-alt ml-1 text-xs"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-end md:items-start md:border-l border-gray-100 md:pl-4">
+                                        <button @click="curateNews(news.url, news.id)" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm flex items-center gap-2 whitespace-nowrap text-sm font-medium w-full md:w-auto justify-center">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="t('rss.curate')"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- VIEW: COMPOSE / SCHEDULE -->
+                <div x-show="currentView === 'compose'" x-transition.opacity>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800" x-text="t('compose.title')"></h2>
+                        <p class="text-gray-500" x-text="t('compose.sub')"></p>
+                    </div>
+
+                    <!-- URL Input and Generate Button -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 items-end">
+                        <div class="flex-1 w-full">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.url')"></label>
+                            <input type="text" x-model="composeData.url" :placeholder="t('compose.placeholder')" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
+                        </div>
+                        <button @click="generateContent" :disabled="isGenerating || !composeData.url" class="bg-gray-900 hover:bg-black text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto">
+                            <template x-if="!isGenerating">
+                                <span><i class="fa-solid fa-robot mr-1"></i> <span x-text="t('compose.gen')"></span></span>
+                            </template>
+                            <template x-if="isGenerating">
+                                <span><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> <span x-text="t('compose.creating')"></span></span>
+                            </template>
+                        </button>
+                    </div>
+
+                    <!-- Editing Areas -->
+                    <div x-show="contentGenerated" x-transition class="space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            
+                            <!-- LinkedIn -->
+                            <div class="bg-white rounded-xl shadow-sm border border-blue-200 overflow-hidden">
+                                <div class="bg-blue-50/50 px-4 py-3 border-b border-blue-100 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 text-linkedin font-bold">
+                                        <i class="fa-brands fa-linkedin text-lg"></i> <span x-text="t('compose.linkedin')"></span>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <textarea x-model="composeData.linkedin" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-linkedin focus:border-linkedin outline-none resize-none text-sm"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Twitter -->
+                            <div class="bg-white rounded-xl shadow-sm border border-sky-200 overflow-hidden">
+                                <div class="bg-sky-50/50 px-4 py-3 border-b border-sky-100 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 text-twitter font-bold">
+                                        <i class="fa-brands fa-twitter text-lg"></i> <span x-text="t('compose.twitter')"></span>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <textarea x-model="composeData.twitter" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-twitter focus:border-twitter outline-none resize-none text-sm"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Bump 1 (3-4 hours) -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
+                                    <div class="flex items-center gap-2 text-gray-700 font-bold">
+                                        <i class="fa-solid fa-reply text-gray-400"></i> <span x-text="t('compose.bump1')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump1_sub')"></span>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <textarea x-model="composeData.bump1" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Bump 2 (Next day) -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
+                                    <div class="flex items-center gap-2 text-gray-700 font-bold">
+                                        <i class="fa-solid fa-reply-all text-gray-400"></i> <span x-text="t('compose.bump2')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump2_sub')"></span>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <textarea x-model="composeData.bump2" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Final Scheduling Panel -->
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h4 class="font-bold text-indigo-900" x-text="t('compose.send_cfg')"></h4>
+                                <p class="text-sm text-indigo-700" x-text="t('compose.send_sub')"></p>
+                            </div>
+                            <button @click="schedulePosts" class="bg-primary hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg w-full md:w-auto flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> <span x-text="t('compose.schedule_btn')"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: SCHEDULED AND CALENDAR -->
+                <div x-show="currentView === 'scheduled'" x-transition.opacity>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800" x-text="t('sched.title')"></h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        <!-- List of Scheduled Posts -->
+                        <div class="xl:col-span-1 space-y-4">
+                            <h3 class="font-bold text-gray-700 mb-2" x-text="t('sched.upcoming')"></h3>
+                            
+                            <template x-if="scheduledList.length === 0">
+                                <div class="bg-white rounded-xl border-dashed border-2 border-gray-200 p-8 text-center">
+                                    <p class="text-gray-500" x-text="t('sched.empty')"></p>
+                                </div>
+                            </template>
+
+                            <template x-for="post in scheduledList" :key="post.id">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative group">
+                                    <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button class="text-gray-400 hover:text-blue-500"><i class="fa-solid fa-pen"></i></button>
+                                        <button @click="deleteScheduled(post.id)" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span x-show="post.network === 'linkedin'" class="text-linkedin"><i class="fa-brands fa-linkedin"></i></span>
+                                        <span x-show="post.network === 'twitter'" class="text-twitter"><i class="fa-brands fa-twitter"></i></span>
+                                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-600" x-text="post.type"></span>
+                                    </div>
+                                    <p class="text-sm text-gray-800 mb-3 line-clamp-3" x-text="post.content"></p>
+                                    <div class="text-xs font-medium text-primary flex items-center gap-1">
+                                        <i class="fa-regular fa-clock"></i> <span x-text="t('sched.scheduled_for')"></span> <span class="ml-1" x-text="post.scheduledTime"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Calendar Iframe -->
+                        <div class="xl:col-span-2">
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 h-[600px] flex flex-col overflow-hidden">
+                                <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                    <h3 class="font-bold text-gray-700" x-text="t('sched.cal_title')"></h3>
+                                    <div class="text-xs text-gray-500 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> <span x-text="t('sched.cal_via')"></span></div>
+                                </div>
+                                <!-- Iframe Container -->
+                                <div class="flex-1 w-full bg-gray-100 relative">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 p-6 text-center z-0">
+                                        <i class="fa-regular fa-calendar-days text-6xl mb-4 text-gray-300"></i>
+                                        <p class="font-medium text-lg" x-text="t('sched.cal_place')"></p>
+                                        <p class="text-sm mt-2" x-text="t('sched.cal_sub')"></p>
+                                    </div>
+                                    <iframe 
+                                        src="https://calendar.google.com/calendar/embed?src=444fe6ecad39e9a15308fcc2e4394fed2de9d42f0af50f98df5cc6401226bf31%40group.calendar.google.com&ctz=Europe%2FZurich" 
+                                        class="absolute inset-0 w-full h-full border-0 z-10 opacity-50" 
+                                        title="Calendario de Contenido">
+                                    </iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: STATISTICS -->
+                <div x-show="currentView === 'stats'" x-transition.opacity>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800" x-text="t('stats.title')"></h2>
+                        <p class="text-gray-500" x-text="t('stats.sub')"></p>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-gray-500 font-medium" x-text="t('stats.posts')"></h3>
+                                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg"><i class="fa-solid fa-check-double"></i></div>
+                            </div>
+                            <div class="text-3xl font-bold text-gray-900">142</div>
+                            <div class="text-sm text-green-500 font-medium mt-2 flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +12% <span class="ml-1" x-text="t('stats.vs_last')"></span></div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-gray-500 font-medium" x-text="t('stats.interactions')"></h3>
+                                <div class="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center text-lg"><i class="fa-solid fa-heart"></i></div>
+                            </div>
+                            <div class="text-3xl font-bold text-gray-900">3,850</div>
+                            <div class="text-sm text-green-500 font-medium mt-2 flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +5.4% <span class="ml-1" x-text="t('stats.vs_last')"></span></div>
+                        </div>
+
+                    <!-- Dummy / Placeholder Chart -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-gray-800 mb-6" x-text="t('stats.activity')"></h3>
+                        <div class="h-64 flex items-end space-x-2 md:space-x-4 border-b border-l border-gray-200 pb-2 pl-2">
+                            <!-- Simulated bars -->
+                            <template x-for="i in 14">
+                                <div class="w-full bg-primary/20 hover:bg-primary transition-colors rounded-t-sm relative group cursor-pointer" :style="`height: ${Math.floor(Math.random() * 80 + 20)}%`">
+                                    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap"><span x-text="t('stats.day')"></span> <span x-text="i"></span></div>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-400 mt-2 pl-2">
+                            <span x-text="t('stats.days_ago')"></span>
+                            <span x-text="t('stats.today')"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Real Firebase Auth Integration -->
+    <script type="module">
+        import { auth, provider } from "./firebase-config.js";
+        import { signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Expose logout function to global scope so Alpine can use it
+        window.firebaseSignOut = () => signOut(auth);
+
+        const btn = document.getElementById('google-signin-btn');
+        const status = document.getElementById('status');
+
+        if (btn) {
+            btn.addEventListener('click', () => {
+                signInWithPopup(auth, provider).catch((error) => {
+                    if(status) status.innerText = "Error: " + error.message;
+                });
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Tell Alpine to switch to the main view (e.g. rss)
+                window.dispatchEvent(new CustomEvent('auth-success'));
+            } else {
+                // Tell Alpine to return to login screen
+                window.dispatchEvent(new CustomEvent('auth-logout'));
+                if(status) status.innerText = "";
+            }
+        });
+    </script>
 </body>
-
 </html>

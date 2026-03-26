@@ -94,6 +94,8 @@ fun Application.configureRouting() {
                                     DataStoreWrapper.updateStatus(contentID, PostStatus.PUBLISHED, targetUrn)
                                 } catch (e: Exception) {
                                     DataStoreWrapper.updateStatus(contentID, PostStatus.FAILED)
+                                    val errorText = e.stackTraceToString()
+                                    call.application.log.error("Error scheduling Post: $errorText")
                                 }
                             }
                             DataStoreWrapper.updateStatus(contentID, PostStatus.PUBLISHING)
