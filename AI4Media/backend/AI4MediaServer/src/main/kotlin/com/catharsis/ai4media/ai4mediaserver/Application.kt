@@ -190,4 +190,6 @@ fun Application.module() {
 
     // Configure application routing
     this.configureRouting()
+    this.configureSourceRouting()
+    this.configureAuthRouting()
 }

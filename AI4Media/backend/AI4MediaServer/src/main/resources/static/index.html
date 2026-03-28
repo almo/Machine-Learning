@@ -30,21 +30,37 @@
                 i18n: {
                     en: {
                         login: { title: "AI4Media Platform", sub: "Sign in to access your workspace", google_btn: "Sign in with Google" },
-                        nav: { rss: "Sources & News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
-                        rss: { title: "RSS Sources & Curation", add: "Add Source", cat: "Categories", tech: "Technology", mkt: "Marketing", dev: "Development", read: "Read original", curate: "Curate & Schedule", time_ago: "ago", hours: "hours", show_read: "Show read", hide_read: "Hide read", mark_read: "Mark as read", mark_unread: "Mark as unread", read_badge: "Read" },
+                        nav: { rss: "Sources & News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", settings: "Settings", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                        rss: { 
+                            title: "RSS Sources & Curation", add: "Add Source", cat: "Categories", 
+                            categories: { technology: "Technology", marketing: "Marketing", development: "Development" },
+                            read: "Read original", curate: "Curate & Schedule", time_ago: "ago", hours: "hours", 
+                            show_read: "Show read", hide_read: "Hide read", mark_read: "Mark as read", mark_unread: "Mark as unread", read_badge: "Read",
+                            no_sources: "No sources added.", edit_source: "Edit Source", source_name: "Source Name", source_url: "RSS URL", source_category: "Category", source_tags: "Tags (e.g. #AI #Tech)", cancel: "Cancel", save: "Save",
+                            all_news: "All News", add_cat: "Add Category", cat_name: "Category Name", mark_all_read: "Mark all as read", filter_by: "Filtering by:"
+                        },
                         compose: { title: "Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All" },
                         sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:" },
                         stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month" },
-                        alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?" }
+                        alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", delete_source: "Are you sure you want to delete this source?" },
+                        settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login." }
                     },
                     es: {
                         login: { title: "Plataforma AI4Media", sub: "Inicia sesión para acceder a tu espacio", google_btn: "Iniciar sesión con Google" },
-                        nav: { rss: "Fuentes y Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
-                        rss: { title: "Fuentes RSS y Curación", add: "Añadir Fuente", cat: "Categorías", tech: "Tecnología", mkt: "Marketing", dev: "Desarrollo", read: "Leer original", curate: "Curar y Programar", time_ago: "Hace", hours: "horas", show_read: "Mostrar leídos", hide_read: "Ocultar leídos", mark_read: "Marcar como leído", mark_unread: "Marcar como no leído", read_badge: "Leído" },
+                        nav: { rss: "Fuentes y Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", settings: "Configuración", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                        rss: { 
+                            title: "Fuentes RSS y Curación", add: "Añadir Fuente", cat: "Categorías", 
+                            categories: { technology: "Tecnología", marketing: "Marketing", development: "Desarrollo" },
+                            read: "Leer original", curate: "Curar y Programar", time_ago: "Hace", hours: "horas", 
+                            show_read: "Mostrar leídos", hide_read: "Ocultar leídos", mark_read: "Marcar como leído", mark_unread: "Marcar como no leído", read_badge: "Leído",
+                            no_sources: "No hay fuentes.", edit_source: "Editar Fuente", source_name: "Nombre de la Fuente", source_url: "URL del RSS", source_category: "Categoría", source_tags: "Etiquetas (ej. #IA #Tech)", cancel: "Cancelar", save: "Guardar",
+                            all_news: "Todas las Noticias", add_cat: "Añadir Categoría", cat_name: "Nombre de la Categoría", mark_all_read: "Marcar todo como leído", filter_by: "Filtrando por:"
+                        },
                         compose: { title: "Generador de Contenido", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 horas)", bump2: "Bump 2", bump2_sub: "(+24 horas)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo" },
                         sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:" },
                         stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior" },
-                        alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?" }
+                        alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?" },
+                        settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth." }
                     }
                 },
 
@@ -53,18 +69,201 @@
                     return key.split('.').reduce((o, i) => (o ? o[i] : null), this.i18n[this.lang]) || key;
                 },
 
+                // Helper to capitalize strings
+                capitalize(str) {
+                    return str.charAt(0).toUpperCase() + str.slice(1);
+                },
+
                 // Toggle language
                 toggleLang() {
                     this.lang = this.lang === 'en' ? 'es' : 'en';
                 },
                 
+                // API Helper for Backend Communication (Ktor)
+                async apiCall(endpoint, method = 'GET', body = null) {
+                    try {
+                        const token = window.getFirebaseAuthToken ? await window.getFirebaseAuthToken() : null;
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                        const options = { method, headers };
+                        if (body) options.body = JSON.stringify(body);
+
+                        // Use relative path to avoid CORS issues
+                        const API_BASE = ''; 
+                        const response = await fetch(`${API_BASE}${endpoint}`, options);
+
+                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                        // Si es un DELETE que no devuelve body, evitamos error al hacer json()
+                        if (method === 'DELETE') return true; 
+                        return await response.json();
+                    } catch (error) {
+                        console.error('Backend integration error:', error);
+                        throw error;
+                    }
+                },
+
                 // Show/Hide read articles flag
                 showRead: true,
 
-                // Toggle read status
+                // Selected Filter State (type can be 'all', 'category', or 'source')
+                selectedFilter: { type: 'all', value: null },
+
+                // Get dynamically filtered news
+                get filteredNews() {
+                    let filtered = this.rssNews;
+                    
+                    if (this.selectedFilter.type === 'category') {
+                        const categorySourceNames = this.sources.filter(s => s.category === this.selectedFilter.value).map(s => s.name);
+                        filtered = filtered.filter(n => categorySourceNames.includes(n.source));
+                    } else if (this.selectedFilter.type === 'source') {
+                        const sourceName = this.sources.find(s => s.id === this.selectedFilter.value)?.name;
+                        filtered = filtered.filter(n => n.source === sourceName);
+                    }
+                    
+                    return filtered.filter(n => this.showRead || !n.read);
+                },
+
+                // Get title for current filter
+                get currentFilterTitle() {
+                    if (this.selectedFilter.type === 'all') return this.t('rss.all_news');
+                    if (this.selectedFilter.type === 'category') return this.t('rss.categories.' + this.selectedFilter.value) || this.capitalize(this.selectedFilter.value);
+                    if (this.selectedFilter.type === 'source') return this.sources.find(s => s.id === this.selectedFilter.value)?.name || '';
+                    return '';
+                },
+
+                // Toggle read status for single article
                 toggleRead(id) {
                     const news = this.rssNews.find(n => n.id === id);
                     if (news) news.read = !news.read;
+                },
+
+                // Mark all as read for category or source
+                markAllAsRead(type, value) {
+                    let newsToMark = [];
+                    if (type === 'category') {
+                        const categorySourceNames = this.sources.filter(s => s.category === value).map(s => s.name);
+                        newsToMark = this.rssNews.filter(n => categorySourceNames.includes(n.source));
+                    } else if (type === 'source') {
+                        const sourceName = this.sources.find(s => s.id === value)?.name;
+                        newsToMark = this.rssNews.filter(n => n.source === sourceName);
+                    }
+                    newsToMark.forEach(n => n.read = true);
+                },
+
+                // Categories list
+                categories: [],
+
+                // Category Modal State
+                isCategoryModalOpen: false,
+                newCategoryName: '',
+
+                saveCategory() {
+                    const name = this.newCategoryName.trim();
+                    if (name) {
+                        const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                        if (!this.categories.includes(slug)) {
+                            this.categories.push(slug);
+                            // Insert directly into i18n dictionary dynamically
+                            this.i18n.en.rss.categories[slug] = name;
+                            this.i18n.es.rss.categories[slug] = name;
+                        }
+                    }
+                    this.isCategoryModalOpen = false;
+                    this.newCategoryName = '';
+                },
+
+                // Sources data structure (Starts empty, will be loaded from backend)
+                sources: [],
+
+                // Load sources from Ktor Backend
+                async loadSources() {
+                    try {
+                        // Llamada real al backend en Ktor
+                        const fetchedSources = await this.apiCall('/api/sources');
+                        this.sources = Array.isArray(fetchedSources) ? fetchedSources : [];
+                                     
+                        // Register any unknown categories from the backend
+                        this.sources.forEach(s => {
+                            if (s.category && !this.categories.includes(s.category)) {
+                                this.categories.push(s.category);
+                                this.i18n.en.rss.categories[s.category] = this.capitalize(s.category);
+                                this.i18n.es.rss.categories[s.category] = this.capitalize(s.category);
+                            }
+                        });
+                    } catch (e) {
+                        console.warn("Backend no disponible. Cargando datos de prueba (Mock).");
+                        categories: ['technology', 'marketing', 'development'];
+                        this.sources = [
+                            { id: 1, name: 'TechCrunch', category: 'technology', url: 'https://techcrunch.com/feed', tags: '#Tech #AI' },
+                            { id: 2, name: 'Xataka', category: 'technology', url: 'https://xataka.com/feed', tags: '#Gadgets' },
+                            { id: 3, name: 'HackerNews', category: 'development', url: 'https://news.ycombinator.com/rss', tags: '#Programming' }
+                        ];
+                    }
+                },
+
+                // Calculate total articles per category
+                getArticlesCountByCategory(category) {
+                    const categorySourceNames = this.sources.filter(s => s.category === category).map(s => s.name);
+                    return this.rssNews.filter(n => categorySourceNames.includes(n.source)).length;
+                },
+
+                // Source Modal State
+                isSourceModalOpen: false,
+                editingSourceId: null,
+                sourceForm: { name: '', url: '', category: 'technology', tags: '' },
+
+                openSourceModal(source = null) {
+                    if (source) {
+                        this.editingSourceId = source.id;
+                        this.sourceForm = { ...source };
+                        if (this.sourceForm.tags === undefined) this.sourceForm.tags = '';
+                    } else {
+                        this.editingSourceId = null;
+                        this.sourceForm = { name: '', url: '', category: this.categories[0] || 'technology', tags: '' };
+                    }
+                    this.isSourceModalOpen = true;
+                },
+
+                async saveSource() {
+                    try {
+                        if (this.editingSourceId) {
+                            // Backend Integration: PUT /api/sources/{id}
+                            const updatedSource = await this.apiCall(`/api/sources/${this.editingSourceId}`, 'PUT', this.sourceForm);
+                            
+                            // Update local state AFTER successful backend response
+                            const index = this.sources.findIndex(s => s.id === this.editingSourceId);
+                            if(index !== -1) this.sources[index] = updatedSource;
+                        } else {
+                            // Backend Integration: POST /api/sources
+                            const newSource = await this.apiCall('/api/sources', 'POST', this.sourceForm);
+                            
+                            // Update local state AFTER successful backend response
+                            this.sources.push(newSource);
+                        }
+                        this.isSourceModalOpen = false;
+                    } catch (error) {
+                        console.error("Fallo al guardar en el backend", error);
+                        alert("Error de conexión al guardar la fuente. Asegúrate de que Ktor está corriendo.");
+                    }
+                },
+
+                async deleteSource(id) {
+                    if(confirm(this.t('alerts.delete_source'))) {
+                        try {
+                            // Backend Integration: DELETE /api/sources/{id}
+                            await this.apiCall(`/api/sources/${id}`, 'DELETE');
+                            
+                            // Update local state AFTER successful backend response
+                            this.sources = this.sources.filter(s => s.id !== id);
+                            if (this.selectedFilter.type === 'source' && this.selectedFilter.value === id) {
+                                this.selectedFilter = { type: 'all', value: null };
+                            }
+                        } catch (error) {
+                            console.error("Fallo al borrar en el backend", error);
+                            alert("Error de conexión al borrar la fuente.");
+                        }
+                    }
                 },
 
                 // Mock data for RSS
@@ -113,6 +312,32 @@
                     { id: 102, network: 'twitter', type: 'Main Post', content: 'Ktor 3.0 ya está aquí 🔥. JetBrains ha hecho un trabajo excelente mejorando el sistema de plugins. ¿Alguien más actualizando sus servidores hoy? #Kotlin', scheduledTime: 'Hoy, 14:00' },
                     { id: 103, network: 'twitter', type: 'Bump 1', content: 'Por cierto, aquí os dejo el enlace a las notas de lanzamiento completas por si os perdisteis algún detalle: [Enlace]', scheduledTime: 'Hoy, 17:30' }
                 ],
+
+                // OAuth settings state
+                oauthStatus: {
+                    twitter: false,
+                    linkedin: false
+                },
+
+                async loadSettings() {
+                    try {
+                        // Fetching OAuth status from Data Store via Backend
+                        this.oauthStatus = await this.apiCall('/api/auth/status');
+                    } catch (e) {
+                        console.warn("Failed to load OAuth status, using mock data.");
+                        this.oauthStatus = { twitter: false, linkedin: false };
+                    }
+                },
+
+                async initOAuth(provider) {
+                    try {
+                        const response = await this.apiCall(`/api/auth/init-${provider}`);
+                        if (response && response.url) window.location.href = response.url;
+                    } catch (e) {
+                        console.error(`Failed to init OAuth for ${provider}`, e);
+                        alert(this.t('settings.error'));
+                    }
+                },
 
                 // Application functions
                 logout() {
@@ -183,7 +408,7 @@
     </script>
 
     <!-- AlpineJS for reactivity -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -222,7 +447,7 @@
 <body class="bg-gray-50 text-gray-800 font-sans antialiased h-screen overflow-hidden" 
       x-data="app()" 
       x-cloak
-      @auth-success.window="currentView = 'rss'"
+      @auth-success.window="currentView = 'rss'; loadSources()"
       @auth-logout.window="currentView = 'login'">
 
     <!-- LOGIN SCREEN -->
@@ -286,6 +511,10 @@
                         <i class="fa-solid fa-chart-simple w-6 text-center"></i>
                         <span x-text="t('nav.stats')"></span>
                     </button>
+                    <button @click="currentView = 'settings'; loadSettings()" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'settings', 'text-gray-600 hover:bg-gray-50': currentView !== 'settings'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <i class="fa-solid fa-gear w-6 text-center"></i>
+                        <span x-text="t('nav.settings')"></span>
+                    </button>
                 </nav>
             </div>
             <div class="p-4 border-t border-gray-100 space-y-2">
@@ -301,7 +530,7 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50">
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50 relative">
             
             <!-- Mobile Header (only visible on small screens) -->
             <header class="md:hidden bg-white h-16 border-b flex items-center justify-between px-4">
@@ -312,6 +541,7 @@
                     <button @click="currentView = 'rss'" class="p-2 text-gray-600"><i class="fa-solid fa-rss"></i></button>
                     <button @click="currentView = 'compose'" class="p-2 text-gray-600"><i class="fa-solid fa-pen"></i></button>
                     <button @click="currentView = 'scheduled'" class="p-2 text-gray-600"><i class="fa-regular fa-calendar"></i></button>
+                    <button @click="currentView = 'settings'; loadSettings()" class="p-2 text-gray-600"><i class="fa-solid fa-gear"></i></button>
                 </div>
             </header>
 
@@ -322,42 +552,94 @@
                 <div x-show="currentView === 'rss'" x-transition.opacity>
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-gray-800" x-text="t('rss.title')"></h2>
-                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center">
+                        <button @click="openSourceModal()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center shadow-sm">
                             <i class="fa-solid fa-plus mr-2"></i> <span x-text="t('rss.add')"></span>
                         </button>
                     </div>
 
                     <div class="flex flex-col lg:flex-row gap-6">
-                        <!-- Left Panel: Categories/Sources -->
+                        <!-- Left Panel: Categories/Sources Navigation -->
                         <div class="w-full lg:w-1/4">
                             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                                <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3" x-text="t('rss.cat')"></h3>
-                                <ul class="space-y-2">
-                                    <li class="p-2 bg-blue-50 text-blue-700 rounded-lg font-medium flex justify-between cursor-pointer">
-                                        <span x-text="t('rss.tech')"></span> <span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full">12</span>
-                                    </li>
-                                    <li class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium flex justify-between cursor-pointer">
-                                        <span x-text="t('rss.mkt')"></span> <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">5</span>
-                                    </li>
-                                    <li class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg font-medium flex justify-between cursor-pointer">
-                                        <span x-text="t('rss.dev')"></span> <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">8</span>
-                                    </li>
+                                
+                                <!-- All News Reset Filter -->
+                                <button @click="selectedFilter = {type: 'all', value: null}" 
+                                        class="w-full flex items-center px-3 py-2 rounded-lg mb-4 transition-colors font-medium text-sm"
+                                        :class="selectedFilter.type === 'all' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50'">
+                                    <i class="fa-solid fa-layer-group w-5 text-center mr-2"></i>
+                                    <span x-text="t('rss.all_news')"></span>
+                                </button>
+
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider" x-text="t('rss.cat')"></h3>
+                                    <button @click="isCategoryModalOpen = true" class="text-gray-400 hover:text-primary transition-colors p-1" :title="t('rss.add_cat')">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                                
+                                <ul class="space-y-4">
+                                    <template x-for="cat in categories" :key="cat">
+                                        <li>
+                                            <!-- Category Header -->
+                                            <div class="flex justify-between items-center mb-1 group rounded-lg transition-colors cursor-pointer"
+                                                 :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'bg-indigo-50/50' : 'hover:bg-gray-50'">
+                                                <div @click="selectedFilter = {type: 'category', value: cat}" class="flex-1 py-1.5 px-2 flex items-center justify-between">
+                                                    <span class="font-bold text-sm" :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'text-primary' : 'text-gray-700'" x-text="t('rss.categories.' + cat) || capitalize(cat)"></span>
+                                                    <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full" :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'bg-indigo-100 text-indigo-700' : ''" x-text="getArticlesCountByCategory(cat)"></span>
+                                                </div>
+                                                <button @click.stop="markAllAsRead('category', cat)" class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-green-500 px-2 py-1 transition-all" :title="t('rss.mark_all_read')">
+                                                    <i class="fa-solid fa-check-double text-[11px]"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Sources per category -->
+                                            <ul class="space-y-0.5 pl-3 border-l-2 border-gray-100 ml-3">
+                                                <template x-for="source in sources.filter(s => s.category === cat)" :key="source.id">
+                                                    <li class="group flex justify-between items-center py-1.5 pl-2 pr-1 rounded-lg text-sm transition-colors cursor-pointer"
+                                                        :class="selectedFilter.type === 'source' && selectedFilter.value === source.id ? 'bg-indigo-50/80 text-primary font-medium' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'"
+                                                        @click="selectedFilter = {type: 'source', value: source.id}">
+                                                        
+                                                        <div class="flex items-center truncate">
+                                                            <i class="fa-solid fa-rss mr-2 text-[10px]" :class="selectedFilter.type === 'source' && selectedFilter.value === source.id ? 'text-primary/70' : 'text-gray-300'"></i>
+                                                            <span class="truncate" x-text="source.name"></span>
+                                                        </div>
+                                                        
+                                                        <div class="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 text-gray-400 bg-white shadow-sm border border-gray-100 rounded-md px-1 ml-2" @click.stop>
+                                                            <button @click="markAllAsRead('source', source.id)" class="p-1 hover:text-green-500 transition-colors" :title="t('rss.mark_all_read')"><i class="fa-solid fa-check-double text-[10px]"></i></button>
+                                                            <button @click="openSourceModal(source)" class="p-1 hover:text-primary transition-colors" :title="t('rss.edit_source')"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                                            <button @click="deleteSource(source.id)" class="p-1 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                                <!-- Empty state for category -->
+                                                <li x-show="sources.filter(s => s.category === cat).length === 0" class="text-xs text-gray-400 italic py-1.5 pl-2">
+                                                    <span x-text="t('rss.no_sources')"></span>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </template>
                                 </ul>
                             </div>
                         </div>
 
                         <!-- Right Panel: News Feed -->
                         <div class="w-full lg:w-3/4 space-y-4">
-                            <!-- Filter Toggle -->
-                            <div class="flex justify-between items-center px-1 mb-2">
-                                <span class="text-sm font-bold text-gray-500 uppercase tracking-wider" x-text="t('nav.rss')"></span>
-                                <button @click="showRead = !showRead" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors">
+                            <!-- Filter Toggle & Current Filter Status -->
+                            <div class="flex justify-between items-end px-1 mb-2 border-b border-gray-200 pb-2">
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1" x-text="t('rss.filter_by')"></span>
+                                    <span class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                        <i class="fa-solid" :class="{'fa-layer-group text-primary': selectedFilter.type === 'all', 'fa-folder-open text-amber-500': selectedFilter.type === 'category', 'fa-rss text-emerald-500': selectedFilter.type === 'source'}"></i>
+                                        <span x-text="currentFilterTitle"></span>
+                                    </span>
+                                </div>
+                                <button @click="showRead = !showRead" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
                                     <i class="fa-solid" :class="showRead ? 'fa-eye-slash' : 'fa-eye'"></i>
                                     <span x-text="showRead ? t('rss.hide_read') : t('rss.show_read')"></span>
                                 </button>
                             </div>
 
-                            <template x-for="news in rssNews.filter(n => showRead || !n.read)" :key="news.id">
+                            <template x-for="news in filteredNews" :key="news.id">
                                 <div class="p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 hover:shadow-md transition relative group" :class="news.read ? 'bg-gray-50 opacity-75' : 'bg-white'">
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-2">
@@ -387,6 +669,12 @@
                                     </div>
                                 </div>
                             </template>
+                            
+                            <!-- Empty State when filtered to 0 -->
+                            <div x-show="filteredNews.length === 0" class="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
+                                <i class="fa-regular fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                                <p class="text-gray-500 font-medium">No hay noticias para mostrar en este filtro.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -531,7 +819,7 @@
                                         <p class="text-sm mt-2" x-text="t('sched.cal_sub')"></p>
                                     </div>
                                     <iframe 
-                                        src="https://calendar.google.com/calendar/embed?src=444fe6ecad39e9a15308fcc2e4394fed2de9d42f0af50f98df5cc6401226bf31%40group.calendar.google.com&ctz=Europe%2FZurich" 
+                                        src="about:blank" 
                                         class="absolute inset-0 w-full h-full border-0 z-10 opacity-50" 
                                         title="Calendario de Contenido">
                                     </iframe>
@@ -567,6 +855,16 @@
                             <div class="text-3xl font-bold text-gray-900">3,850</div>
                             <div class="text-sm text-green-500 font-medium mt-2 flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +5.4% <span class="ml-1" x-text="t('stats.vs_last')"></span></div>
                         </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-gray-500 font-medium" x-text="t('stats.clicks')"></h3>
+                                <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-lg"><i class="fa-solid fa-link"></i></div>
+                            </div>
+                            <div class="text-3xl font-bold text-gray-900">892</div>
+                            <div class="text-sm text-red-500 font-medium mt-2 flex items-center"><i class="fa-solid fa-arrow-trend-down mr-1"></i> -2% <span class="ml-1" x-text="t('stats.vs_last')"></span></div>
+                        </div>
+                    </div>
 
                     <!-- Dummy / Placeholder Chart -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -586,7 +884,112 @@
                     </div>
                 </div>
 
+                <!-- VIEW: SETTINGS -->
+                <div x-show="currentView === 'settings'" x-transition.opacity>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800" x-text="t('settings.title')"></h2>
+                        <p class="text-gray-500" x-text="t('settings.sub')"></p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-2xl">
+                        <h3 class="font-bold text-gray-800 mb-4" x-text="t('settings.social_accounts')"></h3>
+                        <div class="space-y-4">
+                            <!-- Twitter -->
+                            <div class="flex items-center justify-between p-4 border border-gray-100 rounded-lg bg-gray-50">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-brands fa-twitter text-3xl" :class="oauthStatus.twitter ? 'text-green-600' : 'text-[#1DA1F2]'"></i>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">Twitter (X)</h4>
+                                        <p class="text-sm text-gray-500" x-text="oauthStatus.twitter ? t('settings.connected') : t('settings.not_connected')"></p>
+                                    </div>
+                                </div>
+                                <button @click="initOAuth('twitter')" 
+                                        class="text-white px-4 py-2 rounded-lg font-medium transition shadow-sm flex items-center gap-2"
+                                        :class="oauthStatus.twitter ? 'bg-green-600 hover:bg-green-700' : 'bg-[#1DA1F2] hover:bg-blue-500'">
+                                    <span x-text="oauthStatus.twitter ? t('settings.reconnect') : t('settings.connect')"></span>
+                                </button>
+                            </div>
+
+                            <!-- LinkedIn -->
+                            <div class="flex items-center justify-between p-4 border border-gray-100 rounded-lg bg-gray-50">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-brands fa-linkedin text-3xl" :class="oauthStatus.linkedin ? 'text-green-600' : 'text-[#0A66C2]'"></i>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">LinkedIn</h4>
+                                        <p class="text-sm text-gray-500" x-text="oauthStatus.linkedin ? t('settings.connected') : t('settings.not_connected')"></p>
+                                    </div>
+                                </div>
+                                <button @click="initOAuth('linkedin')" 
+                                        class="text-white px-4 py-2 rounded-lg font-medium transition shadow-sm flex items-center gap-2"
+                                        :class="oauthStatus.linkedin ? 'bg-green-600 hover:bg-green-700' : 'bg-[#0A66C2] hover:bg-blue-700'">
+                                    <span x-text="oauthStatus.linkedin ? t('settings.reconnect') : t('settings.connect')"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            
+            <!-- Category Editor Modal (Hidden by default) -->
+            <div x-show="isCategoryModalOpen" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" x-cloak x-transition>
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative border border-gray-100" @click.away="isCategoryModalOpen = false">
+                    <button @click="isCategoryModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" x-text="t('rss.add_cat')"></h3>
+                    
+                    <form @submit.prevent="saveCategory">
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('rss.cat_name')"></label>
+                            <input type="text" x-model="newCategoryName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="e.g. Design">
+                        </div>
+                        <div class="flex justify-end gap-3">
+                            <button type="button" @click="isCategoryModalOpen = false" class="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition" x-text="t('rss.cancel')"></button>
+                            <button type="submit" class="px-5 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm transition" x-text="t('rss.save')"></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Source Editor Modal (Hidden by default) -->
+            <div x-show="isSourceModalOpen" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" x-cloak x-transition>
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative border border-gray-100" @click.away="isSourceModalOpen = false">
+                    <button @click="isSourceModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" x-text="editingSourceId ? t('rss.edit_source') : t('rss.add_source')"></h3>
+                    
+                    <form @submit.prevent="saveSource">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('rss.source_name')"></label>
+                            <input type="text" x-model="sourceForm.name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('rss.source_url')"></label>
+                            <input type="url" x-model="sourceForm.url" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('rss.source_category')"></label>
+                            <select x-model="sourceForm.category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition bg-white">
+                                <template x-for="cat in categories" :key="cat">
+                                    <option :value="cat" x-text="t('rss.categories.' + cat) || capitalize(cat)"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('rss.source_tags')"></label>
+                            <input type="text" x-model="sourceForm.tags" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="#AI #Software">
+                        </div>
+                        <div class="flex justify-end gap-3">
+                            <button type="button" @click="isSourceModalOpen = false" class="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition" x-text="t('rss.cancel')"></button>
+                            <button type="submit" class="px-5 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm transition" x-text="t('rss.save')"></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -597,6 +1000,17 @@
 
         // Expose logout function to global scope so Alpine can use it
         window.firebaseSignOut = () => signOut(auth);
+
+        // Expose token getter for API calls
+        window.getFirebaseAuthToken = async () => {
+            // Resolves the race condition by explicitly waiting for Firebase's auth state to settle
+            await auth.authStateReady();
+
+            if (auth.currentUser) {
+                return await auth.currentUser.getIdToken();
+            }
+            return null;
+        };
 
         const btn = document.getElementById('google-signin-btn');
         const status = document.getElementById('status');
