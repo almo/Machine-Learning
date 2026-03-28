@@ -192,4 +192,5 @@ fun Application.module() {
     this.configureRouting()
     this.configureSourceRouting()
     this.configureAuthRouting()
+    this.configureNewsRouting()
 }

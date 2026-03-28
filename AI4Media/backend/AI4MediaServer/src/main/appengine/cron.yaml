@@ -1,0 +1,5 @@
+cron:
+- description: "Daily news synchronization"
+  url: /internal/cron/news-sync
+  schedule: every day 03:00
+  timezone: Europe/Zurich

@@ -1,9 +1,12 @@
 package com.catharsis.ai4media.ai4mediaserver.persistence
 
+import com.catharsis.ai4media.ai4mediaserver.AppConfig
 import com.catharsis.ai4media.ai4mediaserver.model.Source
 import com.catharsis.ai4media.ai4mediaserver.model.SourceRequest
 import com.google.cloud.datastore.*
 import com.google.cloud.datastore.Query
+import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
@@ -100,7 +103,19 @@ object DatastoreSourceRepository {
                 try {
                     entity.getString("tags")
                 } catch (e: Exception) { "" } // Safely handle if 'tags' is stored incorrectly as a List/Array by legacy data
-            } else ""
+            } else "",
+            lastSyncTime = if (entity.contains("lastSyncTime") && !entity.isNull("lastSyncTime")) {
+                try {
+                    val ts = entity.getTimestamp("lastSyncTime") 
+                    val instant = Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong())
+                    ZonedDateTime.ofInstant(instant, AppConfig.timeZone)
+                } catch (e: Exception) {
+                    try {
+                        ZonedDateTime.parse(entity.getString("lastSyncTime"))
+                    } catch (ex: Exception) { null }
+                }
+            } else null,
+            syncStatus = if (entity.contains("syncStatus") && !entity.isNull("syncStatus")) entity.getString("syncStatus") else null
         )
     }
 }

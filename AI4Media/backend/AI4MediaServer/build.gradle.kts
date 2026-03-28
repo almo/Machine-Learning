@@ -66,6 +66,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-client-auth:$ktor_version")
     implementation("io.ktor:ktor-client-json:$ktor_version")
+    implementation("io.ktor:ktor-client-encoding:$ktor_version")
+    implementation("io.ktor:ktor-client-logging:$ktor_version")
 
     // Scrapping
     implementation("it.skrape:skrapeit:1.2.2"){
@@ -115,4 +117,7 @@ dependencies {
     implementation("com.google.cloud:google-cloud-secretmanager:2.81.0")
 
     implementation("com.google.cloud:google-cloud-datastore:2.18.0")
+
+
+    implementation("com.rometools:rome:2.1.0")
 }

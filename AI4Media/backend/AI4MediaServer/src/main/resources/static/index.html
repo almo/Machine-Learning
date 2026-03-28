@@ -15,6 +15,8 @@
                 currentView: 'login', // Views: login, rss, compose, scheduled, stats
                 isGenerating: false,
                 contentGenerated: false,
+                expandedCategories: [],
+                isSyncingNews: false,
                 
                 // Patterns for login background
                 patterns: ['bg-pattern-1', 'bg-pattern-2', 'bg-pattern-3', 'bg-pattern-4', 'bg-pattern-5', 'bg-pattern-6'],
@@ -39,11 +41,11 @@
                             no_sources: "No sources added.", edit_source: "Edit Source", source_name: "Source Name", source_url: "RSS URL", source_category: "Category", source_tags: "Tags (e.g. #AI #Tech)", cancel: "Cancel", save: "Save",
                             all_news: "All News", add_cat: "Add Category", cat_name: "Category Name", mark_all_read: "Mark all as read", filter_by: "Filtering by:"
                         },
-                        compose: { title: "Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All" },
+                        compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
                         sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:" },
                         stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month" },
-                        alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", delete_source: "Are you sure you want to delete this source?" },
-                        settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login." }
+                        alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync." },
+                        settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login.", news_sync: "News Sync", sync_now: "Sync Now", syncing: "Syncing...", sources_manage: "Manage Sources & Synchronization", sources_manage_sub: "Add, edit, remove, and sync your RSS feeds.", actions: "Actions", expand_all: "Expand All", collapse_all: "Collapse All", unread: "Unread", sources_count: "Sources", last_sync: "Last Sync", success: "Success", sync_error: "Error", never: "Never" }
                     },
                     es: {
                         login: { title: "Plataforma AI4Media", sub: "Inicia sesión para acceder a tu espacio", google_btn: "Iniciar sesión con Google" },
@@ -56,11 +58,11 @@
                             no_sources: "No hay fuentes.", edit_source: "Editar Fuente", source_name: "Nombre de la Fuente", source_url: "URL del RSS", source_category: "Categoría", source_tags: "Etiquetas (ej. #IA #Tech)", cancel: "Cancelar", save: "Guardar",
                             all_news: "Todas las Noticias", add_cat: "Añadir Categoría", cat_name: "Nombre de la Categoría", mark_all_read: "Marcar todo como leído", filter_by: "Filtrando por:"
                         },
-                        compose: { title: "Generador de Contenido", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 horas)", bump2: "Bump 2", bump2_sub: "(+24 horas)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo" },
+                        compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
                         sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:" },
                         stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior" },
-                        alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?" },
-                        settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth." }
+                        alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias." },
+                        settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth.", news_sync: "Sincronizar Noticias", sync_now: "Sincronizar Ahora", syncing: "Sincronizando...", sources_manage: "Gestionar Fuentes y Sincronización", sources_manage_sub: "Añade, edita, elimina y sincroniza tus feeds RSS.", actions: "Acciones", expand_all: "Expandir Todo", collapse_all: "Contraer Todo", unread: "No leídos", sources_count: "Fuentes", last_sync: "Última Sincronización", success: "Éxito", sync_error: "Error", never: "Nunca" }
                     }
                 },
 
@@ -79,6 +81,35 @@
                     this.lang = this.lang === 'en' ? 'es' : 'en';
                 },
                 
+                // Helper to format dates
+                formatDate(timestamp) {
+                    if (!timestamp) return this.t('settings.never');
+                    try {
+                        let date;
+                        if (typeof timestamp === 'object') {
+                            if (timestamp.seconds !== undefined) {
+                                date = new Date(timestamp.seconds * 1000);
+                            } else if (timestamp.epochSecond !== undefined) {
+                                date = new Date(timestamp.epochSecond * 1000);
+                            } else {
+                                date = new Date(timestamp);
+                            }
+                        } else if (typeof timestamp === 'number') {
+                            // Dynamically detect between seconds or milliseconds format
+                            date = new Date(timestamp > 10000000000 ? timestamp : timestamp * 1000);
+                        } else {
+                            date = new Date(timestamp);
+                        }
+                        if (isNaN(date.getTime())) return this.t('settings.never');
+                        return date.toLocaleString(this.lang === 'en' ? 'en-US' : 'es-ES', {
+                            timeZone: 'Europe/Zurich',
+                            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+                        });
+                    } catch (e) {
+                        return this.t('settings.never');
+                    }
+                },
+
                 // API Helper for Backend Communication (Ktor)
                 async apiCall(endpoint, method = 'GET', body = null) {
                     try {
@@ -181,23 +212,33 @@
                     try {
                         // Llamada real al backend en Ktor
                         const fetchedSources = await this.apiCall('/api/sources');
-                        this.sources = Array.isArray(fetchedSources) ? fetchedSources : [];
+                        this.sources = Array.isArray(fetchedSources) ? fetchedSources.map(s => {
+                            const statusStr = s.syncStatus || s.syncstatus || s.SyncStatus || s.status;
+                            const timeVal = s.lastSyncTime || s.lastsynctime || s.LastSyncTime || s.lastUpdateTime;
+                            return {
+                                ...s,
+                                syncStatus: typeof statusStr === 'string' ? statusStr.trim().toUpperCase() : null,
+                                lastSyncTime: timeVal || null
+                            };
+                        }) : [];
                                      
                         // Register any unknown categories from the backend
+                        const newCats = new Set(this.categories);
                         this.sources.forEach(s => {
-                            if (s.category && !this.categories.includes(s.category)) {
-                                this.categories.push(s.category);
+                            if (s.category) {
+                                newCats.add(s.category);
                                 this.i18n.en.rss.categories[s.category] = this.capitalize(s.category);
                                 this.i18n.es.rss.categories[s.category] = this.capitalize(s.category);
                             }
                         });
+                        this.categories = Array.from(newCats);
                     } catch (e) {
                         console.warn("Backend no disponible. Cargando datos de prueba (Mock).");
-                        categories: ['technology', 'marketing', 'development'];
+                        this.categories = ['technology', 'marketing', 'development'];
                         this.sources = [
-                            { id: 1, name: 'TechCrunch', category: 'technology', url: 'https://techcrunch.com/feed', tags: '#Tech #AI' },
-                            { id: 2, name: 'Xataka', category: 'technology', url: 'https://xataka.com/feed', tags: '#Gadgets' },
-                            { id: 3, name: 'HackerNews', category: 'development', url: 'https://news.ycombinator.com/rss', tags: '#Programming' }
+                            { id: 1, name: 'TechCrunch', category: 'technology', url: 'https://techcrunch.com/feed', tags: '#Tech #AI', syncStatus: 'SUCCESS', lastSyncTime: new Date().toISOString() },
+                            { id: 2, name: 'Xataka', category: 'technology', url: 'https://xataka.com/feed', tags: '#Gadgets', syncStatus: 'ERROR', lastSyncTime: new Date(Date.now() - 86400000).toISOString() },
+                            { id: 3, name: 'HackerNews', category: 'development', url: 'https://news.ycombinator.com/rss', tags: '#Programming', syncStatus: null, lastSyncTime: null }
                         ];
                     }
                 },
@@ -266,6 +307,41 @@
                     }
                 },
 
+                // Category Expansion
+                isCategoryExpanded(category) {
+                    return this.expandedCategories.includes(category);
+                },
+                toggleCategory(category) {
+                    if (this.isCategoryExpanded(category)) {
+                        this.expandedCategories = this.expandedCategories.filter(c => c !== category);
+                    } else {
+                        this.expandedCategories.push(category);
+                    }
+                },
+                expandAllCategories() {
+                    this.expandedCategories = [...this.categories];
+                },
+                collapseAllCategories() {
+                    this.expandedCategories = [];
+                },
+
+                // Data Calculation
+                getSourcesForCategory(category) {
+                    return this.sources.filter(s => s.category === category);
+                },
+                getUnreadCountForSource(sourceId) {
+                    const source = this.sources.find(s => s.id === sourceId);
+                    if (!source) return 0;
+                    // The mock data links news by source name. This is fragile but matches the existing code.
+                    return this.rssNews.filter(n => n.source === source.name && !n.read).length;
+                },
+                getUnreadCountForCategory(category) {
+                    const categorySources = this.getSourcesForCategory(category);
+                    return categorySources.reduce((total, source) => {
+                        return total + this.getUnreadCountForSource(source.id);
+                    }, 0);
+                },
+
                 // Mock data for RSS
                 rssNews: [
                     {
@@ -306,6 +382,17 @@
                     bump2: ''
                 },
 
+                // Manual composition state
+                manualPost: {
+                    content: '',
+                    url: '',
+                    tags: '',
+                    linkedin: true,
+                    twitter: true,
+                    scheduleType: 'now', // 'now', 'random', or 'specific'
+                    specificTime: ''
+                },
+
                 // List of scheduled posts
                 scheduledList: [
                     { id: 101, network: 'linkedin', type: 'Main Post', content: '¿Sabías que Ktor acaba de lanzar su versión 3.0? Las mejoras en concurrencia son impresionantes. Lo estamos usando en nuestro backend y la diferencia es notable. 🚀 #Kotlin #Ktor #Backend', scheduledTime: 'Hoy, 14:00' },
@@ -336,6 +423,24 @@
                     } catch (e) {
                         console.error(`Failed to init OAuth for ${provider}`, e);
                         alert(this.t('settings.error'));
+                    }
+                },
+
+                async syncNews() {
+                    this.isSyncingNews = true;
+                    try { // Ktor backend call
+                        await this.apiCall('/api/news/sync', 'POST');                        
+                    } catch (e) {
+                        console.error("Failed to trigger news sync", e);
+                        alert(this.t('alerts.sync_error'));
+                    } finally {
+                        // Reload sources to fetch updated statuses
+                        await this.loadSources();
+                        
+                        // Give feedback even if the call is async
+                        setTimeout(() => {
+                            this.isSyncingNews = false;
+                        }, 2000);
                     }
                 },
 
@@ -396,6 +501,61 @@
                     this.composeData = { url: '', linkedin: '', twitter: '', bump1: '', bump2: '' };
                     this.contentGenerated = false;
                     this.currentView = 'scheduled';
+                },
+
+                async submitManualPost() {
+                    if (!this.manualPost.content) return;
+                    if (!this.manualPost.linkedin && !this.manualPost.twitter) {
+                        alert("Select at least one network.");
+                        return;
+                    }
+                    
+                    if (!this.manualPost.url || this.manualPost.url.trim() === '') {
+                        alert(this.lang === 'en' ? "URL cannot be empty." : "La URL no puede estar vacía.");
+                        return;
+                    }
+                    try {
+                        const parsedUrl = new URL(this.manualPost.url);
+                        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+                            throw new Error("Invalid protocol");
+                        }
+                    } catch (e) {
+                        alert(this.lang === 'en' ? "Please enter a valid URL (e.g., https://example.com)." : "Por favor, introduce una URL válida (ej. https://ejemplo.com).");
+                        return;
+                    }
+                    
+                    let timeStr = 'NOW';
+                    if (this.manualPost.scheduleType === 'random') {
+                        timeStr = 'AUTOMATIC';
+                    } else if (this.manualPost.scheduleType === 'specific') {
+                        if (!this.manualPost.specificTime) {
+                            alert(this.t('compose.select_time'));
+                            return;
+                        }
+                        timeStr = this.manualPost.specificTime; // standard format returned is YYYY-MM-DDThh:mm
+                    }
+
+                    let networksArr = [];
+                    if (this.manualPost.linkedin) networksArr.push('linkedin');
+                    if (this.manualPost.twitter) networksArr.push('twitter');
+
+                    const payload = {
+                        userId: "dummy", // Validated / overridden on backend via principal user
+                        textContent: this.manualPost.content,
+                        urlContent: this.manualPost.url || "",
+                        tags: this.manualPost.tags || "",
+                        networks: networksArr.join('|'),
+                        scheduledTime: timeStr
+                    };
+
+                    try {
+                        await this.apiCall('/schedule', 'POST', payload);                        
+                        
+                        this.manualPost = { content: '', url: '', tags: '', linkedin: true, twitter: true, scheduleType: 'now', specificTime: '' };
+                        this.currentView = 'scheduled';
+                    } catch (error) {
+                        console.error("Failed to schedule post", error);                        
+                    }
                 },
 
                 deleteScheduled(id) {
@@ -681,8 +841,79 @@
 
                 <!-- VIEW: COMPOSE / SCHEDULE -->
                 <div x-show="currentView === 'compose'" x-transition.opacity>
+                    <!-- MANUAL POST SECTION -->
+                    <div class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800" x-text="t('compose.manual_title')"></h3>
+                            <p class="text-sm text-gray-500" x-text="t('compose.manual_sub')"></p>
+                        </div>
+                
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.content_lbl')"></label>
+                                <textarea x-model="manualPost.content" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm resize-none"></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.url_lbl')"></label>
+                                    <input type="url" x-model="manualPost.url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm" placeholder="https://...">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.tags_lbl')"></label>
+                                    <input type="text" x-model="manualPost.tags" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm" placeholder="#Tech #AI">
+                                </div>
+                            </div>
+                
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('compose.networks_lbl')"></label>
+                                    <div class="flex items-center gap-4">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" x-model="manualPost.linkedin" class="rounded text-primary focus:ring-primary h-4 w-4">
+                                            <span class="text-sm font-medium text-gray-700"><i class="fa-brands fa-linkedin text-[#0A66C2]"></i> LinkedIn</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" x-model="manualPost.twitter" class="rounded text-primary focus:ring-primary h-4 w-4">
+                                            <span class="text-sm font-medium text-gray-700"><i class="fa-brands fa-twitter text-[#1DA1F2]"></i> Twitter (X)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" x-text="t('compose.schedule_lbl')"></label>
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex flex-wrap items-center gap-4">
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" value="now" x-model="manualPost.scheduleType" class="text-primary focus:ring-primary h-4 w-4">
+                                                <span class="text-sm font-medium text-gray-700" x-text="t('compose.now')"></span>
+                                            </label>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" value="random" x-model="manualPost.scheduleType" class="text-primary focus:ring-primary h-4 w-4">
+                                                <span class="text-sm font-medium text-gray-700" x-text="t('compose.random')"></span>
+                                            </label>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" value="specific" x-model="manualPost.scheduleType" class="text-primary focus:ring-primary h-4 w-4">
+                                                <span class="text-sm font-medium text-gray-700" x-text="t('compose.specific')"></span>
+                                            </label>
+                                        </div>
+                                        <div x-show="manualPost.scheduleType === 'specific'" x-transition>
+                                            <input type="datetime-local" x-model="manualPost.specificTime" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm w-full max-w-[250px]">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <div class="flex justify-end pt-2">
+                                <button @click="submitManualPost" :disabled="!manualPost.content || (!manualPost.linkedin && !manualPost.twitter)" class="bg-primary hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i class="fa-solid fa-paper-plane"></i> <span x-text="t('compose.post_btn')"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CONTENT GENERATOR SECTION -->
                     <div class="mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800" x-text="t('compose.title')"></h2>
+                        <h3 class="text-xl font-bold text-gray-800" x-text="t('compose.title')"></h3>
                         <p class="text-gray-500" x-text="t('compose.sub')"></p>
                     </div>
 
@@ -925,6 +1156,119 @@
                                     <span x-text="oauthStatus.linkedin ? t('settings.reconnect') : t('settings.connect')"></span>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Sources Management Section -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-8">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
+                            <div>
+                                <h3 class="font-bold text-gray-800" x-text="t('settings.sources_manage')"></h3>
+                                <p class="text-sm text-gray-500" x-text="t('settings.sources_manage_sub')"></p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <button @click="syncNews()" :disabled="isSyncingNews" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <template x-if="!isSyncingNews">
+                                        <span><i class="fa-solid fa-sync mr-1"></i> <span x-text="t('settings.sync_now')"></span></span>
+                                    </template>
+                                    <template x-if="isSyncingNews">
+                                        <span><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> <span x-text="t('settings.syncing')"></span></span>
+                                    </template>
+                                </button>
+                                <button @click="expandAllCategories()" class="text-gray-500 hover:text-primary text-xs font-medium px-3 py-1 rounded-md hover:bg-gray-50 transition">
+                                    <i class="fa-solid fa-angles-down mr-1"></i> <span x-text="t('settings.expand_all')"></span>
+                                </button>
+                                <button @click="collapseAllCategories()" class="text-gray-500 hover:text-primary text-xs font-medium px-3 py-1 rounded-md hover:bg-gray-50 transition">
+                                    <i class="fa-solid fa-angles-up mr-1"></i> <span x-text="t('settings.collapse_all')"></span>
+                                </button>
+                                <button @click="openSourceModal()" class="bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center shadow-sm">
+                                    <i class="fa-solid fa-plus mr-2"></i> <span x-text="t('rss.add')"></span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 border-b border-gray-200">
+                                    <tr class="text-xs text-gray-500 uppercase tracking-wider">
+                                        <th class="px-6 py-3 font-medium" x-text="t('rss.source_name')"></th>
+                                        <th class="px-6 py-3 font-medium" x-text="t('settings.last_sync')"></th>
+                                        <th class="px-6 py-3 font-medium" x-text="t('settings.unread')"></th>
+                                        <th class="px-6 py-3 font-medium" x-text="t('rss.source_tags')"></th>
+                                        <th class="px-6 py-3 font-medium text-right" x-text="t('settings.actions')"></th>
+                                    </tr>
+                                </thead>
+                                <template x-if="sources.length === 0">
+                                    <tbody class="text-sm">
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-8 text-center text-gray-500 italic" x-text="t('rss.no_sources')"></td>
+                                        </tr>
+                                    </tbody>
+                                </template>
+                                <template x-for="cat in categories" :key="cat">
+                                    <tbody class="text-sm">
+                                        <!-- Category Row -->
+                                        <tr @click="toggleCategory(cat)" class="bg-gray-50/70 hover:bg-gray-100 cursor-pointer border-t border-b border-gray-200">
+                                                <td class="px-6 py-3 font-bold text-gray-700">
+                                                    <div class="flex items-center gap-3">
+                                                        <i class="fa-solid fa-chevron-down transition-transform" :class="!isCategoryExpanded(cat) && '-rotate-90'"></i>
+                                                        <span x-text="t('rss.categories.' + cat) || capitalize(cat)"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-3 text-gray-500 font-medium" colspan="4">
+                                                    <div class="flex items-center gap-4 text-xs">
+                                                        <span>
+                                                            <strong class="text-gray-700" x-text="getSourcesForCategory(cat).length"></strong>
+                                                            <span class="ml-1" x-text="t('settings.sources_count')"></span>
+                                                        </span>
+                                                        <span>
+                                                            <strong class="text-primary" x-text="getUnreadCountForCategory(cat)"></strong>
+                                                            <span class="ml-1" x-text="t('settings.unread')"></span>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+    
+                                            <!-- Source Rows (conditionally rendered) -->
+                                            <template x-for="source in getSourcesForCategory(cat)" :key="source.id">
+                                                <tr x-show="isCategoryExpanded(cat)" x-transition class="border-b border-gray-100 hover:bg-gray-50/50">
+                                                    <td class="px-6 py-3 pl-12">
+                                                        <div class="font-medium text-gray-800" x-text="source.name"></div>
+                                                        <div class="text-xs text-gray-400 truncate max-w-[250px]" :title="source.url" x-text="source.url"></div>
+                                                    </td>
+                                                    <td class="px-6 py-3 text-xs">
+                                                        <div class="flex items-center gap-2">
+                                                            <template x-if="source.syncStatus === 'SUCCESS'">
+                                                                <i class="fa-solid fa-circle-check text-green-500" :title="t('settings.success')"></i>
+                                                            </template>
+                                                            <template x-if="source.syncStatus === 'ERROR'">
+                                                                <i class="fa-solid fa-circle-exclamation text-red-500" :title="t('settings.sync_error')"></i>
+                                                            </template>
+                                                            <template x-if="source.syncStatus !== 'SUCCESS' && source.syncStatus !== 'ERROR'">
+                                                                <i class="fa-solid fa-circle-minus text-gray-300" :title="t('settings.never')"></i>
+                                                            </template>
+                                                            <span class="text-gray-500" x-text="formatDate(source.lastSyncTime)"></span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-3">
+                                                        <span class="font-bold text-primary" x-text="getUnreadCountForSource(source.id)"></span>
+                                                    </td>
+                                                    <td class="px-6 py-3 text-gray-500" x-text="source.tags || '-'"></td>
+                                                    <td class="px-6 py-3 text-right">
+                                                        <div class="flex items-center justify-end gap-2">
+                                                            <button @click="openSourceModal(source)" class="p-1.5 text-gray-400 hover:text-primary transition-colors rounded" :title="t('rss.edit_source')">
+                                                                <i class="fa-solid fa-pen"></i>
+                                                            </button>
+                                                            <button @click="deleteSource(source.id)" class="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded" :title="t('alerts.delete_source')">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                    </tbody>
+                                </template>
+                            </table>
                         </div>
                     </div>
                 </div>

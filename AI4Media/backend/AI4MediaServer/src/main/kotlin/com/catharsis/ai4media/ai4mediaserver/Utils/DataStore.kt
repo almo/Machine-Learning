@@ -5,6 +5,7 @@ import com.google.cloud.Timestamp
 import com.google.cloud.datastore.DatastoreOptions
 import com.google.cloud.datastore.Entity
 import com.google.cloud.datastore.StringValue
+import java.util.Date
 import java.time.LocalDateTime
 
 object DataStoreWrapper {
@@ -39,9 +40,9 @@ object DataStoreWrapper {
             val entity = Entity.newBuilder(key)
                 .set("userId", content.userId)
                 .set("textContent",content.textContent)
-                .set("urlContent",content.urlContent)
-                .set("scheduledTime",Timestamp.of(java.sql.Timestamp.valueOf(content.scheduledTime)))
-                .set("createdTime",Timestamp.of(java.sql.Timestamp.valueOf(content.createdTime)))
+                .set("urlContent", content.urlContent)
+                .set("scheduledTime", Timestamp.of(Date.from(content.scheduledTime.atZone(AppConfig.timeZone).toInstant())))
+                .set("createdTime", Timestamp.of(Date.from(content.createdTime.atZone(AppConfig.timeZone).toInstant())))
                 .set("status", content.status.name)
                 .set("network",content.network.name).set("tags",content.tags.map {StringValue.of(it)})
                 .build()
