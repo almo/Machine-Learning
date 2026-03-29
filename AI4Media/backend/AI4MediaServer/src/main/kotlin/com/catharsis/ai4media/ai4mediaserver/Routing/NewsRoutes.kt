@@ -80,7 +80,7 @@ fun Application.configureNewsRouting() {
                             // Check if the URL from the DB matches one of the values in your map
                             if (defaultCategoryImages.containsValue(rawUrl)) {
                               // If you implemented the cache service, call cacheService.getValidSignedUrl(rawUrl) here instead!
-                              generateSignedImageUrl(rawUrl) 
+                              ImageUrlSignerService.generateSignedImageUrl(rawUrl) 
                             } else {
                                 // It's not a default Google Cloud Storage image (maybe an external link), 
                                 // so just return it as-is.
@@ -474,52 +474,6 @@ private fun determineImageUrl(parsedImageUrl: String?, tags: List<String>): Stri
 
     // Fallback if no matching tags are found
     return defaultCategoryImages["misc"]!!
-}
-
-fun generateSignedImageUrl(imageUri: String): String {
-    // 1. Parse the URI to extract bucket and object names
-    val uri = URI(imageUri)
-    
-    // uri.path automatically decodes URL-encoded characters (like %20 to a space)
-    // removePrefix("/") cleanly strips the leading slash if it exists
-    val path = uri.path?.removePrefix("/") 
-        ?: throw IllegalArgumentException("Invalid URI format.")
-
-    if (!path.contains("/")) {
-        throw IllegalArgumentException("Invalid URI: Missing object name.")
-    }
-
-    // Extract the exact bucket and object names using Kotlin's string extensions
-    val bucketName = path.substringBefore("/")
-    val objectName = path.substringAfter("/")
-
-    // 2. Instantiate a Storage client
-    val storage: Storage = StorageOptions.getDefaultInstance().service
-
-    // 3. Define the bucket and the specific image path
-    val blobInfo = BlobInfo.newBuilder(BlobId.of(bucketName, objectName)).build()
-
-    val credentials = GoogleCredentials.getApplicationDefault()
-
-    // Local user credentials cannot sign URLs directly. Return raw URI to prevent exception spam.
-    if (credentials is com.google.auth.oauth2.UserCredentials) {
-        return imageUri
-    }
-
-    val signOptions = mutableListOf<Storage.SignUrlOption>(Storage.SignUrlOption.withV4Signature())
-    if (credentials is ServiceAccountSigner) {
-        signOptions.add(Storage.SignUrlOption.signWith(credentials))
-    }
-
-    // 4. Generate a Signed URL valid for 1 Day
-    val signedUrl = storage.signUrl(
-        blobInfo, 
-        1, 
-        TimeUnit.DAYS, 
-        *signOptions.toTypedArray()
-    )
-
-    return signedUrl.toString()
 }
 
 fun String.toSha256(): String {
