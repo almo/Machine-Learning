@@ -19,6 +19,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import java.security.MessageDigest
 
 private const val RSSFeedSourceKIND = "RSSFeedSource"
 
@@ -76,7 +77,7 @@ suspend fun syncNewsForAllSources(application: Application) {
             }
 
             application.log.info("Cron: Found ${sourceEntities.size} sources to sync")
-            if (!sourceEntities.isEmpty()) {
+            if (sourceEntities.isNotEmpty()) {
 
                 // Create a channel to act as a work queue
                 val sourceChannel = Channel<Entity>(Channel.UNLIMITED)
@@ -90,16 +91,15 @@ suspend fun syncNewsForAllSources(application: Application) {
                                 for (source in sourceChannel) {
                                     processSourcesAndSaveNews(
                                             datastore,
-                                            listOf(source),
+                                            source,
                                             application
                                     )
                                 }
                             }
                         }
                 workers.joinAll()
-
-                deleteOldRSSNews(datastore, application)
             }
+            deleteOldRSSNews(datastore, application)
         } catch (e: Exception) {
             application.log.error("Error during global news sync", e)
         }
@@ -125,7 +125,7 @@ suspend fun syncNewsForUser(userId: String, application: Application) {
             }
 
             application.log.info("User $userId: Found ${sourceEntities.size} sources to sync")
-            if (!sourceEntities.isEmpty()) {
+            if (sourceEntities.isNotEmpty()) {
                 // Create a channel to act as a work queue
                 val sourceChannel = Channel<Entity>(Channel.UNLIMITED)
                 sourceEntities.forEach { sourceChannel.trySend(it) }
@@ -138,16 +138,17 @@ suspend fun syncNewsForUser(userId: String, application: Application) {
                                 for (source in sourceChannel) {
                                     processSourcesAndSaveNews(
                                             datastore,
-                                            listOf(source),
+                                            source,
                                             application
                                     )
                                 }
                             }
                         }
                 workers.joinAll()
-
-                deleteOldRSSNews(datastore, application)
             }
+
+            deleteOldRSSNews(datastore, application)
+
         } catch (e: Exception) {
             application.log.error("Error during user news sync", e)
         }
@@ -173,91 +174,112 @@ private val httpClient = HttpClient {
     }
 }
 
-private suspend fun processSourcesAndSaveNews(
+private suspend fun processSourceAndSaveNews(
         datastore: Datastore,
-        sourceEntities: List<Entity>,
+        source: Entity,
         application: Application
 ) {
-    val entitiesToSave = mutableListOf<Entity>()
+    val sourceId = source.key.nameOrId.toString()
+    val userId = if (source.contains("userId")) source.getString("userId") else return
+    val url = if (source.contains("url")) source.getString("url") else return
     
-    for (source in sourceEntities) {
-        val sourceId = source.key.nameOrId.toString()
-        val userId = if (source.contains("userId")) source.getString("userId") else continue
-        val url = if (source.contains("url")) source.getString("url") else continue
-        val tagsStr = if (source.contains("tags")) source.getString("tags") else ""
-        val tags = tagsStr.split(" ", ",").filter { it.isNotBlank() }
+    val tagsStr = if (source.contains("tags")) source.getString("tags") else ""
+    val tags = tagsStr.split(" ", ",").filter { it.isNotBlank() }
 
-        application.log.info("Syncing RSS for source URL: $url")
-        var syncStatus = "SUCCESS"
+    application.log.info("Syncing RSS for source URL: $url")
+    var syncStatus = "SUCCESS"
+    val entitiesToSave = mutableListOf<Entity>()
 
-        try {
-            // Fetch the feed
-            val response: HttpResponse =
-                    httpClient.get(url) {
-                        // Signal to the server that we prefer XML formats
-                        header(
-                                HttpHeaders.Accept,
-                                "application/rss+xml, application/atom+xml, text/xml"
-                        )
-                    }
+    try {
+        // Fetch the feed
+        val response: HttpResponse = httpClient.get(url) {
+            header(
+                HttpHeaders.Accept,
+                "application/rss+xml, application/atom+xml, text/xml"
+            )
+        }
 
-            if (response.status.value !in 200..299) {
-                throw Exception("HTTP ${response.status.value}: ${response.status.description}")
-            }
+        if (response.status.value !in 200..299) {
+            throw Exception("HTTP ${response.status.value}: ${response.status.description}")
+        }
 
-            val bodyString = response.bodyAsText()
+        val bodyString = response.bodyAsText()
 
-            // Offload CPU-heavy parsing to the Default dispatcher
-            val fetchedArticles =
-                    withContext(Dispatchers.Default) {
-                        val input = SyndFeedInput()
-                        val feed = input.build(StringReader(bodyString))
+        // Offload CPU-heavy parsing
+        val fetchedArticles = withContext(Dispatchers.Default) {
+            val input = SyndFeedInput()
+            val feed = input.build(StringReader(bodyString))
 
-                        feed.entries.map { entry ->
-                            ParsedArticle(
-                                    title = entry.title?.trim() ?: "Untitled",
-                                    url = entry.link?.trim() ?: "",
-                                    publishedAt = entry.publishedDate?.toInstant() ?: Instant.now()
-                            )
-                        }
-                    }
+            val cutoffDate = Instant.now().minus(45, ChronoUnit.DAYS)
 
-                // Fetch existing URLs for this source to avoid N+1 querying
-                val existingUrls = mutableSetOf<String>()
-                val existingQuery = Query.newEntityQueryBuilder()
-                        .setKind("RSSNews")
-                        .setFilter(StructuredQuery.PropertyFilter.eq("sourceId", sourceId))
-                        .build()
-                val results = datastore.run(existingQuery)
-                while (results.hasNext()) {
-                    val entity = results.next()
-                    if (entity.contains("url")) {
-                        existingUrls.add(entity.getString("url"))
-                    }
+            feed.entries.mapNotNull { entry ->
+
+                val publishedAt = entry.publishedDate?.toInstant() ?: Instant.now()
+
+                if (publishedAt.isBefore(cutoffDate)) {
+                    return@mapNotNull null 
                 }
 
-            // Save articles back on the current thread (already in IO from parent)
-            for (article in fetchedArticles) {
-                    if (!existingUrls.contains(article.url)) {
-                        val entity = createArticleEntity(datastore, sourceId, userId, article, tags)
-                        entitiesToSave.add(entity)
-                        existingUrls.add(article.url) // Prevent duplicates in the same feed
-                    }
+                val extractedTags = entry.categories
+                    ?.mapNotNull { it.name?.trim()?.lowercase() }
+                    ?.filter { it.isNotBlank() }
+                    ?: emptyList()
+
+                val combinedTagsForImage = (tags + extractedTags).distinct()
+
+                val extractedImageUrl = entry.enclosures
+                    ?.firstOrNull { it.type?.startsWith("image/") == true }
+                    ?.url
+
+                val imageUrl = determineImageUrl(extractedImageUrl, combinedTagsForImage)   
+
+                val rawDescription = entry.description?.value ?: ""
+    
+                // Strip HTML tags using Regex and remove excessive whitespace
+                val noHtmlDescription = rawDescription
+                .replace(Regex("<[^>]*>"), "") // Removes <p>, <a>, <img>, etc.
+                .replace(Regex("\\s+"), " ")   // Condenses multiple spaces/newlines into one
+                .trim()
+        
+                // Truncate to 250 characters, adding an ellipsis if it's longer
+                val finalSummary = if (noHtmlDescription.length > 250) {
+                    noHtmlDescription.take(247) + "..."
+                   } else {
+                    noHtmlDescription
+                }
+                
+                ParsedArticle(
+                    title = entry.title?.trim() ?: "Untitled",
+                    url = entry.link?.trim() ?: "",
+                    publishedAt = publishedAt,
+                    imageUrl = imageUrl,
+                    articleTags = extractedTags,
+                    summary = finalSummary
+                )
             }
-        } catch (e: Exception) {
-            application.log.error("Failed sync for $url: ${e.message}")
-            syncStatus = "ERROR"
-        } finally {
-            // Ensure the source entity is updated even on failure
-            val updatedSource =
-                    Entity.newBuilder(source)
-                            .set("lastSyncTime", com.google.cloud.Timestamp.now())
-                            .set("syncStatus", syncStatus)
-                            .build()
-                entitiesToSave.add(updatedSource)
         }
+
+        // Prepare new articles for saving
+        for (article in fetchedArticles) {
+            val entity = createArticleEntity(datastore, sourceId, userId, article, tags)
+            entitiesToSave.add(entity)
+            
+        }
+        
+    } catch (e: Exception) {
+        application.log.error("Failed sync for $url: ${e.message}")
+        syncStatus = "ERROR"
+    } finally {
+        // Ensure the source entity is updated even on failure
+        val updatedSource = Entity.newBuilder(source)
+            .set("lastSyncTime", com.google.cloud.Timestamp.now())
+            .set("syncStatus", syncStatus)
+            .build()
+            
+        entitiesToSave.add(updatedSource)
     }
 
+    // Save everything in one batch
     if (entitiesToSave.isNotEmpty()) {
         entitiesToSave.chunked(500).forEach { batch -> datastore.put(*batch.toTypedArray()) }
     }
@@ -271,7 +293,8 @@ private fun createArticleEntity(
         defaultTags: List<String>
 ): Entity {
     // Create new RSSNews entity mapped with defaults
-    val key = datastore.newKeyFactory().setKind("RSSNews").newKey(UUID.randomUUID().toString())
+    val urlHash = article.url.toSha256()
+    val key = datastore.newKeyFactory().setKind("RSSNews").newKey(urlHash)
     val timestamp = article.publishedAt.toEpochMilli()
 
     val entityBuilder =
@@ -280,9 +303,11 @@ private fun createArticleEntity(
                     .set("userId", userId)
                     .set("title", article.title)
                     .set("url", article.url)
+                    .set("imageUrl", article.imageUrl)
+                    .set("summary", article.summary)
                     .set("publishedAt", timestamp)
                     .set("read", false)
-                    .set("comments", "")
+                    .set("comments", article.articleTags.joinToString(", "))
 
     // Map tags array to a Datastore ListValue
     val tagsListValue = ListValue.newBuilder()
@@ -326,4 +351,45 @@ val Key.nameOrId: Any
     get() = name ?: id
 
 // Data class to represent a parsed article block extracted from an RSS feed
-data class ParsedArticle(val title: String, val url: String, val publishedAt: Instant)
+data class ParsedArticle(
+    val title: String, 
+    val url: String, 
+    val publishedAt: Instant,
+    val imageUrl: String,
+    val articleTags: List<String> = emptyList(),
+    val summary: String = "" 
+)
+private val defaultCategoryImages = mapOf(
+    "artificial intelligence" to "https://storage.cloud.google.com/cathartic_computer_club/Images/Artificial%20Intelligence.jpg",
+    "software" to "https://storage.cloud.google.com/cathartic_computer_club/Images/Software.jpg",
+    "open source" to "https://storage.cloud.google.com/cathartic_computer_club/Images/OpenSource.jpg",
+    "startups" to "https://storage.cloud.google.com/cathartic_computer_club/Images/Startups.jpg",
+    "science" to "https://storage.cloud.google.com/cathartic_computer_club/Images/Science.jpg",
+    "engineering" to "https://storage.cloud.google.com/cathartic_computer_club/Images/Engineering.jpg",
+    "misc" to "https://storage.cloud.google.com/cathartic_computer_club/Images/Misc.jpg"
+)
+
+private fun determineImageUrl(parsedImageUrl: String?, tags: List<String>): String {
+    // If the RSS feed ACTUALLY provided a valid image, you might still want to use it.
+    if (!parsedImageUrl.isNullOrBlank()) {
+        return parsedImageUrl
+    }
+
+    // Normalize tags to lowercase for safe matching
+    val normalizedTags = tags.map { it.lowercase() }
+
+    // Find the first tag that matches one of our defined categories
+    for (tag in normalizedTags) {
+        if (defaultCategoryImages.containsKey(tag)) {
+            return defaultCategoryImages[tag]!!
+        }
+    }
+
+    // Fallback if no matching tags are found
+    return defaultCategoryImages["misc"]!!
+}
+
+fun String.toSha256(): String {
+    val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
+    return bytes.joinToString("") { "%02x".format(it) }
+}
