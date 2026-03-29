@@ -68,6 +68,8 @@ dependencies {
     implementation("io.ktor:ktor-client-json:$ktor_version")
     implementation("io.ktor:ktor-client-encoding:$ktor_version")
     implementation("io.ktor:ktor-client-logging:$ktor_version")
+    implementation("io.ktor:ktor-server-compression:$ktor_version")
+    implementation("io.ktor:ktor-server-compression-zstd:$ktor_version")
 
     // Scrapping
     implementation("it.skrape:skrapeit:1.2.2"){

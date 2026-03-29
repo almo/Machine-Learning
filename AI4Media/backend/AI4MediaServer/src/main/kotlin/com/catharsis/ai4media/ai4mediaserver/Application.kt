@@ -11,6 +11,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.sessions.*
 import io.ktor.util.*
@@ -19,6 +20,7 @@ import java.util.Base64
 import kotlin.system.exitProcess
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import io.ktor.server.plugins.compression.zstd.*
 
 @Serializable data class User(val userId: String, val email: String)
 
@@ -47,6 +49,37 @@ fun Application.module() {
         throw IllegalStateException("Firebase Init Failed")
     }
     log.info("Firebase initialized...")
+
+    install(Compression) {
+        // 1. Enable algorithms and set priorities (higher number = higher priority)
+        zstd (level = 3){ // Available in Ktor 3.4.0+
+            priority = 1.1 
+        }
+        gzip {
+            priority = 1.0
+        }
+        deflate {
+            priority = 0.9
+        }
+
+        // 2. Set a minimum size threshold
+        minimumSize(1024) // Only compress responses larger than 1 KB
+
+        // 3. (Optional) Explicitly match content types
+        // Note: Ktor already ignores audio, video, image, and text/event-stream by default
+        matchContentType(
+            ContentType.Application.Json,
+            ContentType.Application.JavaScript,
+            ContentType.Text.Any
+        )
+
+        // 4. HTTPS Security: Mitigate BREACH attacks
+        condition {
+            // Only compress if the request is NOT a cross-site request
+            request.headers[HttpHeaders.Referrer]?.startsWith("https://planner.catharsis.computer/") == true
+        }
+    }
+    log.info("Compression set...")
 
     // Install ContentNegotiation feature for automatic JSON serialization/deserialization
     try {
