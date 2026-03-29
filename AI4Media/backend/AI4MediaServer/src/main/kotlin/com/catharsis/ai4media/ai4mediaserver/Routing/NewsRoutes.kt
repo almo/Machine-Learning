@@ -208,10 +208,10 @@ private suspend fun processSourceAndSaveNews(
         val bodyString = response.bodyAsText()
 
         // 2. Prevent Write Amplification: Calculate a smart cutoff date
-        val lastSyncRaw = Instant.now().minus(45, ChronoUnit.DAYS) //if (source.contains("lastSyncTime")) source.getTimestamp("lastSyncTime")?.toDate()?.toInstant() else null
-        val baselineCutoff = Instant.now().minus(45, ChronoUnit.DAYS)
+        val lastSyncRaw = if (source.contains("lastSyncTime")) source.getTimestamp("lastSyncTime")?.toDate()?.toInstant() else null
+        val baselineCutoff = Instant.now().minus(AppConfig.rssNewsBaselineCutoffDays, ChronoUnit.DAYS)
         
-        // Use lastSyncTime if it exists and is newer than 45 days ago; otherwise fallback to 45 days.
+        // Use lastSyncTime if it exists and is newer than the configured days ago; otherwise fallback.
         val cutoffDate = if (lastSyncRaw != null && lastSyncRaw.isAfter(baselineCutoff)) {
             lastSyncRaw
         } else {
@@ -337,13 +337,13 @@ private fun createArticleEntity(
 }
 
 private fun deleteOldRSSNews(datastore: Datastore, application: Application) {
-    // Clean entries strictly older than 30 days
-    val oneMonthAgo = Instant.now().minus(30, ChronoUnit.DAYS)
+    // Clean entries strictly older than the configured retention period
+    val deletionThreshold = Instant.now().minus(AppConfig.rssNewsRetentionDays, ChronoUnit.DAYS)
     
     // CHANGE HERE: Match the exact Datastore data type we used to save the entity
     val timestampLimit = com.google.cloud.Timestamp.ofTimeSecondsAndNanos(
-        oneMonthAgo.epochSecond,
-        oneMonthAgo.nano
+        deletionThreshold.epochSecond,
+        deletionThreshold.nano
     )
 
     val query = Query.newKeyQueryBuilder()

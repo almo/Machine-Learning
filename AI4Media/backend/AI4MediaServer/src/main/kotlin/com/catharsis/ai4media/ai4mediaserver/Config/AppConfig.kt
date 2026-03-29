@@ -84,6 +84,16 @@ object AppConfig {
      */
     val timeZone : ZoneId
 
+    /**
+     * The baseline cutoff in days for syncing RSS news.
+     */
+    val rssNewsBaselineCutoffDays: Long
+
+    /**
+     * The retention limit in days for keeping old RSS news.
+     */
+    val rssNewsRetentionDays: Long
+
     init {
         projectId = System.getenv("GOOGLE_CLOUD_PROJECT") ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
         baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
@@ -97,5 +107,7 @@ object AppConfig {
         sessionSecretString  =   SecretManager.getSecret(projectId, "OAUTH_SESSION_SECRET_KEY") 
         sessionEncryptKey    =   SecretManager.getSecret(projectId, "SECRET_ENCRYPT_KEY") 
         timeZone             =   ZoneId.of("Europe/Zurich")
+        rssNewsBaselineCutoffDays = System.getenv("RSS_NEWS_BASELINE_CUTOFF_DAYS")?.toLongOrNull() ?: 45L
+        rssNewsRetentionDays = System.getenv("RSS_NEWS_RETENTION_DAYS")?.toLongOrNull() ?: 30L
     }
 }
