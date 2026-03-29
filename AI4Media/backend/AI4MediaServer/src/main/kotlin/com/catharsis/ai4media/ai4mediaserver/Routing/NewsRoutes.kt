@@ -89,7 +89,7 @@ suspend fun syncNewsForAllSources(application: Application) {
                         List(20) {
                             launch {
                                 for (source in sourceChannel) {
-                                    processSourcesAndSaveNews(
+                                    processSourceAndSaveNews(
                                             datastore,
                                             source,
                                             application
@@ -136,7 +136,7 @@ suspend fun syncNewsForUser(userId: String, application: Application) {
                         List(20) {
                             launch {
                                 for (source in sourceChannel) {
-                                    processSourcesAndSaveNews(
+                                    processSourceAndSaveNews(
                                             datastore,
                                             source,
                                             application
