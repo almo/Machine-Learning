@@ -179,6 +179,7 @@ private suspend fun processSourceAndSaveNews(
         source: Entity,
         application: Application
 ) {
+
     val sourceId = source.key.nameOrId.toString()
     val userId = if (source.contains("userId")) source.getString("userId") else return
     val url = if (source.contains("url")) source.getString("url") else return
@@ -191,6 +192,7 @@ private suspend fun processSourceAndSaveNews(
     val entitiesToSave = mutableListOf<Entity>()
 
     try {
+
         // Fetch the feed
         val response: HttpResponse = httpClient.get(url) {
             header(
@@ -205,12 +207,21 @@ private suspend fun processSourceAndSaveNews(
 
         val bodyString = response.bodyAsText()
 
+        // 2. Prevent Write Amplification: Calculate a smart cutoff date
+        val lastSyncRaw = Instant.now().minus(45, ChronoUnit.DAYS) //if (source.contains("lastSyncTime")) source.getTimestamp("lastSyncTime")?.toDate()?.toInstant() else null
+        val baselineCutoff = Instant.now().minus(45, ChronoUnit.DAYS)
+        
+        // Use lastSyncTime if it exists and is newer than 45 days ago; otherwise fallback to 45 days.
+        val cutoffDate = if (lastSyncRaw != null && lastSyncRaw.isAfter(baselineCutoff)) {
+            lastSyncRaw
+        } else {
+            baselineCutoff
+        }
+
         // Offload CPU-heavy parsing
         val fetchedArticles = withContext(Dispatchers.Default) {
             val input = SyndFeedInput()
             val feed = input.build(StringReader(bodyString))
-
-            val cutoffDate = Instant.now().minus(45, ChronoUnit.DAYS)
 
             feed.entries.mapNotNull { entry ->
 
@@ -279,9 +290,13 @@ private suspend fun processSourceAndSaveNews(
         entitiesToSave.add(updatedSource)
     }
 
-    // Save everything in one batch
+    // Save everything in one batch on the IO dispatcher
     if (entitiesToSave.isNotEmpty()) {
-        entitiesToSave.chunked(500).forEach { batch -> datastore.put(*batch.toTypedArray()) }
+        withContext(Dispatchers.IO) {
+            entitiesToSave.chunked(500).forEach { batch -> 
+                datastore.put(*batch.toTypedArray()) 
+            }
+        }
     }
 }
 
@@ -295,7 +310,11 @@ private fun createArticleEntity(
     // Create new RSSNews entity mapped with defaults
     val urlHash = article.url.toSha256()
     val key = datastore.newKeyFactory().setKind("RSSNews").newKey(urlHash)
-    val timestamp = article.publishedAt.toEpochMilli()
+
+    val timestamp = com.google.cloud.Timestamp.ofTimeSecondsAndNanos(
+        article.publishedAt.epochSecond,
+        article.publishedAt.nano
+    )
 
     val entityBuilder =
             Entity.newBuilder(key)
@@ -318,19 +337,19 @@ private fun createArticleEntity(
 }
 
 private fun deleteOldRSSNews(datastore: Datastore, application: Application) {
-    // Clean entries strictly older than 1 month
+    // Clean entries strictly older than 30 days
     val oneMonthAgo = Instant.now().minus(30, ChronoUnit.DAYS)
-    val timestamp =
-            com.google.cloud.Timestamp.ofTimeSecondsAndNanos(
-                    oneMonthAgo.epochSecond,
-                    oneMonthAgo.nano
-            )
+    
+    // CHANGE HERE: Match the exact Datastore data type we used to save the entity
+    val timestampLimit = com.google.cloud.Timestamp.ofTimeSecondsAndNanos(
+        oneMonthAgo.epochSecond,
+        oneMonthAgo.nano
+    )
 
-    val query =
-            Query.newKeyQueryBuilder()
-                    .setKind("RSSNews")
-                    .setFilter(StructuredQuery.PropertyFilter.lt("publishedAt", timestamp))
-                    .build()
+    val query = Query.newKeyQueryBuilder()
+        .setKind("RSSNews")
+        .setFilter(StructuredQuery.PropertyFilter.lt("publishedAt", timestampLimit))
+        .build()
 
     val results = datastore.run(query)
     val keysToDelete = mutableListOf<Key>()
@@ -340,8 +359,6 @@ private fun deleteOldRSSNews(datastore: Datastore, application: Application) {
 
     if (keysToDelete.isNotEmpty()) {
         application.log.info("Cleaning up ${keysToDelete.size} old RSSNews entries")
-
-        // Datastore limits batch operations to 500 keys, so we batch them.
         keysToDelete.chunked(500).forEach { batch -> datastore.delete(*batch.toTypedArray()) }
     }
 }
