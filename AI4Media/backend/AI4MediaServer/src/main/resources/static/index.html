@@ -13,6 +13,7 @@
             return {
                 lang: 'en', // Default language
                 currentView: 'login', // Views: login, rss, compose, scheduled, stats
+                isSidebarOpen: true,
                 isGenerating: false,
                 contentGenerated: false,
                 expandedCategories: [],
@@ -648,13 +649,19 @@
     <div x-show="currentView !== 'login'" class="flex h-screen" style="display: none;">
         
         <!-- Sidebar Navigation -->
-        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between hidden md:flex">
-            <div>
-                <div class="h-16 flex items-center px-6 border-b border-gray-100">
-                    <i class="fa-solid fa-rocket text-primary text-xl mr-3"></i>
-                    <span class="text-lg font-bold text-gray-800">AI4Media</span>
-                </div>
-                <nav class="p-4 space-y-1">
+        <aside :class="isSidebarOpen ? 'w-64 border-r' : 'w-0 border-r-0'" class="bg-white border-gray-200 hidden md:block transition-all duration-300 ease-in-out flex-shrink-0 overflow-hidden relative z-20">
+            <div class="w-64 h-full flex flex-col justify-between absolute top-0 left-0 bg-white">
+                <div>
+                    <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-rocket text-primary text-xl mr-3"></i>
+                            <span class="text-lg font-bold text-gray-800">AI4Media</span>
+                        </div>
+                        <button @click="isSidebarOpen = false" class="text-gray-400 hover:text-primary transition-colors p-2 -mr-2 rounded-lg hover:bg-gray-50" title="Collapse Sidebar">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    <nav class="p-4 space-y-1">
                     <button @click="currentView = 'rss'" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'rss', 'text-gray-600 hover:bg-gray-50': currentView !== 'rss'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
                         <i class="fa-solid fa-rss w-6 text-center"></i>
                         <span x-text="t('nav.rss')"></span>
@@ -687,11 +694,21 @@
                     <span x-text="t('nav.logout')"></span>
                 </button>
             </div>
+            </div>
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50 relative">
             
+            <!-- Desktop Floating Toggle (When Sidebar is Closed) -->
+            <button @click="isSidebarOpen = true" 
+                    x-show="!isSidebarOpen"
+                    x-transition.opacity.duration.300ms
+                    class="hidden md:flex absolute top-8 left-8 z-10 bg-white border border-gray-200 shadow-sm w-10 h-10 rounded-lg items-center justify-center text-gray-500 hover:text-primary hover:bg-gray-50 transition-colors cursor-pointer"
+                    title="Expand Sidebar">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+
             <!-- Mobile Header (only visible on small screens) -->
             <header class="md:hidden bg-white h-16 border-b flex items-center justify-between px-4">
                 <span class="font-bold text-lg text-gray-800">AI4Media</span>
@@ -706,7 +723,7 @@
             </header>
 
             <!-- Scrollable views area -->
-            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="flex-1 overflow-y-auto p-4 transition-all duration-300" :class="isSidebarOpen ? 'md:p-8' : 'md:py-8 md:pr-8 md:pl-24'">
                 
                 <!-- VIEW: RSS AND NEWS -->
                 <div x-show="currentView === 'rss'" x-transition.opacity>
