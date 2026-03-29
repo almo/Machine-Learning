@@ -20,6 +20,16 @@ import java.util.UUID
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import java.security.MessageDigest
+import kotlinx.serialization.Serializable
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+import java.net.URI
+import com.google.auth.ServiceAccountSigner
+import com.google.auth.oauth2.GoogleCredentials
 
 private const val RSSFeedSourceKIND = "RSSFeedSource"
 
@@ -45,6 +55,66 @@ fun Application.configureNewsRouting() {
         }
 
         authenticate("firebase-auth") {
+            get("/api/news") {
+                val user = call.principal<User>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                try {
+                    val datastore = DatastoreOptions.getDefaultInstance().service
+                    val query = Query.newEntityQueryBuilder()
+                        .setKind("RSSNews")
+                        .setFilter(StructuredQuery.PropertyFilter.eq("userId", user.userId))
+                        .setOrderBy(StructuredQuery.OrderBy.desc("publishedAt"))
+                        .build()
+
+                    val results = datastore.run(query)
+                    val newsList = mutableListOf<NewsItem>()
+
+                    while (results.hasNext()) {
+                        val entity = results.next()
+                        val tagsList = if (entity.contains("tags")) {
+                            entity.getList<Value<*>>("tags").map { it.get().toString() }
+                        } else emptyList()
+
+                        val rawUrl = if (entity.contains("imageUrl")) entity.getString("imageUrl") else ""
+
+                        val imageUrl = try {
+                            // Check if the URL from the DB matches one of the values in your map
+                            if (defaultCategoryImages.containsValue(rawUrl)) {
+                              // If you implemented the cache service, call cacheService.getValidSignedUrl(rawUrl) here instead!
+                              generateSignedImageUrl(rawUrl) 
+                            } else {
+                                // It's not a default Google Cloud Storage image (maybe an external link), 
+                                // so just return it as-is.
+                                rawUrl 
+                            }
+                        } catch (e: Exception) {
+                            // If signing fails, fallback to the raw URL
+                            call.application.log.error("Error signing image URL: $e")
+                            rawUrl 
+                         }
+
+                        newsList.add(
+                            NewsItem(
+                                id = entity.key.nameOrId.toString(),
+                                sourceId = if (entity.contains("sourceId")) entity.getString("sourceId") else "",
+                                title = if (entity.contains("title")) entity.getString("title") else "",
+                                url = if (entity.contains("url")) entity.getString("url") else "",
+                                imageUrl = imageUrl,
+                                summary = if (entity.contains("summary")) entity.getString("summary") else "",
+                                publishedAt = if (entity.contains("publishedAt")) entity.getTimestamp("publishedAt").seconds else 0L,
+                                read = if (entity.contains("read")) entity.getBoolean("read") else false,
+                                comments = if (entity.contains("comments")) entity.getString("comments") else "",
+                                tags = tagsList
+                            )
+                        )
+                    }
+
+                    call.respond(newsList)
+                } catch (e: Exception) {
+                    call.application.log.error("Error fetching news for user ${user.userId}", e)
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Internal Server Error"))
+                }
+            }
+
             post("/api/news/sync") {
                 val user =
                         call.principal<User>()
@@ -406,7 +476,67 @@ private fun determineImageUrl(parsedImageUrl: String?, tags: List<String>): Stri
     return defaultCategoryImages["misc"]!!
 }
 
+fun generateSignedImageUrl(imageUri: String): String {
+    // 1. Parse the URI to extract bucket and object names
+    val uri = URI(imageUri)
+    
+    // uri.path automatically decodes URL-encoded characters (like %20 to a space)
+    // removePrefix("/") cleanly strips the leading slash if it exists
+    val path = uri.path?.removePrefix("/") 
+        ?: throw IllegalArgumentException("Invalid URI format.")
+
+    if (!path.contains("/")) {
+        throw IllegalArgumentException("Invalid URI: Missing object name.")
+    }
+
+    // Extract the exact bucket and object names using Kotlin's string extensions
+    val bucketName = path.substringBefore("/")
+    val objectName = path.substringAfter("/")
+
+    // 2. Instantiate a Storage client
+    val storage: Storage = StorageOptions.getDefaultInstance().service
+
+    // 3. Define the bucket and the specific image path
+    val blobInfo = BlobInfo.newBuilder(BlobId.of(bucketName, objectName)).build()
+
+    val credentials = GoogleCredentials.getApplicationDefault()
+
+    // Local user credentials cannot sign URLs directly. Return raw URI to prevent exception spam.
+    if (credentials is com.google.auth.oauth2.UserCredentials) {
+        return imageUri
+    }
+
+    val signOptions = mutableListOf<Storage.SignUrlOption>(Storage.SignUrlOption.withV4Signature())
+    if (credentials is ServiceAccountSigner) {
+        signOptions.add(Storage.SignUrlOption.signWith(credentials))
+    }
+
+    // 4. Generate a Signed URL valid for 1 Day
+    val signedUrl = storage.signUrl(
+        blobInfo, 
+        1, 
+        TimeUnit.DAYS, 
+        *signOptions.toTypedArray()
+    )
+
+    return signedUrl.toString()
+}
+
 fun String.toSha256(): String {
     val bytes = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
     return bytes.joinToString("") { "%02x".format(it) }
 }
+
+@Serializable
+data class NewsItem(
+    val id: String,
+    val sourceId: String,
+    val title: String,
+    val url: String,
+    val imageUrl: String,
+    val summary: String,
+    val publishedAt: Long,
+    val read: Boolean,
+    val comments: String,
+    val tags: List<String>
+)

@@ -19,6 +19,14 @@
                 expandedCategories: [],
                 isSyncingNews: false,
                 
+                // Master-Detail State
+                newsList: [],
+                isLoadingNews: false,
+                newsError: null,
+                selectedArticle: null,
+                currentPage: 1,
+                itemsPerPage: 25,
+                
                 // Patterns for login background
                 patterns: ['bg-pattern-1', 'bg-pattern-2', 'bg-pattern-3', 'bg-pattern-4', 'bg-pattern-5', 'bg-pattern-6'],
                 currentPattern: '',
@@ -33,14 +41,15 @@
                 i18n: {
                     en: {
                         login: { title: "AI4Media Platform", sub: "Sign in to access your workspace", google_btn: "Sign in with Google" },
-                        nav: { rss: "Sources & News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", settings: "Settings", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                        nav: { rss: "News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", settings: "Settings", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
                         rss: { 
-                            title: "RSS Sources & Curation", add: "Add Source", cat: "Categories", 
+                            title: "News", add: "Add Source", cat: "Categories", 
                             categories: { technology: "Technology", marketing: "Marketing", development: "Development" },
                             read: "Read original", curate: "Curate & Schedule", time_ago: "ago", hours: "hours", 
                             show_read: "Show read", hide_read: "Hide read", mark_read: "Mark as read", mark_unread: "Mark as unread", read_badge: "Read",
                             no_sources: "No sources added.", edit_source: "Edit Source", source_name: "Source Name", source_url: "RSS URL", source_category: "Category", source_tags: "Tags (e.g. #AI #Tech)", cancel: "Cancel", save: "Save",
-                            all_news: "All News", add_cat: "Add Category", cat_name: "Category Name", mark_all_read: "Mark all as read", filter_by: "Filtering by:"
+                            all_news: "All News", add_cat: "Add Category", cat_name: "Category Name", mark_all_read: "Mark all as read", filter_by: "Filtering by:",
+                            showing: "Showing", to: "to", of: "of", entries: "entries", prev: "Prev", next: "Next", show: "Show:"
                         },
                         compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
                         sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:" },
@@ -50,14 +59,15 @@
                     },
                     es: {
                         login: { title: "Plataforma AI4Media", sub: "Inicia sesión para acceder a tu espacio", google_btn: "Iniciar sesión con Google" },
-                        nav: { rss: "Fuentes y Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", settings: "Configuración", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                        nav: { rss: "Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", settings: "Configuración", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
                         rss: { 
-                            title: "Fuentes RSS y Curación", add: "Añadir Fuente", cat: "Categorías", 
+                            title: "Noticias", add: "Añadir Fuente", cat: "Categorías", 
                             categories: { technology: "Tecnología", marketing: "Marketing", development: "Desarrollo" },
                             read: "Leer original", curate: "Curar y Programar", time_ago: "Hace", hours: "horas", 
                             show_read: "Mostrar leídos", hide_read: "Ocultar leídos", mark_read: "Marcar como leído", mark_unread: "Marcar como no leído", read_badge: "Leído",
                             no_sources: "No hay fuentes.", edit_source: "Editar Fuente", source_name: "Nombre de la Fuente", source_url: "URL del RSS", source_category: "Categoría", source_tags: "Etiquetas (ej. #IA #Tech)", cancel: "Cancelar", save: "Guardar",
-                            all_news: "Todas las Noticias", add_cat: "Añadir Categoría", cat_name: "Nombre de la Categoría", mark_all_read: "Marcar todo como leído", filter_by: "Filtrando por:"
+                            all_news: "Todas las Noticias", add_cat: "Añadir Categoría", cat_name: "Nombre de la Categoría", mark_all_read: "Marcar todo como leído", filter_by: "Filtrando por:",
+                            showing: "Mostrando", to: "a", of: "de", entries: "entradas", prev: "Ant", next: "Sig", show: "Mostrar:"
                         },
                         compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
                         sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:" },
@@ -141,19 +151,33 @@
                 // Selected Filter State (type can be 'all', 'category', or 'source')
                 selectedFilter: { type: 'all', value: null },
 
+                // Helper to change filter and reset page
+                setFilter(type, value) {
+                    this.selectedFilter = { type, value };
+                    this.currentPage = 1;
+                },
+
                 // Get dynamically filtered news
                 get filteredNews() {
-                    let filtered = this.rssNews;
+                    let filtered = this.newsList;
                     
                     if (this.selectedFilter.type === 'category') {
-                        const categorySourceNames = this.sources.filter(s => s.category === this.selectedFilter.value).map(s => s.name);
-                        filtered = filtered.filter(n => categorySourceNames.includes(n.source));
+                        const categorySourceIds = this.sources.filter(s => s.category === this.selectedFilter.value).map(s => String(s.id));
+                        filtered = filtered.filter(n => categorySourceIds.includes(String(n.sourceId)));
                     } else if (this.selectedFilter.type === 'source') {
-                        const sourceName = this.sources.find(s => s.id === this.selectedFilter.value)?.name;
-                        filtered = filtered.filter(n => n.source === sourceName);
+                        filtered = filtered.filter(n => String(n.sourceId) === String(this.selectedFilter.value));
                     }
                     
                     return filtered.filter(n => this.showRead || !n.read);
+                },
+
+                // Get paginated news
+                get paginatedNews() {
+                    const start = (this.currentPage - 1) * this.itemsPerPage;
+                    return this.filteredNews.slice(start, start + parseInt(this.itemsPerPage));
+                },
+                get totalPages() {
+                    return Math.max(1, Math.ceil(this.filteredNews.length / this.itemsPerPage));
                 },
 
                 // Get title for current filter
@@ -166,7 +190,7 @@
 
                 // Toggle read status for single article
                 toggleRead(id) {
-                    const news = this.rssNews.find(n => n.id === id);
+                    const news = this.newsList.find(n => n.id === id);
                     if (news) news.read = !news.read;
                 },
 
@@ -174,11 +198,10 @@
                 markAllAsRead(type, value) {
                     let newsToMark = [];
                     if (type === 'category') {
-                        const categorySourceNames = this.sources.filter(s => s.category === value).map(s => s.name);
-                        newsToMark = this.rssNews.filter(n => categorySourceNames.includes(n.source));
+                        const categorySourceIds = this.sources.filter(s => s.category === value).map(s => String(s.id));
+                        newsToMark = this.newsList.filter(n => categorySourceIds.includes(String(n.sourceId)));
                     } else if (type === 'source') {
-                        const sourceName = this.sources.find(s => s.id === value)?.name;
-                        newsToMark = this.rssNews.filter(n => n.source === sourceName);
+                        newsToMark = this.newsList.filter(n => String(n.sourceId) === String(value));
                     }
                     newsToMark.forEach(n => n.read = true);
                 },
@@ -237,17 +260,17 @@
                         console.warn("Backend no disponible. Cargando datos de prueba (Mock).");
                         this.categories = ['technology', 'marketing', 'development'];
                         this.sources = [
-                            { id: 1, name: 'TechCrunch', category: 'technology', url: 'https://techcrunch.com/feed', tags: '#Tech #AI', syncStatus: 'SUCCESS', lastSyncTime: new Date().toISOString() },
-                            { id: 2, name: 'Xataka', category: 'technology', url: 'https://xataka.com/feed', tags: '#Gadgets', syncStatus: 'ERROR', lastSyncTime: new Date(Date.now() - 86400000).toISOString() },
-                            { id: 3, name: 'HackerNews', category: 'development', url: 'https://news.ycombinator.com/rss', tags: '#Programming', syncStatus: null, lastSyncTime: null }
+                            { id: '1', name: 'TechCrunch', category: 'technology', url: 'https://techcrunch.com/feed', tags: '#Tech #AI', syncStatus: 'SUCCESS', lastSyncTime: new Date().toISOString() },
+                            { id: '2', name: 'Xataka', category: 'technology', url: 'https://xataka.com/feed', tags: '#Gadgets', syncStatus: 'ERROR', lastSyncTime: new Date(Date.now() - 86400000).toISOString() },
+                            { id: '3', name: 'HackerNews', category: 'development', url: 'https://news.ycombinator.com/rss', tags: '#Programming', syncStatus: null, lastSyncTime: null }
                         ];
                     }
                 },
 
                 // Calculate total articles per category
                 getArticlesCountByCategory(category) {
-                    const categorySourceNames = this.sources.filter(s => s.category === category).map(s => s.name);
-                    return this.rssNews.filter(n => categorySourceNames.includes(n.source)).length;
+                    const categorySourceIds = this.sources.filter(s => s.category === category).map(s => String(s.id));
+                    return this.newsList.filter(n => categorySourceIds.includes(String(n.sourceId))).length;
                 },
 
                 // Source Modal State
@@ -299,7 +322,7 @@
                             // Update local state AFTER successful backend response
                             this.sources = this.sources.filter(s => s.id !== id);
                             if (this.selectedFilter.type === 'source' && this.selectedFilter.value === id) {
-                                this.selectedFilter = { type: 'all', value: null };
+                                this.setFilter('all', null);
                             }
                         } catch (error) {
                             console.error("Fallo al borrar en el backend", error);
@@ -331,10 +354,7 @@
                     return this.sources.filter(s => s.category === category);
                 },
                 getUnreadCountForSource(sourceId) {
-                    const source = this.sources.find(s => s.id === sourceId);
-                    if (!source) return 0;
-                    // The mock data links news by source name. This is fragile but matches the existing code.
-                    return this.rssNews.filter(n => n.source === source.name && !n.read).length;
+                    return this.newsList.filter(n => String(n.sourceId) === String(sourceId) && !n.read).length;
                 },
                 getUnreadCountForCategory(category) {
                     const categorySources = this.getSourcesForCategory(category);
@@ -342,37 +362,33 @@
                         return total + this.getUnreadCountForSource(source.id);
                     }, 0);
                 },
+                
+                getSourceName(sourceId) {
+                    const source = this.sources.find(s => String(s.id) === String(sourceId));
+                    return source ? source.name : 'Unknown';
+                },
 
-                // Mock data for RSS
-                rssNews: [
-                    {
-                        id: 1,
-                        source: 'TechCrunch',
-                        time: 'Hace 2 horas',
-                        title: 'El nuevo modelo de IA reduce el consumo energético en un 40%',
-                        description: 'Una startup emergente ha publicado un nuevo paper detallando cómo su arquitectura de red neuronal optimizada logra resultados estado-del-arte consumiendo una fracción de la energía.',
-                        url: 'https://techcrunch.com/ejemplo-ia-energia',
-                        read: false
-                    },
-                    {
-                        id: 2,
-                        source: 'Xataka',
-                        time: 'Hace 4 horas',
-                        title: 'Ktor 3.0 lanzado oficialmente: Mejoras de rendimiento y plugins',
-                        description: 'El framework de JetBrains para Kotlin recibe una actualización masiva centrada en la concurrencia y simplificación del ecosistema de plugins.',
-                        url: 'https://xataka.com/ejemplo-ktor-3',
-                        read: true // Simulated as read
-                    },
-                    {
-                        id: 3,
-                        source: 'HackerNews',
-                        time: 'Hace 5 horas',
-                        title: 'Por qué AlpineJS es suficiente para el 80% de las aplicaciones web',
-                        description: 'Un análisis profundo sobre el peso de los frameworks modernos y cómo herramientas mínimas están recuperando terreno en el desarrollo frontend.',
-                        url: 'https://news.ycombinator.com/ejemplo-alpine',
-                        read: false
+                async loadNews() {
+                    this.isLoadingNews = true;
+                    this.newsError = null;
+                    try {
+                        const data = await this.apiCall('/api/news');
+                        this.newsList = Array.isArray(data) ? data : [];
+                        if (this.newsList.length > 0) this.selectedArticle = this.newsList[0];
+                    } catch (e) {
+                        console.error("Failed to load news", e);
+                        this.newsError = "Error loading news from server.";
+                        // Mock data fallback
+                        this.newsList = [
+                            { id: '1', sourceId: '1', title: 'El nuevo modelo de IA reduce el consumo energético en un 40%', summary: 'Una startup emergente ha publicado un nuevo paper detallando cómo su arquitectura de red neuronal optimizada logra resultados estado-del-arte consumiendo una fracción de la energía.', url: 'https://techcrunch.com/ejemplo-ia-energia', imageUrl: 'https://storage.cloud.google.com/cathartic_computer_club/Images/Artificial%20Intelligence.jpg', read: false, publishedAt: Date.now() - 7200000 },
+                            { id: '2', sourceId: '2', title: 'Ktor 3.0 lanzado oficialmente: Mejoras de rendimiento y plugins', summary: 'El framework de JetBrains para Kotlin recibe una actualización masiva centrada en la concurrencia y simplificación del ecosistema de plugins.', url: 'https://xataka.com/ejemplo-ktor-3', read: true, publishedAt: Date.now() - 14400000 },
+                            { id: '3', sourceId: '3', title: 'Por qué AlpineJS es suficiente para el 80% de las aplicaciones web', summary: 'Un análisis profundo sobre el peso de los frameworks modernos y cómo herramientas mínimas están recuperando terreno en el desarrollo frontend.', url: 'https://news.ycombinator.com/ejemplo-alpine', read: false, publishedAt: Date.now() - 18000000 }
+                        ];
+                        if (this.newsList.length > 0) this.selectedArticle = this.newsList[0];
+                    } finally {
+                        this.isLoadingNews = false;
                     }
-                ],
+                },
 
                 // Editor/composer state
                 composeData: {
@@ -461,7 +477,7 @@
                     this.currentView = 'compose';
                     
                     // Auto-mark as read when curated
-                    const news = this.rssNews.find(n => n.id === id);
+                    const news = this.newsList.find(n => n.id === id);
                     if (news) news.read = true;
                 },
 
@@ -608,7 +624,7 @@
 <body class="bg-gray-50 text-gray-800 font-sans antialiased h-screen overflow-hidden" 
       x-data="app()" 
       x-cloak
-      @auth-success.window="currentView = 'rss'; loadSources()"
+      @auth-success.window="currentView = 'rss'; loadSources(); loadNews()"
       @auth-logout.window="currentView = 'login'">
 
     <!-- LOGIN SCREEN -->
@@ -740,7 +756,7 @@
                             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                                 
                                 <!-- All News Reset Filter -->
-                                <button @click="selectedFilter = {type: 'all', value: null}" 
+                                <button @click="setFilter('all', null)" 
                                         class="w-full flex items-center px-3 py-2 rounded-lg mb-4 transition-colors font-medium text-sm"
                                         :class="selectedFilter.type === 'all' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50'">
                                     <i class="fa-solid fa-layer-group w-5 text-center mr-2"></i>
@@ -760,7 +776,7 @@
                                             <!-- Category Header -->
                                             <div class="flex justify-between items-center mb-1 group rounded-lg transition-colors cursor-pointer"
                                                  :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'bg-indigo-50/50' : 'hover:bg-gray-50'">
-                                                <div @click="selectedFilter = {type: 'category', value: cat}" class="flex-1 py-1.5 px-2 flex items-center justify-between">
+                                                <div @click="setFilter('category', cat)" class="flex-1 py-1.5 px-2 flex items-center justify-between">
                                                     <span class="font-bold text-sm" :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'text-primary' : 'text-gray-700'" x-text="t('rss.categories.' + cat) || capitalize(cat)"></span>
                                                     <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full" :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'bg-indigo-100 text-indigo-700' : ''" x-text="getArticlesCountByCategory(cat)"></span>
                                                 </div>
@@ -774,7 +790,7 @@
                                                 <template x-for="source in sources.filter(s => s.category === cat)" :key="source.id">
                                                     <li class="group flex justify-between items-center py-1.5 pl-2 pr-1 rounded-lg text-sm transition-colors cursor-pointer"
                                                         :class="selectedFilter.type === 'source' && selectedFilter.value === source.id ? 'bg-indigo-50/80 text-primary font-medium' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'"
-                                                        @click="selectedFilter = {type: 'source', value: source.id}">
+                                                        @click="setFilter('source', source.id)">
                                                         
                                                         <div class="flex items-center truncate">
                                                             <i class="fa-solid fa-rss mr-2 text-[10px]" :class="selectedFilter.type === 'source' && selectedFilter.value === source.id ? 'text-primary/70' : 'text-gray-300'"></i>
@@ -799,58 +815,127 @@
                             </div>
                         </div>
 
-                        <!-- Right Panel: News Feed -->
-                        <div class="w-full lg:w-3/4 space-y-4">
-                            <!-- Filter Toggle & Current Filter Status -->
-                            <div class="flex justify-between items-end px-1 mb-2 border-b border-gray-200 pb-2">
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1" x-text="t('rss.filter_by')"></span>
-                                    <span class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                        <i class="fa-solid" :class="{'fa-layer-group text-primary': selectedFilter.type === 'all', 'fa-folder-open text-amber-500': selectedFilter.type === 'category', 'fa-rss text-emerald-500': selectedFilter.type === 'source'}"></i>
-                                        <span x-text="currentFilterTitle"></span>
-                                    </span>
-                                </div>
-                                <button @click="showRead = !showRead" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
-                                    <i class="fa-solid" :class="showRead ? 'fa-eye-slash' : 'fa-eye'"></i>
-                                    <span x-text="showRead ? t('rss.hide_read') : t('rss.show_read')"></span>
-                                </button>
-                            </div>
-
-                            <template x-for="news in filteredNews" :key="news.id">
-                                <div class="p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 hover:shadow-md transition relative group" :class="news.read ? 'bg-gray-50 opacity-75' : 'bg-white'">
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <div class="flex items-center text-xs text-gray-500">
-                                                <span class="bg-gray-100 px-2 py-1 rounded text-gray-600 font-medium" x-text="news.source"></span>
-                                                <span class="mx-2">•</span>
-                                                <span x-text="lang === 'en' ? '2 ' + t('rss.hours') + ' ' + t('rss.time_ago') : t('rss.time_ago') + ' 2 ' + t('rss.hours')"></span>
-                                                <span x-show="news.read" class="ml-3 bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wide" x-text="t('rss.read_badge')"></span>
+                        <!-- Right Panel: Master-Detail Layout -->
+                        <div class="w-full lg:w-3/4 flex flex-col gap-4 min-h-[500px]">
+                            
+                            <!-- Top Half: Preview Panel -->
+                            <div class="h-[280px] shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col overflow-y-auto relative">
+                                <template x-if="!selectedArticle">
+                                    <div class="m-auto flex flex-col items-center justify-center text-gray-400">
+                                        <i class="fa-regular fa-newspaper text-5xl mb-4 text-gray-200"></i>
+                                        <p class="font-medium text-lg">Select an article to preview</p>
+                                    </div>
+                                </template>
+                                <template x-if="selectedArticle">
+                                    <div class="flex flex-col h-full">
+                                        <div class="flex justify-between items-start gap-4 mb-3">
+                                            <h3 class="text-xl font-bold text-gray-900 leading-tight" x-text="selectedArticle.title"></h3>
+                                            <div class="flex items-center gap-2 shrink-0">
+                                                <a :href="selectedArticle.url" target="_blank" class="text-gray-500 hover:text-primary p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition tooltip" title="Read Original">
+                                                    <i class="fa-solid fa-external-link-alt"></i>
+                                                </a>
+                                                <button @click="curateNews(selectedArticle.url, selectedArticle.id)" class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2 whitespace-nowrap">
+                                                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="t('rss.curate')"></span>
+                                                </button>
                                             </div>
-                                            <!-- Manual Toggle Read Status -->
-                                            <button @click="toggleRead(news.id)" class="text-gray-400 hover:text-primary transition p-1" :title="news.read ? t('rss.mark_unread') : t('rss.mark_read')">
-                                                <i class="fa-solid" :class="news.read ? 'fa-envelope-open' : 'fa-envelope'"></i>
+                                        </div>
+                                        <div class="flex items-center gap-3 text-xs text-gray-500 mb-4 font-medium border-b border-gray-100 pb-3">
+                                            <span class="bg-gray-100 px-2 py-1 rounded text-gray-700" x-text="getSourceName(selectedArticle.sourceId)"></span>
+                                            <span x-text="formatDate(selectedArticle.publishedAt)"></span>
+                                            <button @click="toggleRead(selectedArticle.id)" class="text-gray-400 hover:text-primary ml-auto transition flex items-center gap-1">
+                                                <i class="fa-solid" :class="selectedArticle.read ? 'fa-envelope-open' : 'fa-envelope'"></i>
+                                                <span x-text="selectedArticle.read ? t('rss.mark_unread') : t('rss.mark_read')"></span>
                                             </button>
                                         </div>
-                                        <h3 class="text-lg font-bold text-gray-900 mb-2" x-text="news.title"></h3>
-                                        <p class="text-gray-600 text-sm line-clamp-2 mb-4" x-text="news.description"></p>
-                                        <div class="flex items-center gap-3">
-                                            <a :href="news.url" target="_blank" class="text-primary text-sm font-medium hover:underline flex items-center">
-                                                <span x-text="t('rss.read')"></span> <i class="fa-solid fa-external-link-alt ml-1 text-xs"></i>
-                                            </a>
+                                        <div class="flex flex-col sm:flex-row gap-4 flex-1">
+                                            <template x-if="selectedArticle.imageUrl">
+                                                <img :src="selectedArticle.imageUrl" class="w-full sm:w-48 h-32 object-cover rounded-lg border border-gray-100 shrink-0 shadow-sm" alt="Article Preview">
+                                            </template>
+                                            <p class="text-gray-700 text-sm leading-relaxed" x-text="selectedArticle.summary || selectedArticle.description || 'No description available.'"></p>
                                         </div>
                                     </div>
-                                    <div class="flex items-center justify-end md:items-start md:border-l border-gray-100 md:pl-4">
-                                        <button @click="curateNews(news.url, news.id)" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm flex items-center gap-2 whitespace-nowrap text-sm font-medium w-full md:w-auto justify-center">
-                                            <i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="t('rss.curate')"></span>
+                                </template>
+                            </div>
+
+                            <!-- Bottom Half: News Table -->
+                            <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                                <!-- Filter Toggle & Current Filter Status -->
+                                <div class="flex justify-between items-end px-5 py-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1" x-text="t('rss.filter_by')"></span>
+                                        <span class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                            <i class="fa-solid" :class="{'fa-layer-group text-primary': selectedFilter.type === 'all', 'fa-folder-open text-amber-500': selectedFilter.type === 'category', 'fa-rss text-emerald-500': selectedFilter.type === 'source'}"></i>
+                                            <span x-text="currentFilterTitle"></span>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex items-center gap-2 text-sm text-gray-600 hidden sm:flex">
+                                            <label for="itemsPerPage" class="font-medium" x-text="t('rss.show')"></label>
+                                            <select id="itemsPerPage" x-model="itemsPerPage" @change="currentPage = 1" class="border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-primary shadow-sm bg-white cursor-pointer">
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                        </div>
+                                        <button @click="showRead = !showRead; currentPage = 1" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
+                                            <i class="fa-solid" :class="showRead ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                            <span x-text="showRead ? t('rss.hide_read') : t('rss.show_read')"></span>
                                         </button>
                                     </div>
                                 </div>
-                            </template>
-                            
-                            <!-- Empty State when filtered to 0 -->
-                            <div x-show="filteredNews.length === 0" class="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                                <i class="fa-regular fa-folder-open text-4xl text-gray-300 mb-3"></i>
-                                <p class="text-gray-500 font-medium">No hay noticias para mostrar en este filtro.</p>
+                                
+                                <div class="overflow-y-auto flex-1 h-[300px]">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm border-b border-gray-200">
+                                            <tr class="text-xs text-gray-500 uppercase tracking-wider">
+                                                <th class="px-6 py-3 font-medium w-1/4" x-text="t('rss.source_name')"></th>
+                                                <th class="px-6 py-3 font-medium w-1/2">Title</th>
+                                                <th class="px-6 py-3 font-medium w-1/6">Date</th>
+                                                <th class="px-6 py-3 font-medium text-center w-1/12">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-sm divide-y divide-gray-100">
+                                            <template x-if="isLoadingNews">
+                                                <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading news...</td></tr>
+                                            </template>
+                                            <template x-if="!isLoadingNews && newsError">
+                                                <tr><td colspan="4" class="px-6 py-12 text-center text-red-500" x-text="newsError"></td></tr>
+                                            </template>
+                                            <template x-if="!isLoadingNews && !newsError && filteredNews.length === 0">
+                                                <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500 italic">No news found for this filter.</td></tr>
+                                            </template>
+                                            <template x-for="news in paginatedNews" :key="news.id">
+                                                <tr @click="selectedArticle = news" 
+                                                    class="cursor-pointer transition-colors"
+                                                    :class="selectedArticle && selectedArticle.id === news.id ? 'bg-indigo-50/80 border-l-2 border-l-primary' : 'hover:bg-gray-50 border-l-2 border-l-transparent'">
+                                                    <td class="px-6 py-3 font-medium text-gray-600 truncate max-w-[150px]" x-text="getSourceName(news.sourceId)"></td>
+                                                    <td class="px-6 py-3 font-medium text-gray-900 truncate max-w-[300px]" x-text="news.title"></td>
+                                                    <td class="px-6 py-3 text-gray-500 text-xs whitespace-nowrap" x-text="formatDate(news.publishedAt)"></td>
+                                                    <td class="px-6 py-3 text-center">
+                                                        <span x-show="!news.read" class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500" :title="t('rss.mark_read')"></span>
+                                                        <span x-show="news.read" class="inline-block w-2.5 h-2.5 rounded-full bg-gray-300" :title="t('rss.mark_unread')"></span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Pagination Controls -->
+                                <div class="flex flex-col sm:flex-row items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50 shrink-0 gap-3">
+                                    <div class="text-xs text-gray-500">
+                                        <span x-text="t('rss.showing')"></span> <span class="font-medium text-gray-700" x-text="filteredNews.length === 0 ? 0 : ((currentPage - 1) * itemsPerPage) + 1"></span> <span x-text="t('rss.to')"></span> <span class="font-medium text-gray-700" x-text="Math.min(currentPage * itemsPerPage, filteredNews.length)"></span> <span x-text="t('rss.of')"></span> <span class="font-medium text-gray-700" x-text="filteredNews.length"></span> <span x-text="t('rss.entries')"></span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-1">
+                                            <i class="fa-solid fa-chevron-left text-xs"></i> <span x-text="t('rss.prev')"></span>
+                                        </button>
+                                        <button @click="currentPage < totalPages ? currentPage++ : null" :disabled="currentPage === totalPages || totalPages === 0" class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-1">
+                                            <span x-text="t('rss.next')"></span> <i class="fa-solid fa-chevron-right text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

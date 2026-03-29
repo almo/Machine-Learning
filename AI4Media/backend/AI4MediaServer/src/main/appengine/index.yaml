@@ -1,0 +1,8 @@
+indexes:
+
+# Add this block:
+- kind: RSSNews
+  properties:
+  - name: userId
+  - name: publishedAt
+    direction: desc
