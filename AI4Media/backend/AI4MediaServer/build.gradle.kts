@@ -119,7 +119,7 @@ dependencies {
     implementation("com.google.cloud:google-cloud-secretmanager:2.81.0")
 
     implementation("com.google.cloud:google-cloud-datastore:2.18.0")
-
+    implementation("com.google.cloud:google-cloud-vertexai:1.48.0")
 
     implementation("com.rometools:rome:2.1.0")
 }

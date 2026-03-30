@@ -45,7 +45,7 @@
                         rss: { 
                             title: "News", add: "Add Source", cat: "Categories", 
                             categories: { technology: "Technology", marketing: "Marketing", development: "Development" },
-                            read: "Read original", curate: "Curate & Schedule", time_ago: "ago", hours: "hours", 
+                            read: "Read original", curate_ai: "AI Generate", curate_manual: "Manual Post", time_ago: "ago", hours: "hours", 
                             show_read: "Show read", hide_read: "Hide read", mark_read: "Mark as read", mark_unread: "Mark as unread", read_badge: "Read",
                             no_sources: "No sources added.", edit_source: "Edit Source", source_name: "Source Name", source_url: "RSS URL", source_category: "Category", source_tags: "Tags (e.g. #AI #Tech)", cancel: "Cancel", save: "Save",
                             all_news: "All News", add_cat: "Add Category", cat_name: "Category Name", mark_all_read: "Mark all as read", filter_by: "Filtering by:",
@@ -63,7 +63,7 @@
                         rss: { 
                             title: "Noticias", add: "Añadir Fuente", cat: "Categorías", 
                             categories: { technology: "Tecnología", marketing: "Marketing", development: "Desarrollo" },
-                            read: "Leer original", curate: "Curar y Programar", time_ago: "Hace", hours: "horas", 
+                            read: "Leer original", curate_ai: "Generar con IA", curate_manual: "Post Manual", time_ago: "Hace", hours: "horas", 
                             show_read: "Mostrar leídos", hide_read: "Ocultar leídos", mark_read: "Marcar como leído", mark_unread: "Marcar como no leído", read_badge: "Leído",
                             no_sources: "No hay fuentes.", edit_source: "Editar Fuente", source_name: "Nombre de la Fuente", source_url: "URL del RSS", source_category: "Categoría", source_tags: "Etiquetas (ej. #IA #Tech)", cancel: "Cancelar", save: "Guardar",
                             all_news: "Todas las Noticias", add_cat: "Añadir Categoría", cat_name: "Nombre de la Categoría", mark_all_read: "Marcar todo como leído", filter_by: "Filtrando por:",
@@ -391,6 +391,7 @@
                 },
 
                 // Editor/composer state
+                composeMode: 'ai', // 'ai' or 'manual'
                 composeData: {
                     url: '',
                     linkedin: '',
@@ -471,13 +472,26 @@
                     this.composeData = { url: '', linkedin: '', twitter: '', bump1: '', bump2: '' };
                 },
 
-                curateNews(url, id) {
-                    this.composeData.url = url;
+                curateWithAI(article) {
+                    this.composeMode = 'ai';
+                    this.composeData.url = article.url;
                     this.contentGenerated = false; // Reset editor state
                     this.currentView = 'compose';
                     
                     // Auto-mark as read when curated
-                    const news = this.newsList.find(n => n.id === id);
+                    const news = this.newsList.find(n => n.id === article.id);
+                    if (news) news.read = true;
+                },
+
+                curateManual(article) {
+                    this.composeMode = 'manual';
+                    this.manualPost.content = `${article.title}\n\n${article.summary || ''}`;
+                    this.manualPost.url = article.url;
+                    this.manualPost.tags = Array.isArray(article.tags) ? article.tags.map(t => t.startsWith('#') ? t : `#${t}`).join(' ') : '';
+                    this.currentView = 'compose';
+                    
+                    // Auto-mark as read when curated
+                    const news = this.newsList.find(n => n.id === article.id);
                     if (news) news.read = true;
                 },
 
@@ -834,8 +848,11 @@
                                                 <a :href="selectedArticle.url" target="_blank" class="text-gray-500 hover:text-primary p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition tooltip" title="Read Original">
                                                     <i class="fa-solid fa-external-link-alt"></i>
                                                 </a>
-                                                <button @click="curateNews(selectedArticle.url, selectedArticle.id)" class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2 whitespace-nowrap">
-                                                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="t('rss.curate')"></span>
+                                                <button @click="curateWithAI(selectedArticle)" class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2 whitespace-nowrap">
+                                                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="t('rss.curate_ai')"></span>
+                                                </button>
+                                                <button @click="curateManual(selectedArticle)" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2 whitespace-nowrap">
+                                                    <i class="fa-solid fa-pen-nib"></i> <span x-text="t('rss.curate_manual')"></span>
                                                 </button>
                                             </div>
                                         </div>
@@ -848,9 +865,7 @@
                                             </button>
                                         </div>
                                         <div class="flex flex-col sm:flex-row gap-4 flex-1">
-                                            <template x-if="selectedArticle.imageUrl">
-                                                <img :src="selectedArticle.imageUrl" class="w-full sm:w-48 h-32 object-cover rounded-lg border border-gray-100 shrink-0 shadow-sm" alt="Article Preview">
-                                            </template>
+                                            <img x-show="selectedArticle.imageUrl" :src="selectedArticle.imageUrl" class="w-full sm:w-48 h-32 object-cover rounded-lg border border-gray-100 shrink-0 shadow-sm" alt="Article Preview">
                                             <p class="text-gray-700 text-sm leading-relaxed" x-text="selectedArticle.summary || selectedArticle.description || 'No description available.'"></p>
                                         </div>
                                     </div>
@@ -943,8 +958,18 @@
 
                 <!-- VIEW: COMPOSE / SCHEDULE -->
                 <div x-show="currentView === 'compose'" x-transition.opacity>
+                    <!-- COMPOSE MODE TABS -->
+                    <div class="flex space-x-4 mb-6 border-b border-gray-200">
+                        <button @click="composeMode = 'ai'" :class="composeMode === 'ai' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> <span x-text="t('compose.title')"></span>
+                        </button>
+                        <button @click="composeMode = 'manual'" :class="composeMode === 'manual' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors">
+                            <i class="fa-solid fa-pen-nib mr-2"></i> <span x-text="t('compose.manual_title')"></span>
+                        </button>
+                    </div>
+
                     <!-- MANUAL POST SECTION -->
-                    <div class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div x-show="composeMode === 'manual'" x-transition.opacity.duration.300ms class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <div class="mb-4">
                             <h3 class="text-xl font-bold text-gray-800" x-text="t('compose.manual_title')"></h3>
                             <p class="text-sm text-gray-500" x-text="t('compose.manual_sub')"></p>
@@ -1014,89 +1039,91 @@
                     </div>
                     
                     <!-- CONTENT GENERATOR SECTION -->
-                    <div class="mb-6">
-                        <h3 class="text-xl font-bold text-gray-800" x-text="t('compose.title')"></h3>
-                        <p class="text-gray-500" x-text="t('compose.sub')"></p>
-                    </div>
-
-                    <!-- URL Input and Generate Button -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 items-end">
-                        <div class="flex-1 w-full">
-                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.url')"></label>
-                            <input type="text" x-model="composeData.url" :placeholder="t('compose.placeholder')" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
-                        </div>
-                        <button @click="generateContent" :disabled="isGenerating || !composeData.url" class="bg-gray-900 hover:bg-black text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto">
-                            <template x-if="!isGenerating">
-                                <span><i class="fa-solid fa-robot mr-1"></i> <span x-text="t('compose.gen')"></span></span>
-                            </template>
-                            <template x-if="isGenerating">
-                                <span><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> <span x-text="t('compose.creating')"></span></span>
-                            </template>
-                        </button>
-                    </div>
-
-                    <!-- Editing Areas -->
-                    <div x-show="contentGenerated" x-transition class="space-y-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            
-                            <!-- LinkedIn -->
-                            <div class="bg-white rounded-xl shadow-sm border border-blue-200 overflow-hidden">
-                                <div class="bg-blue-50/50 px-4 py-3 border-b border-blue-100 flex items-center justify-between">
-                                    <div class="flex items-center gap-2 text-linkedin font-bold">
-                                        <i class="fa-brands fa-linkedin text-lg"></i> <span x-text="t('compose.linkedin')"></span>
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <textarea x-model="composeData.linkedin" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-linkedin focus:border-linkedin outline-none resize-none text-sm"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Twitter -->
-                            <div class="bg-white rounded-xl shadow-sm border border-sky-200 overflow-hidden">
-                                <div class="bg-sky-50/50 px-4 py-3 border-b border-sky-100 flex items-center justify-between">
-                                    <div class="flex items-center gap-2 text-twitter font-bold">
-                                        <i class="fa-brands fa-twitter text-lg"></i> <span x-text="t('compose.twitter')"></span>
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <textarea x-model="composeData.twitter" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-twitter focus:border-twitter outline-none resize-none text-sm"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Bump 1 (3-4 hours) -->
-                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
-                                    <div class="flex items-center gap-2 text-gray-700 font-bold">
-                                        <i class="fa-solid fa-reply text-gray-400"></i> <span x-text="t('compose.bump1')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump1_sub')"></span>
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <textarea x-model="composeData.bump1" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Bump 2 (Next day) -->
-                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
-                                    <div class="flex items-center gap-2 text-gray-700 font-bold">
-                                        <i class="fa-solid fa-reply-all text-gray-400"></i> <span x-text="t('compose.bump2')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump2_sub')"></span>
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <textarea x-model="composeData.bump2" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
-                                </div>
-                            </div>
+                    <div x-show="composeMode === 'ai'" x-transition.opacity.duration.300ms>
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-gray-800" x-text="t('compose.title')"></h3>
+                            <p class="text-gray-500" x-text="t('compose.sub')"></p>
                         </div>
 
-                        <!-- Final Scheduling Panel -->
-                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div>
-                                <h4 class="font-bold text-indigo-900" x-text="t('compose.send_cfg')"></h4>
-                                <p class="text-sm text-indigo-700" x-text="t('compose.send_sub')"></p>
+                        <!-- URL Input and Generate Button -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 items-end">
+                            <div class="flex-1 w-full">
+                                <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.url')"></label>
+                                <input type="text" x-model="composeData.url" :placeholder="t('compose.placeholder')" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
                             </div>
-                            <button @click="schedulePosts" class="bg-primary hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg w-full md:w-auto flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-paper-plane"></i> <span x-text="t('compose.schedule_btn')"></span>
+                            <button @click="generateContent" :disabled="isGenerating || !composeData.url" class="bg-gray-900 hover:bg-black text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto">
+                                <template x-if="!isGenerating">
+                                    <span><i class="fa-solid fa-robot mr-1"></i> <span x-text="t('compose.gen')"></span></span>
+                                </template>
+                                <template x-if="isGenerating">
+                                    <span><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> <span x-text="t('compose.creating')"></span></span>
+                                </template>
                             </button>
+                        </div>
+
+                        <!-- Editing Areas -->
+                        <div x-show="contentGenerated" x-transition class="space-y-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                
+                                <!-- LinkedIn -->
+                                <div class="bg-white rounded-xl shadow-sm border border-blue-200 overflow-hidden">
+                                    <div class="bg-blue-50/50 px-4 py-3 border-b border-blue-100 flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-linkedin font-bold">
+                                            <i class="fa-brands fa-linkedin text-lg"></i> <span x-text="t('compose.linkedin')"></span>
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <textarea x-model="composeData.linkedin" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-linkedin focus:border-linkedin outline-none resize-none text-sm"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Twitter -->
+                                <div class="bg-white rounded-xl shadow-sm border border-sky-200 overflow-hidden">
+                                    <div class="bg-sky-50/50 px-4 py-3 border-b border-sky-100 flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-twitter font-bold">
+                                            <i class="fa-brands fa-twitter text-lg"></i> <span x-text="t('compose.twitter')"></span>
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <textarea x-model="composeData.twitter" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-twitter focus:border-twitter outline-none resize-none text-sm"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Bump 1 (3-4 hours) -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
+                                        <div class="flex items-center gap-2 text-gray-700 font-bold">
+                                            <i class="fa-solid fa-reply text-gray-400"></i> <span x-text="t('compose.bump1')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump1_sub')"></span>
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <textarea x-model="composeData.bump1" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Bump 2 (Next day) -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
+                                        <div class="flex items-center gap-2 text-gray-700 font-bold">
+                                            <i class="fa-solid fa-reply-all text-gray-400"></i> <span x-text="t('compose.bump2')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump2_sub')"></span>
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <textarea x-model="composeData.bump2" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Final Scheduling Panel -->
+                            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                                <div>
+                                    <h4 class="font-bold text-indigo-900" x-text="t('compose.send_cfg')"></h4>
+                                    <p class="text-sm text-indigo-700" x-text="t('compose.send_sub')"></p>
+                                </div>
+                                <button @click="schedulePosts" class="bg-primary hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg w-full md:w-auto flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-paper-plane"></i> <span x-text="t('compose.schedule_btn')"></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
