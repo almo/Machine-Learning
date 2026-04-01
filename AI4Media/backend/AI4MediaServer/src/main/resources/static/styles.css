@@ -1,0 +1,15 @@
+/* Hide Alpine elements until loaded to prevent flickering */
+[x-cloak] { display: none !important; }
+/* Custom subtle scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+/* CSS Tessellation Patterns (Subtle gray over gray-50) */
+.bg-pattern-1 { background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px); background-size: 24px 24px; }
+.bg-pattern-2 { background-image: linear-gradient(45deg, #f1f5f9 25%, transparent 25%, transparent 75%, #f1f5f9 75%, #f1f5f9), linear-gradient(45deg, #f1f5f9 25%, transparent 25%, transparent 75%, #f1f5f9 75%, #f1f5f9); background-size: 20px 20px; background-position: 0 0, 10px 10px; }
+.bg-pattern-3 { background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #e2e8f0 19px, #e2e8f0 20px), repeating-linear-gradient(-90deg, transparent, transparent 19px, #e2e8f0 19px, #e2e8f0 20px); background-size: 20px 20px; }
+.bg-pattern-4 { background: repeating-linear-gradient(45deg, transparent, transparent 10px, #e2e8f0 10px, #e2e8f0 11px); }
+.bg-pattern-5 { background-image: radial-gradient(#cbd5e1 2px, transparent 2px), radial-gradient(#cbd5e1 2px, transparent 2px); background-size: 32px 32px; background-position: 0 0, 16px 16px; }
+.bg-pattern-6 { background-image: repeating-linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0), repeating-linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0); background-position: 0 0, 20px 20px; background-size: 40px 40px; }
