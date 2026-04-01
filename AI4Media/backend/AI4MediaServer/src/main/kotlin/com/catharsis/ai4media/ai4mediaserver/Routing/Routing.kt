@@ -268,9 +268,9 @@ fun Application.configureRouting() {
                     val updatedEntityBuilder = Entity.newBuilder(entity).set("status", PostStatus.PUBLISHED.name)
 
                     if (targetUrn != null)
-                        updatedEntityBuilder.set("targetUrl", targetUrn)
-                    else if (network == "twitter")
-                        updatedEntityBuilder.set("targetUrl", tweetId)
+                        updatedEntityBuilder.set("targetUrn", targetUrn)
+                    else if (tweetId != null)
+                        updatedEntityBuilder.set("targetUrn", tweetId)
 
                     datastore.put(updatedEntityBuilder.build())
 

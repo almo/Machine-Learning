@@ -23,3 +23,8 @@ indexes:
   properties:
   - name: userId
   - name: scheduledTime
+- kind: SocialContent
+  properties:
+  - name: userId
+  - name: scheduledTime
+    direction: desc

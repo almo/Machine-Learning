@@ -42,7 +42,7 @@ function app() {
                 },
                 compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
                 sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts found.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:", filters: "Filters", network: "Network", tags_regex: "Tags (Regex)", date: "Date", all_networks: "All Networks", table_network: "Net", table_content: "Content", table_tags: "Tags", table_source: "Source", table_date: "Scheduled For", table_status: "Status", original_url: "Original URL" },
-                stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month" },
+                stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month", published_list: "Published Posts Log", table_post: "Post Link", empty: "No published posts found." },
                 alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync." },
                 settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login.", news_sync: "News Sync", sync_now: "Sync Now", syncing: "Syncing...", sources_manage: "Manage Sources & Synchronization", sources_manage_sub: "Add, edit, remove, and sync your RSS feeds.", actions: "Actions", expand_all: "Expand All", collapse_all: "Collapse All", unread: "Unread", sources_count: "Sources", last_sync: "Last Sync", success: "Success", sync_error: "Error", never: "Never" }
             },
@@ -60,7 +60,7 @@ function app() {
                 },
                 compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
                 sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:", filters: "Filtros", network: "Red", tags_regex: "Etiquetas (Regex)", date: "Fecha", all_networks: "Todas las Redes", table_network: "Red", table_content: "Contenido", table_tags: "Etiquetas", table_source: "Origen", table_date: "Programado Para", table_status: "Estado", original_url: "URL Original" },
-                stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior" },
+                stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior", published_list: "Registro de Publicaciones", table_post: "Enlace del Post", empty: "No se encontraron posts publicados." },
                 alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias." },
                 settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth.", news_sync: "Sincronizar Noticias", sync_now: "Sincronizar Ahora", syncing: "Sincronizando...", sources_manage: "Gestionar Fuentes y Sincronización", sources_manage_sub: "Añade, edita, elimina y sincroniza tus feeds RSS.", actions: "Acciones", expand_all: "Expandir Todo", collapse_all: "Contraer Todo", unread: "No leídos", sources_count: "Fuentes", last_sync: "Última Sincronización", success: "Éxito", sync_error: "Error", never: "Nunca" }
             }
@@ -473,6 +473,104 @@ function app() {
             return Math.max(1, Math.ceil(this.filteredScheduledList.length / this.scheduledItemsPerPage));
         },
 
+        // Published posts state
+        publishedList: [],
+        isLoadingPublished: false,
+        publishedCurrentPage: 1,
+        publishedItemsPerPage: 20,
+
+        async loadPublishedPosts() {
+            this.isLoadingPublished = true;
+            try {
+                const data = await this.apiCall('/api/published');
+                this.publishedList = Array.isArray(data) ? data : [];
+                this.publishedCurrentPage = 1;
+            } catch (e) {
+                console.error("Failed to load published posts", e);
+                this.publishedList = [];
+            } finally {
+                this.isLoadingPublished = false;
+            }
+        },
+
+        get paginatedPublishedList() {
+            const start = (this.publishedCurrentPage - 1) * this.publishedItemsPerPage;
+            return this.publishedList.slice(start, start + parseInt(this.publishedItemsPerPage));
+        },
+        get publishedTotalPages() {
+            return Math.max(1, Math.ceil(this.publishedList.length / this.publishedItemsPerPage));
+        },
+
+        // Stats Computed Properties
+        get statsOverview() {
+            let linkedin = 0;
+            let twitter = 0;
+            this.publishedList.forEach(post => {
+                const net = this.getNetwork(post);
+                if (net === 'linkedin') linkedin++;
+                if (net === 'twitter') twitter++;
+            });
+            return {
+                total: this.publishedList.length,
+                linkedin,
+                twitter
+            };
+        },
+
+        get publishingActivityData() {
+            const days = 14;
+            const now = new Date();
+            const data = [];
+            let maxTotal = 0;
+
+            for (let i = days - 1; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(now.getDate() - i);
+                const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                
+                data.push({
+                    dateString: ds,
+                    label: d.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'es-ES', { month: 'short', day: 'numeric' }),
+                    total: 0,
+                    linkedin: 0,
+                    twitter: 0
+                });
+            }
+
+            this.publishedList.forEach(post => {
+                if (!post.scheduledTime) return;
+                let postDate;
+                try {
+                    if (typeof post.scheduledTime === 'string') postDate = new Date(post.scheduledTime);
+                    else if (typeof post.scheduledTime === 'object') postDate = new Date((post.scheduledTime.seconds || post.scheduledTime.epochSecond) * 1000);
+                    else postDate = new Date(post.scheduledTime);
+                } catch (e) { return; }
+
+                if (isNaN(postDate.getTime())) return;
+                
+                const ds = `${postDate.getFullYear()}-${String(postDate.getMonth()+1).padStart(2, '0')}-${String(postDate.getDate()).padStart(2, '0')}`;
+                const dayData = data.find(d => d.dateString === ds);
+                
+                if (dayData) {
+                    dayData.total++;
+                    const net = this.getNetwork(post);
+                    if (net === 'linkedin') dayData.linkedin++;
+                    if (net === 'twitter') dayData.twitter++;
+                }
+            });
+
+            data.forEach(d => { if (d.total > maxTotal) maxTotal = d.total; });
+            if (maxTotal === 0) maxTotal = 1; // Prevent division by zero
+
+            data.forEach(d => {
+                d.heightTotal = Math.max((d.total / maxTotal) * 100, 1);
+                d.heightLinkedin = Math.max((d.linkedin / maxTotal) * 100, 0);
+                d.heightTwitter = Math.max((d.twitter / maxTotal) * 100, 0);
+            });
+
+            return data;
+        },
+
         // OAuth settings state
         oauthStatus: {
             twitter: false,
@@ -635,6 +733,15 @@ function app() {
             } catch (error) {
                 console.error("Failed to schedule post", error);                        
             }
+        },
+
+        getPostUrl(post) {
+            if (!post.targetUrn) return null;
+            if (post.targetUrn.startsWith('http')) return post.targetUrn;
+            const net = this.getNetwork(post);
+            if (net === 'twitter') return `https://x.com/davilagrau/status/${post.targetUrn}`;
+            if (net === 'linkedin') return `https://www.linkedin.com/feed/update/${post.targetUrn}`;
+            return null;
         },
 
         deleteScheduled(id) {

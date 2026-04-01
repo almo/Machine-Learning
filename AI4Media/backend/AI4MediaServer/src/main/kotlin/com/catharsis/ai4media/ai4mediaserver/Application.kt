@@ -88,6 +88,7 @@ fun Application.module() {
                     Json {
                         ignoreUnknownKeys = true
                         prettyPrint = true
+                        encodeDefaults = true
                     }
             )
         }
