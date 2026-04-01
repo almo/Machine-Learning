@@ -41,7 +41,7 @@ function app() {
                     showing: "Showing", to: "to", of: "of", entries: "entries", prev: "Prev", next: "Next", show: "Show:"
                 },
                 compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
-                sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:" },
+                sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts found.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:", filters: "Filters", network: "Network", tags_regex: "Tags (Regex)", date: "Date", all_networks: "All Networks", table_network: "Net", table_content: "Content", table_tags: "Tags", table_source: "Source", table_date: "Scheduled For", table_status: "Status", original_url: "Original URL" },
                 stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month" },
                 alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync." },
                 settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login.", news_sync: "News Sync", sync_now: "Sync Now", syncing: "Syncing...", sources_manage: "Manage Sources & Synchronization", sources_manage_sub: "Add, edit, remove, and sync your RSS feeds.", actions: "Actions", expand_all: "Expand All", collapse_all: "Collapse All", unread: "Unread", sources_count: "Sources", last_sync: "Last Sync", success: "Success", sync_error: "Error", never: "Never" }
@@ -59,7 +59,7 @@ function app() {
                     showing: "Mostrando", to: "a", of: "de", entries: "entradas", prev: "Ant", next: "Sig", show: "Mostrar:"
                 },
                 compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
-                sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:" },
+                sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:", filters: "Filtros", network: "Red", tags_regex: "Etiquetas (Regex)", date: "Fecha", all_networks: "Todas las Redes", table_network: "Red", table_content: "Contenido", table_tags: "Etiquetas", table_source: "Origen", table_date: "Programado Para", table_status: "Estado", original_url: "URL Original" },
                 stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior" },
                 alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias." },
                 settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth.", news_sync: "Sincronizar Noticias", sync_now: "Sincronizar Ahora", syncing: "Sincronizando...", sources_manage: "Gestionar Fuentes y Sincronización", sources_manage_sub: "Añade, edita, elimina y sincroniza tus feeds RSS.", actions: "Acciones", expand_all: "Expandir Todo", collapse_all: "Contraer Todo", unread: "No leídos", sources_count: "Fuentes", last_sync: "Última Sincronización", success: "Éxito", sync_error: "Error", never: "Nunca" }
@@ -81,6 +81,14 @@ function app() {
             this.lang = this.lang === 'en' ? 'es' : 'en';
         },
         
+        // Helper to normalize network name
+        getNetwork(post) {
+            if (!post) return '';
+            let net = post.network || '';
+            if (typeof net === 'object') net = net.name || net.value || '';
+            return String(net).trim().toLowerCase();
+        },
+
         // Helper to format dates
         formatDate(timestamp) {
             if (!timestamp) return this.t('settings.never');
@@ -400,12 +408,70 @@ function app() {
             specificTime: ''
         },
 
-        // List of scheduled posts
-        scheduledList: [
-            { id: 101, network: 'linkedin', type: 'Main Post', content: '¿Sabías que Ktor acaba de lanzar su versión 3.0? Las mejoras en concurrencia son impresionantes. Lo estamos usando en nuestro backend y la diferencia es notable. 🚀 #Kotlin #Ktor #Backend', scheduledTime: 'Hoy, 14:00' },
-            { id: 102, network: 'twitter', type: 'Main Post', content: 'Ktor 3.0 ya está aquí 🔥. JetBrains ha hecho un trabajo excelente mejorando el sistema de plugins. ¿Alguien más actualizando sus servidores hoy? #Kotlin', scheduledTime: 'Hoy, 14:00' },
-            { id: 103, network: 'twitter', type: 'Bump 1', content: 'Por cierto, aquí os dejo el enlace a las notas de lanzamiento completas por si os perdisteis algún detalle: [Enlace]', scheduledTime: 'Hoy, 17:30' }
-        ],
+        // Scheduled posts state
+        scheduledList: [],
+        isLoadingScheduled: false,
+        scheduledFilters: { network: 'all', tagsRegex: '', date: '' },
+        scheduledCurrentPage: 1,
+        scheduledItemsPerPage: 20,
+
+        async loadScheduledPosts() {
+            this.isLoadingScheduled = true;
+            try {
+                const data = await this.apiCall('/api/scheduled');
+                this.scheduledList = Array.isArray(data) ? data : [];
+                this.scheduledCurrentPage = 1; // Reset to page 1 on load
+            } catch (e) {
+                console.error("Failed to load scheduled posts", e);
+                this.scheduledList = [];
+            } finally {
+                this.isLoadingScheduled = false;
+            }
+        },
+
+        get filteredScheduledList() {
+            if (!Array.isArray(this.scheduledList)) return [];
+            
+            return this.scheduledList.filter(post => {
+                // Filter by network safely
+                if (this.scheduledFilters.network && this.scheduledFilters.network !== 'all') {
+                    const postNet = this.getNetwork(post);
+                    if (postNet !== this.scheduledFilters.network.toLowerCase()) return false;
+                }
+                
+                // Filter by tags regex safely
+                if (this.scheduledFilters.tagsRegex) {
+                    try {
+                        const regex = new RegExp(this.scheduledFilters.tagsRegex, 'i');
+                        const tagsStr = Array.isArray(post.tags) ? post.tags.join(' ') : '';
+                        if (!regex.test(tagsStr)) return false;
+                    } catch(e) {
+                        // Ignore malformed regex while the user is still typing
+                    }
+                }
+                
+                // Filter by date safely
+                if (this.scheduledFilters.date) {
+                    try {
+                        // Ktor serialized LocalDateTime is format: '2024-11-20T14:30:00'
+                        const dateStr = typeof post.scheduledTime === 'string' ? post.scheduledTime : new Date(post.scheduledTime).toISOString();
+                        if (!dateStr.startsWith(this.scheduledFilters.date)) return false;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+        },
+
+        get paginatedScheduledList() {
+            const start = (this.scheduledCurrentPage - 1) * this.scheduledItemsPerPage;
+            return this.filteredScheduledList.slice(start, start + parseInt(this.scheduledItemsPerPage));
+        },
+        get scheduledTotalPages() {
+            return Math.max(1, Math.ceil(this.filteredScheduledList.length / this.scheduledItemsPerPage));
+        },
 
         // OAuth settings state
         oauthStatus: {
@@ -506,21 +572,13 @@ function app() {
         },
 
         schedulePosts() {
-            // Add mock posts to the list
-            const newId = Date.now();
-            this.scheduledList.unshift({
-                id: newId, network: 'linkedin', type: 'Main', content: this.composeData.linkedin.substring(0, 100) + '...', scheduledTime: this.lang === 'en' ? 'Tomorrow, 09:00' : 'Mañana, 09:00'
-            });
-            this.scheduledList.unshift({
-                id: newId + 1, network: 'twitter', type: 'Main', content: this.composeData.twitter.substring(0, 100) + '...', scheduledTime: this.lang === 'en' ? 'Tomorrow, 09:00' : 'Mañana, 09:00'
-            });
-            
             alert(this.t('alerts.success'));
             
             // Clear and redirect
             this.composeData = { url: '', linkedin: '', twitter: '', bump1: '', bump2: '' };
             this.contentGenerated = false;
             this.currentView = 'scheduled';
+            this.loadScheduledPosts();
         },
 
         async submitManualPost() {
@@ -573,6 +631,7 @@ function app() {
                 
                 this.manualPost = { content: '', url: '', tags: '', linkedin: true, twitter: true, scheduleType: 'now', specificTime: '' };
                 this.currentView = 'scheduled';
+                this.loadScheduledPosts();
             } catch (error) {
                 console.error("Failed to schedule post", error);                        
             }

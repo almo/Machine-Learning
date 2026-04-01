@@ -1,8 +1,25 @@
 indexes:
-
-# Add this block:
 - kind: RSSNews
   properties:
   - name: userId
   - name: publishedAt
     direction: desc
+# Index for "Newest First"
+- kind: SocialContent
+  properties:
+  - name: network
+  - name: status
+  - name: userId
+  - name: scheduledTime
+    direction: desc
+# Index for "Oldest First" (Default/Ascending)
+- kind: SocialContent
+  properties:
+  - name: network
+  - name: status
+  - name: userId
+  - name: scheduledTime
+- kind: SocialContent
+  properties:
+  - name: userId
+  - name: scheduledTime

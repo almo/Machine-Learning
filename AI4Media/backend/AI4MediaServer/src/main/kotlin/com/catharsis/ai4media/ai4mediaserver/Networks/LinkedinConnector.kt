@@ -133,10 +133,6 @@ object LinkedinConnector {
         }
 
         logger.info("Successfully published to LinkedIn Organization timeline (Post ID: {}) for user: {}", postId, userId)
-        publishingScope.launch {
-           delay(300000L) // Espera 5 minutos
-           shareToUserTimeline(userId,postId,"Don't miss this out!",tags)
-        }
 
         return postId
     }

@@ -14,10 +14,94 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import kotlinx.serialization.Serializable
 import kotlinx.coroutines.*
 
 val publishingScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+data class UserScheduleSettings(
+    val dailyLimits: Map<SocialNetwork, Int>,
+    val sweetSpots: List<Pair<LocalTime, LocalTime>>
+)
+
+object UserSettingsRegistry {
+    val defaultSettings = UserScheduleSettings(
+        dailyLimits = mapOf(
+            SocialNetwork.TWITTER to 5,
+            SocialNetwork.LINKEDIN to 2
+        ),
+        sweetSpots = listOf(
+            LocalTime.of(7, 30) to LocalTime.of(9, 30),   // Morning
+            LocalTime.of(12, 30) to LocalTime.of(14, 0),  // Lunch Break
+            LocalTime.of(17, 30) to LocalTime.of(19, 30), // Returning Home
+            LocalTime.of(21, 0) to LocalTime.of(22, 30)   // Night
+        )
+    )
+
+    // In-memory mapping for user-specific settings. 
+    // Defaults are used if a user hasn't configured custom settings.
+    private val userSettings = mutableMapOf<String, UserScheduleSettings>()
+
+    fun getSettingsForUser(userId: String): UserScheduleSettings {
+        return userSettings[userId] ?: defaultSettings
+    }
+}
+
+/**
+ * Calculates the optimal scheduling time for a social media post based on sweet spots, daily limits, 
+ * and existing auto-scheduled posts.
+ * 
+ * @param network The target social network.
+ * @param settings The schedule settings for the user (limits, sweet spots).
+ * @param futureAutoScheduledPosts A list of LocalDateTime representing all currently future AUTOSCHEDULED posts for this user and network.
+ * @return A LocalDateTime representing the calculated optimized schedule time.
+ */
+fun calculateOptimizedScheduleTime(
+    network: SocialNetwork,
+    settings: UserScheduleSettings,
+    futureAutoScheduledPosts: List<LocalDateTime>
+): LocalDateTime {
+    val now = LocalDateTime.now(AppConfig.timeZone)
+    val lastPostTime = futureAutoScheduledPosts.maxOrNull() ?: now
+    var currentDate = lastPostTime.toLocalDate()
+
+    val dailyLimit = settings.dailyLimits[network] ?: 2
+    val spots = settings.sweetSpots
+
+    while (true) {
+        val postsOnDate = futureAutoScheduledPosts.filter { it.toLocalDate() == currentDate }
+        
+        if (postsOnDate.size < dailyLimit) {
+            for (spot in spots) {
+                val spotStart = LocalDateTime.of(currentDate, spot.first)
+                val spotEnd = LocalDateTime.of(currentDate, spot.second)
+                
+                // Skip if spot is already completely in the past
+                if (!spotEnd.isAfter(now)) continue
+                
+                // Enforce sequential scheduling: the spot must end after the latest scheduled post
+                if (!spotEnd.isAfter(lastPostTime)) continue
+                
+                // Check if the spot is already occupied by any existing auto-scheduled post
+                val isOccupied = postsOnDate.any { it >= spotStart && it <= spotEnd }
+                
+                if (!isOccupied) {
+                    // Sweet spot found! Calculate an effective start in case we are currently inside it.
+                    val effectiveStart = if (spotStart.isBefore(now)) now else spotStart
+                    val secondsBetween = ChronoUnit.SECONDS.between(effectiveStart, spotEnd)
+                    
+                    val randomSeconds = if (secondsBetween > 0) (0..secondsBetween).random() else 0L
+                    return effectiveStart.plusSeconds(randomSeconds)
+                }
+            }
+        }
+        
+        // Roll over to the next calendar day
+        currentDate = currentDate.plusDays(1)
+    }
+}
 
 @Serializable data class ScheduleResponse(val status: String, val ids: List<String>)
 
@@ -41,22 +125,23 @@ fun Application.configureRouting() {
                     val scheduledIds = mutableListOf<String>()
 
                     for (network in networksToPublish) {
+                        val parsedNetwork =
+                            when (network) {
+                                "twitter" -> SocialNetwork.TWITTER
+                                else -> SocialNetwork.LINKEDIN
+                            }
+
                         val parsedTime =
                             if (request.scheduledTime == "AUTOMATIC") {
-                                val randomSeconds = (0L..300L).random() // 5 mins
-                                LocalDateTime.now(AppConfig.timeZone).plusSeconds(randomSeconds)
+                                val userSettings = UserSettingsRegistry.getSettingsForUser(user.userId)
+                                val futureAutoScheduledPosts = DataStoreWrapper.getFutureAutoScheduledPosts(user.userId, parsedNetwork)
+                                calculateOptimizedScheduleTime(parsedNetwork, userSettings, futureAutoScheduledPosts)
                             } else if (request.scheduledTime == "NOW") {
                                 LocalDateTime.now(AppConfig.timeZone)
                             } else {
                                 LocalDateTime.parse(request.scheduledTime)
                                     .atZone(AppConfig.timeZone)
                                     .toLocalDateTime()
-                            }
-
-                        val parsedNetwork =
-                            when (network) {
-                                "twitter" -> SocialNetwork.TWITTER
-                                else -> SocialNetwork.LINKEDIN
                             }
 
                         val contentID = DataStoreWrapper.saveSocialContent(
@@ -109,7 +194,8 @@ fun Application.configureRouting() {
                                 scheduleTime = parsedTime.atZone(AppConfig.timeZone).toInstant()
                             )
 
-                            DataStoreWrapper.updateStatus(contentID, PostStatus.SCHEDULED)
+                            val finalStatus = if (request.scheduledTime == "AUTOMATIC") PostStatus.AUTOSCHEDULED else PostStatus.SCHEDULED
+                            DataStoreWrapper.updateStatus(contentID, finalStatus)
                         }
 
                         scheduledIds.add(contentID)

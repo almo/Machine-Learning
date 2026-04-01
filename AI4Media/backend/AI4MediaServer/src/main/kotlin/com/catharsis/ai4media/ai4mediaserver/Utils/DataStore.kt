@@ -3,10 +3,13 @@ package com.catharsis.ai4media.ai4mediaserver
 import com.catharsis.ai4media.ai4mediaserver.content.*
 import com.google.cloud.Timestamp
 import com.google.cloud.datastore.DatastoreOptions
+import com.google.cloud.datastore.Query
 import com.google.cloud.datastore.Entity
+import com.google.cloud.datastore.StructuredQuery
 import com.google.cloud.datastore.StringValue
-import java.util.Date
+import java.time.Instant
 import java.time.LocalDateTime
+import java.util.Date
 
 object DataStoreWrapper {
     val datastore = DatastoreOptions.getDefaultInstance().service
@@ -80,5 +83,34 @@ object DataStoreWrapper {
                 transaction.rollback()
             }
         }
+    }
+
+    fun getFutureAutoScheduledPosts(userId: String, network: SocialNetwork): List<LocalDateTime> {
+        val query = Query.newEntityQueryBuilder()
+            .setKind("SocialContent")
+            .setFilter(
+                StructuredQuery.CompositeFilter.and(
+                    StructuredQuery.PropertyFilter.eq("userId", userId),
+                    StructuredQuery.PropertyFilter.eq("network", network.name),
+                    StructuredQuery.PropertyFilter.eq("status", PostStatus.AUTOSCHEDULED.name),
+                    StructuredQuery.PropertyFilter.gt("scheduledTime", Timestamp.now())
+                )
+            )
+            .setOrderBy(StructuredQuery.OrderBy.asc("scheduledTime"))
+            .build()
+
+        val results = datastore.run(query)
+        val futurePosts = mutableListOf<LocalDateTime>()
+
+        while (results.hasNext()) {
+            val entity = results.next()
+            if (entity.contains("scheduledTime")) {
+                val googleTimestamp = entity.getTimestamp("scheduledTime")
+                val instant = Instant.ofEpochSecond(googleTimestamp.seconds, googleTimestamp.nanos.toLong())
+                val scheduledTime = LocalDateTime.ofInstant(instant, AppConfig.timeZone)
+                futurePosts.add(scheduledTime)
+            }
+        }
+        return futurePosts
     }
 }

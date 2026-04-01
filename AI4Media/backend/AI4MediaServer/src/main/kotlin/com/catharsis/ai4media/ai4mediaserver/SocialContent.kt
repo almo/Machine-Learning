@@ -3,6 +3,25 @@ package com.catharsis.ai4media.ai4mediaserver.content
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import java.time.format.DateTimeFormatter
+
+object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LocalDateTime", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: LocalDateTime) = encoder.encodeString(value.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+    override fun deserialize(decoder: Decoder): LocalDateTime = LocalDateTime.parse(decoder.decodeString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+}
+
+object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: UUID) = encoder.encodeString(value.toString())
+    override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
+}
 
 /**
  * Represents a social media post within the AI4Media system.
@@ -29,14 +48,15 @@ data class SocialContentRequest(
     val networks: String=""
 )
 
+@Serializable
 data class SocialContent(
-        val id: UUID = UUID.randomUUID(),
+        @Serializable(with = UUIDSerializer::class) val id: UUID = UUID.randomUUID(),
         val userId: String,
         val textContent: String,
         val urlContent: String,
         val targetUrn: String? = null,
-        val scheduledTime: LocalDateTime,
-        val createdTime: LocalDateTime,        
+        @Serializable(with = LocalDateTimeSerializer::class) val scheduledTime: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class) val createdTime: LocalDateTime,        
         val firstComment: String? = null,
         val tags: List<String> = emptyList(),
         val status: PostStatus = PostStatus.DRAFT,        
@@ -49,6 +69,8 @@ enum class PostStatus {
     DRAFT,
     /** The post is scheduled for publication at a specific time. */
     SCHEDULED,
+    /** The post is being automatically scheduled for publication. */
+    AUTOSCHEDULED,
     /** The post has been successfully published to the target platform. */
     PUBLISHED,
     /** The post failed to publish. */
@@ -58,6 +80,7 @@ enum class PostStatus {
 }
 
 /** Enumerates the supported social networks for publishing. */
+@Serializable
 enum class SocialNetwork {
     LINKEDIN,
     TWITTER
