@@ -1,0 +1,17 @@
+dispatch:
+  # 1. Your custom domain
+  - url: "planner.catharsis.computer/*"
+    service: backend
+
+  # 2. Explicitly route all Cron jobs to the backend
+  - url: "*/internal/cron/*"
+    service: backend
+
+  # 3. (Optional) Allow direct access via the App Engine backend URL 
+  # Note: App Engine uses "-dot-" instead of a period for sub-services!
+  - url: "backend-dot-meta-gear-464720-g3.oa.r.appspot.com/*"
+    service: backend
+
+  # 4. The catch-all for everything else goes to default
+  - url: "*/*"
+    service: default

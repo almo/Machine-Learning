@@ -74,27 +74,27 @@ fun calculateOptimizedScheduleTime(
         val postsOnDate = futureAutoScheduledPosts.filter { it.toLocalDate() == currentDate }
         
         if (postsOnDate.size < dailyLimit) {
-            for (spot in spots) {
+            val availableSpots = spots.mapNotNull { spot ->
                 val spotStart = LocalDateTime.of(currentDate, spot.first)
                 val spotEnd = LocalDateTime.of(currentDate, spot.second)
                 
                 // Skip if spot is already completely in the past
-                if (!spotEnd.isAfter(now)) continue
-                
-                // Enforce sequential scheduling: the spot must end after the latest scheduled post
-                if (!spotEnd.isAfter(lastPostTime)) continue
+                if (!spotEnd.isAfter(now)) return@mapNotNull null
                 
                 // Check if the spot is already occupied by any existing auto-scheduled post
                 val isOccupied = postsOnDate.any { it >= spotStart && it <= spotEnd }
                 
-                if (!isOccupied) {
-                    // Sweet spot found! Calculate an effective start in case we are currently inside it.
-                    val effectiveStart = if (spotStart.isBefore(now)) now else spotStart
-                    val secondsBetween = ChronoUnit.SECONDS.between(effectiveStart, spotEnd)
-                    
-                    val randomSeconds = if (secondsBetween > 0) (0..secondsBetween).random() else 0L
-                    return effectiveStart.plusSeconds(randomSeconds)
-                }
+                if (!isOccupied) (spotStart to spotEnd) else null
+            }
+
+            if (availableSpots.isNotEmpty()) {
+                val (spotStart, spotEnd) = availableSpots.random()
+                // Sweet spot found! Calculate an effective start in case we are currently inside it.
+                val effectiveStart = if (spotStart.isBefore(now)) now else spotStart
+                val secondsBetween = ChronoUnit.SECONDS.between(effectiveStart, spotEnd)
+                
+                val randomSeconds = if (secondsBetween > 0) (0..secondsBetween).random() else 0L
+                return effectiveStart.plusSeconds(randomSeconds)
             }
         }
         

@@ -42,16 +42,23 @@ fun Application.configureNewsRouting() {
             if (!isCron && call.request.headers["Host"]?.contains("localhost") != true) {
                 call.application.log.warn("Unauthorized attempt to trigger cron sync")
                 call.respond(
-                        HttpStatusCode.Forbidden,
-                        "Only App Engine Cron can access this endpoint"
+                    HttpStatusCode.Forbidden,
+                    "Only App Engine Cron can access this endpoint"
                 )
                 return@get
             }
 
-            // Run without blocking the HTTP response
-            publishingScope.launch { syncNewsForAllSources(call.application) }
+            call.application.log.info("Cron job started: Syncing global news feeds...")
 
-            call.respond(HttpStatusCode.Accepted, "Global RSS News sync started")
+            try {
+                publishingScope.launch { syncNewsForAllSources(call.application) }
+                call.respond(HttpStatusCode.Accepted, mapOf("status" to "RSS News sync started"))
+                
+            } catch (e: Exception) {
+                // It's good practice to catch fatal errors so the Cron engine records a failure
+                call.application.log.error("Cron job failed during global news sync", e)
+                call.respond(HttpStatusCode.InternalServerError, "Global RSS News sync failed")
+            }
         }
 
         authenticate("firebase-auth") {
@@ -79,8 +86,8 @@ fun Application.configureNewsRouting() {
                         val imageUrl = try {
                             // Check if the URL from the DB matches one of the values in your map
                             if (defaultCategoryImages.containsValue(rawUrl)) {
-                              // If you implemented the cache service, call cacheService.getValidSignedUrl(rawUrl) here instead!
-                              ImageUrlSignerService.generateSignedImageUrl(rawUrl) 
+                                // If you implemented the cache service, call cacheService.getValidSignedUrl(rawUrl) here instead!
+                                ImageUrlSignerService.generateSignedImageUrl(rawUrl) 
                             } else {
                                 // It's not a default Google Cloud Storage image (maybe an external link), 
                                 // so just return it as-is.
@@ -90,7 +97,7 @@ fun Application.configureNewsRouting() {
                             // If signing fails, fallback to the raw URL
                             call.application.log.error("Error signing image URL: $e")
                             rawUrl 
-                         }
+                        }
 
                         newsList.add(
                             NewsItem(
@@ -116,16 +123,14 @@ fun Application.configureNewsRouting() {
             }
 
             post("/api/news/sync") {
-                val user =
-                        call.principal<User>()
-                                ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                val user = call.principal<User>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
                 // Run without blocking the HTTP response
                 publishingScope.launch { syncNewsForUser(user.userId, call.application) }
 
                 call.respond(
-                        HttpStatusCode.Accepted,
-                        mapOf("status" to "RSS News sync started for user ${user.userId}")
+                    HttpStatusCode.Accepted,
+                    mapOf("status" to "RSS News sync started for user ${user.userId}")
                 )
             }
         }
@@ -141,35 +146,34 @@ suspend fun syncNewsForAllSources(application: Application) {
             val query = Query.newEntityQueryBuilder().setKind(RSSFeedSourceKIND).build()
             val sources = datastore.run(query)
 
-            val sourceEntities = mutableListOf<Entity>()
-            while (sources.hasNext()) {
-                sourceEntities.add(sources.next())
+            // 1. Give the channel a reasonable capacity (e.g., 100) instead of UNLIMITED
+            val sourceChannel = Channel<Entity>(capacity = 100)
+
+            // 2. Launch a "Producer" coroutine to feed the channel directly from the DB
+            // This replaces the dangerous mutableListOf
+            launch {
+                var count = 0
+                while (sources.hasNext()) {
+                    sourceChannel.send(sources.next()) 
+                    count++
+                }
+                application.log.info("Cron: Found and queued $count sources to sync")
+                sourceChannel.close() 
             }
 
-            application.log.info("Cron: Found ${sourceEntities.size} sources to sync")
-            if (sourceEntities.isNotEmpty()) {
-
-                // Create a channel to act as a work queue
-                val sourceChannel = Channel<Entity>(Channel.UNLIMITED)
-                sourceEntities.forEach { sourceChannel.trySend(it) }
-                sourceChannel.close()
-
-                // Launch a pool of exactly 20 worker coroutines
-                val workers =
-                        List(20) {
-                            launch {
-                                for (source in sourceChannel) {
-                                    processSourceAndSaveNews(
-                                            datastore,
-                                            source,
-                                            application
-                                    )
-                                }
-                            }
-                        }
-                workers.joinAll()
+            // 3. Launch the 20 "Consumer" workers
+            val workers = List(20) {
+                launch {
+                    for (source in sourceChannel) {
+                        processSourceAndSaveNews(datastore, source, application)
+                    }
+                }
             }
+            
+            workers.joinAll()
+            
             deleteOldRSSNews(datastore, application)
+
         } catch (e: Exception) {
             application.log.error("Error during global news sync", e)
         }
@@ -182,11 +186,10 @@ suspend fun syncNewsForUser(userId: String, application: Application) {
             val datastore = DatastoreOptions.getDefaultInstance().service
 
             // Filter sources only strictly for the triggered user
-            val query =
-                    Query.newEntityQueryBuilder()
-                            .setKind(RSSFeedSourceKIND)
-                            .setFilter(StructuredQuery.PropertyFilter.eq("userId", userId))
-                            .build()
+            val query = Query.newEntityQueryBuilder()
+                .setKind(RSSFeedSourceKIND)
+                .setFilter(StructuredQuery.PropertyFilter.eq("userId", userId))
+                .build()
 
             val sources = datastore.run(query)
             val sourceEntities = mutableListOf<Entity>()
@@ -202,18 +205,13 @@ suspend fun syncNewsForUser(userId: String, application: Application) {
                 sourceChannel.close()
 
                 // Launch a pool of exactly 20 worker coroutines
-                val workers =
-                        List(20) {
-                            launch {
-                                for (source in sourceChannel) {
-                                    processSourceAndSaveNews(
-                                            datastore,
-                                            source,
-                                            application
-                                    )
-                                }
-                            }
+                val workers = List(20) {
+                    launch {
+                        for (source in sourceChannel) {
+                            processSourceAndSaveNews(datastore, source, application)
                         }
+                    }
+                }
                 workers.joinAll()
             }
 
@@ -228,8 +226,7 @@ suspend fun syncNewsForUser(userId: String, application: Application) {
 // Define your client with a default User-Agent
 private val httpClient = HttpClient {
     install(io.ktor.client.plugins.UserAgent) {
-        agent =
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+        agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
 
     install(ContentEncoding) {
@@ -245,9 +242,9 @@ private val httpClient = HttpClient {
 }
 
 private suspend fun processSourceAndSaveNews(
-        datastore: Datastore,
-        source: Entity,
-        application: Application
+    datastore: Datastore,
+    source: Entity,
+    application: Application
 ) {
 
     val sourceId = source.key.nameOrId.toString()
@@ -318,14 +315,14 @@ private suspend fun processSourceAndSaveNews(
     
                 // Strip HTML tags using Regex and remove excessive whitespace
                 val noHtmlDescription = rawDescription
-                .replace(Regex("<[^>]*>"), "") // Removes <p>, <a>, <img>, etc.
-                .replace(Regex("\\s+"), " ")   // Condenses multiple spaces/newlines into one
-                .trim()
+                    .replace(Regex("<[^>]*>"), "") // Removes <p>, <a>, <img>, etc.
+                    .replace(Regex("\\s+"), " ")   // Condenses multiple spaces/newlines into one
+                    .trim()
         
                 // Truncate to 250 characters, adding an ellipsis if it's longer
                 val finalSummary = if (noHtmlDescription.length > 250) {
                     noHtmlDescription.take(247) + "..."
-                   } else {
+                } else {
                     noHtmlDescription
                 }
                 
@@ -371,11 +368,11 @@ private suspend fun processSourceAndSaveNews(
 }
 
 private fun createArticleEntity(
-        datastore: Datastore,
-        sourceId: String,
-        userId: String,
-        article: ParsedArticle,
-        defaultTags: List<String>
+    datastore: Datastore,
+    sourceId: String,
+    userId: String,
+    article: ParsedArticle,
+    defaultTags: List<String>
 ): Entity {
     // Create new RSSNews entity mapped with defaults
     val urlHash = article.url.toSha256()
@@ -386,17 +383,16 @@ private fun createArticleEntity(
         article.publishedAt.nano
     )
 
-    val entityBuilder =
-            Entity.newBuilder(key)
-                    .set("sourceId", sourceId)
-                    .set("userId", userId)
-                    .set("title", article.title)
-                    .set("url", article.url)
-                    .set("imageUrl", article.imageUrl)
-                    .set("summary", article.summary)
-                    .set("publishedAt", timestamp)
-                    .set("read", false)
-                    .set("comments", article.articleTags.joinToString(", "))
+    val entityBuilder = Entity.newBuilder(key)
+        .set("sourceId", sourceId)
+        .set("userId", userId)
+        .set("title", article.title)
+        .set("url", article.url)
+        .set("imageUrl", article.imageUrl)
+        .set("summary", article.summary)
+        .set("publishedAt", timestamp)
+        .set("read", false)
+        .set("comments", article.articleTags.joinToString(", "))
 
     // Map tags array to a Datastore ListValue
     val tagsListValue = ListValue.newBuilder()
