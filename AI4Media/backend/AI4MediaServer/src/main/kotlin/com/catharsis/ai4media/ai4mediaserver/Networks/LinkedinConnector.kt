@@ -22,15 +22,13 @@ object LinkedinConnector {
 
     private const val ORGANIZATION_URN = "urn:li:organization:77043213"
     private const val USER_URN = "urn:li:person:RtKv3HcbdP"
-    private const val MOCK_IMAGE_URL =
-            "https://storage.googleapis.com/social_media_engine/images/0010.jpg"
-    private val MOCK_MENTIONS = listOf("urn:li:person:mock1", "urn:li:person:mock2")
 
     suspend fun publishToOrganizationTimeline(
             userId: String,
             textContent: String,
             urlContent: String?,
-            tags: List<String>
+            tags: List<String>,
+            imageUrl: String? = null
     ): String {
         logger.info("Attempting to publish to LinkedIn Organization timeline for user: {}", userId)
 
@@ -49,7 +47,11 @@ object LinkedinConnector {
         val combinedText = buildString {
             append(textContent)
             
-            append("\n\n🔗 Full link in the first comment below 👇")
+            if (!imageUrl.isNullOrBlank() && !urlContent.isNullOrBlank()) {
+                append("\n\n🔗 Full link in the first comment below 👇")
+            } else if (imageUrl.isNullOrBlank() && !urlContent.isNullOrBlank()) {
+                append("\n\n$urlContent")
+            }
 
             if (tags.isNotEmpty()) {
                 append("\n\n")
@@ -57,14 +59,16 @@ object LinkedinConnector {
             }
         }
 
-        logger.info("Downloading image from bucket: {}", MOCK_IMAGE_URL)
-        val imageResponse = httpClient.get(MOCK_IMAGE_URL)
-        if (!imageResponse.status.isSuccess()) {
-            throw Exception("Failed to download image from bucket: ${imageResponse.status}")
+        var assetUrn: String? = null
+        if (!imageUrl.isNullOrBlank()) {
+            logger.info("Downloading image from url: {}", imageUrl)
+            val imageResponse = httpClient.get(imageUrl)
+            if (!imageResponse.status.isSuccess()) {
+                throw Exception("Failed to download image from url: ${imageResponse.status}")
+            }
+            val imageBytes = imageResponse.body<ByteArray>()
+            assetUrn = uploadImage(token, ORGANIZATION_URN, imageBytes)
         }
-        val imageBytes = imageResponse.body<ByteArray>()
-
-        val assetUrn = uploadImage(token, ORGANIZATION_URN, imageBytes)
 
         val requestBody = buildJsonObject {
             put("author", ORGANIZATION_URN)
@@ -72,12 +76,24 @@ object LinkedinConnector {
             putJsonObject("specificContent") {
                 putJsonObject("com.linkedin.ugc.ShareContent") {
                     putJsonObject("shareCommentary") { put("text", combinedText) }
-                    put("shareMediaCategory", "IMAGE")
-                    putJsonArray("media") {
-                        addJsonObject {
-                            put("status", "READY")
-                            put("media", assetUrn)
+                    if (!imageUrl.isNullOrBlank() && assetUrn != null) {
+                        put("shareMediaCategory", "IMAGE")
+                        putJsonArray("media") {
+                            addJsonObject {
+                                put("status", "READY")
+                                put("media", assetUrn)
+                            }
                         }
+                    } else if (!urlContent.isNullOrBlank()) {
+                        put("shareMediaCategory", "ARTICLE")
+                        putJsonArray("media") {
+                            addJsonObject {
+                                put("status", "READY")
+                                put("originalUrl", urlContent)
+                            }
+                        }
+                    } else {
+                        put("shareMediaCategory", "NONE")
                     }
                 }
             }
@@ -108,7 +124,7 @@ object LinkedinConnector {
             throw Exception("No se pudo obtener el URN de la publicación de organización")
         }
 
-        if (!urlContent.isNullOrBlank()) {
+        if (!imageUrl.isNullOrBlank() && !urlContent.isNullOrBlank()) {
             val commentBody = buildJsonObject {
                 put("actor", ORGANIZATION_URN)
                 put("object", postId)
