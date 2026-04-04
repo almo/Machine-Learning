@@ -3,8 +3,6 @@ function app() {
         lang: 'en', // Default language
         currentView: 'login', // Views: login, rss, compose, scheduled, stats
         isSidebarOpen: true,
-        isGenerating: false,
-        contentGenerated: false,
         expandedCategories: [],
         isSyncingNews: false,
         
@@ -389,12 +387,16 @@ function app() {
 
         // Editor/composer state
         composeMode: 'ai', // 'ai' or 'manual'
-        composeData: {
+        aiGenerator: {
             url: '',
-            linkedin: '',
-            twitter: '',
-            bump1: '',
-            bump2: ''
+            isGenerating: false,
+            isScheduling: false,
+            step: 'input', // 'input', 'review', 'success'
+            content: {
+                linkedinCompany: '',
+                twitter: '',
+                linkedinBump: ''
+            }
         },
 
         // Manual composition state
@@ -404,7 +406,7 @@ function app() {
             tags: '',
             linkedin: true,
             twitter: true,
-            scheduleType: 'now', // 'now', 'random', or 'specific'
+            scheduleType: 'random', // 'now', 'random', or 'specific'
             specificTime: ''
         },
 
@@ -621,14 +623,16 @@ function app() {
             if(window.firebaseSignOut) window.firebaseSignOut();
             
             // Reset state
-            this.contentGenerated = false;
-            this.composeData = { url: '', linkedin: '', twitter: '', bump1: '', bump2: '' };
+            this.aiGenerator = { url: '', isGenerating: false, isScheduling: false, step: 'input', content: { linkedinCompany: '', twitter: '', linkedinBump: '' } };
         },
 
         curateWithAI(article) {
             this.composeMode = 'ai';
-            this.composeData.url = article.url;
-            this.contentGenerated = false; // Reset editor state
+            this.aiGenerator.url = article.url;
+            this.aiGenerator.step = 'input';
+            this.aiGenerator.isGenerating = false;
+            this.aiGenerator.isScheduling = false;
+            this.aiGenerator.content = { linkedinCompany: '', twitter: '', linkedinBump: '' };
             this.currentView = 'compose';
             
             // Auto-mark as read when curated
@@ -648,35 +652,57 @@ function app() {
             if (news) news.read = true;
         },
 
-        generateContent() {
-            if (!this.composeData.url) return;
+        async generateAiContent() {
+            if (!this.aiGenerator.url) return;
+            this.aiGenerator.isGenerating = true;
             
-            this.isGenerating = true;
-            this.contentGenerated = false;
-            
-            // Simulate backend call (Ktor)
-            setTimeout(() => {
-                this.composeData.linkedin = `He estado leyendo este artículo muy interesante sobre ${this.composeData.url.split('/').pop().replace(/-/g, ' ')}. \n\nCreo que el impacto en nuestra industria va a ser significativo durante este año. ¿Qué opináis vosotros? \n\nDejo el enlace en los comentarios. 👇\n\n#Innovacion #Tecnologia #Tendencias`;
+            try {
+                const response = await fetch('/api/ai/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: this.aiGenerator.url })
+                });
+                if (!response.ok) throw new Error('Backend not available');
                 
-                this.composeData.twitter = `Nuevo artículo interesante detectado 🚨\n\nExplican a fondo los cambios en la industria y me ha parecido muy acertado. Hilo corto 🧵👇\n\n${this.composeData.url}\n#TechNews`;
+                const data = await response.json();
+                this.aiGenerator.content = { ...data };
+            } catch (error) {
+                console.warn('Backend unavailable, utilizing mock data for UI testing.', error);
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
                 
-                this.composeData.bump1 = `(Continuación) Lo que más me ha llamado la atención es la parte donde hablan de optimización de recursos. Totalmente aplicable a nuestros proyectos actuales.`;
-                
-                this.composeData.bump2 = `En caso de que os lo perdierais ayer, sigo pensando que este artículo es una lectura obligatoria para esta semana. ¡Buen inicio de día! ☕️ \n${this.composeData.url}`;
-                
-                this.isGenerating = false;
-                this.contentGenerated = true;
-            }, 1500); // 1.5s loading simulation
+                this.aiGenerator.content.linkedinCompany = `🚀 Exciting news in the tech space! We're thrilled to share this latest breakdown on industry trends.\n\nDiscover how this impacts future innovations and what it means for your business moving forward.\n\nRead the full breakdown here: ${this.aiGenerator.url}\n\n#TechTrends #Innovation #BusinessGrowth #FutureOfTech`;
+                this.aiGenerator.content.twitter = `Big shifts happening! 🚨 \n\nJust read this insightful article on where the industry is heading next. A must-read for anyone in the space.\n\nCheck it out 👇\n${this.aiGenerator.url}\n\n#TechNews #Innovation`;
+                this.aiGenerator.content.linkedinBump = `In case you missed this earlier today – the insights on resource optimization are spot on. Highly recommend giving it a quick read! Thoughts? 🤔👇`;
+            } finally {
+                this.aiGenerator.isGenerating = false;
+                this.aiGenerator.step = 'review';
+            }
         },
 
-        schedulePosts() {
-            alert(this.t('alerts.success'));
-            
-            // Clear and redirect
-            this.composeData = { url: '', linkedin: '', twitter: '', bump1: '', bump2: '' };
-            this.contentGenerated = false;
-            this.currentView = 'scheduled';
-            this.loadScheduledPosts();
+        async scheduleAiPosts() {
+            this.aiGenerator.isScheduling = true;
+            try {
+                const response = await fetch('/api/posts/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: this.aiGenerator.url, content: this.aiGenerator.content })
+                });
+                if (!response.ok) throw new Error('Backend not available');
+            } catch (error) {
+                console.warn('Backend unavailable, simulating successful scheduling delay.', error);
+                await new Promise(resolve => setTimeout(resolve, 1200)); // Simulate Scheduling Delay
+            } finally {
+                this.aiGenerator.isScheduling = false;
+                this.aiGenerator.step = 'success';
+            }
+        },
+
+        discardAi() {
+            this.aiGenerator.url = '';
+            this.aiGenerator.isGenerating = false;
+            this.aiGenerator.isScheduling = false;
+            this.aiGenerator.content = { linkedinCompany: '', twitter: '', linkedinBump: '' };
+            this.aiGenerator.step = 'input';
         },
 
         async submitManualPost() {

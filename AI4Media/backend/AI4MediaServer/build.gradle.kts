@@ -35,7 +35,7 @@ configure<AppEngineAppYamlExtension> {
     }
 
     deploy {       
-        version = "alpha002"
+        version = "beta002"
         projectId = "meta-gear-464720-g3"
     }
 }

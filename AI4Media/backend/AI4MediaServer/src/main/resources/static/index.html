@@ -229,49 +229,9 @@
                         </div>
 
                         <!-- Right Panel: Master-Detail Layout -->
-                        <div class="w-full lg:w-3/4 flex flex-col gap-4 min-h-[500px]">
+                        <div class="w-full lg:w-3/4 flex flex-col min-h-[500px]">
                             
-                            <!-- Top Half: Preview Panel -->
-                            <div class="h-[280px] shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col overflow-y-auto relative">
-                                <template x-if="!selectedArticle">
-                                    <div class="m-auto flex flex-col items-center justify-center text-gray-400">
-                                        <i class="fa-regular fa-newspaper text-5xl mb-4 text-gray-200"></i>
-                                        <p class="font-medium text-lg">Select an article to preview</p>
-                                    </div>
-                                </template>
-                                <template x-if="selectedArticle">
-                                    <div class="flex flex-col h-full">
-                                        <div class="flex justify-between items-start gap-4 mb-3">
-                                            <h3 class="text-xl font-bold text-gray-900 leading-tight" x-text="selectedArticle.title"></h3>
-                                            <div class="flex items-center gap-2 shrink-0">
-                                                <a :href="selectedArticle.url" target="_blank" class="text-gray-500 hover:text-primary p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition tooltip" title="Read Original">
-                                                    <i class="fa-solid fa-external-link-alt"></i>
-                                                </a>
-                                                <button @click="curateWithAI(selectedArticle)" class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2 whitespace-nowrap">
-                                                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="t('rss.curate_ai')"></span>
-                                                </button>
-                                                <button @click="curateManual(selectedArticle)" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2 whitespace-nowrap">
-                                                    <i class="fa-solid fa-pen-nib"></i> <span x-text="t('rss.curate_manual')"></span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-3 text-xs text-gray-500 mb-4 font-medium border-b border-gray-100 pb-3">
-                                            <span class="bg-gray-100 px-2 py-1 rounded text-gray-700" x-text="getSourceName(selectedArticle.sourceId)"></span>
-                                            <span x-text="formatDate(selectedArticle.publishedAt)"></span>
-                                            <button @click="toggleRead(selectedArticle.id)" class="text-gray-400 hover:text-primary ml-auto transition flex items-center gap-1">
-                                                <i class="fa-solid" :class="selectedArticle.read ? 'fa-envelope-open' : 'fa-envelope'"></i>
-                                                <span x-text="selectedArticle.read ? t('rss.mark_unread') : t('rss.mark_read')"></span>
-                                            </button>
-                                        </div>
-                                        <div class="flex flex-col sm:flex-row gap-4 flex-1">
-                                            <img x-show="selectedArticle.imageUrl" :src="selectedArticle.imageUrl" class="w-full sm:w-48 h-32 object-cover rounded-lg border border-gray-100 shrink-0 shadow-sm" alt="Article Preview">
-                                            <p class="text-gray-700 text-sm leading-relaxed" x-text="selectedArticle.summary || selectedArticle.description || 'No description available.'"></p>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <!-- Bottom Half: News Table -->
+                            <!-- News Table -->
                             <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
                                 <!-- Filter Toggle & Current Filter Status -->
                                 <div class="flex justify-between items-end px-5 py-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
@@ -299,7 +259,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="overflow-y-auto flex-1 h-[300px]">
+                                <div class="overflow-y-auto flex-1 min-h-[500px]">
                                     <table class="w-full text-left border-collapse">
                                         <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm border-b border-gray-200">
                                             <tr class="text-xs text-gray-500 uppercase tracking-wider">
@@ -307,29 +267,47 @@
                                                 <th class="px-6 py-3 font-medium w-1/2">Title</th>
                                                 <th class="px-6 py-3 font-medium w-1/6">Date</th>
                                                 <th class="px-6 py-3 font-medium text-center w-1/12">Status</th>
+                                                <th class="px-4 py-3 font-medium text-center w-20"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="text-sm divide-y divide-gray-100">
                                             <template x-if="isLoadingNews">
-                                                <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading news...</td></tr>
+                                                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading news...</td></tr>
                                             </template>
                                             <template x-if="!isLoadingNews && newsError">
-                                                <tr><td colspan="4" class="px-6 py-12 text-center text-red-500" x-text="newsError"></td></tr>
+                                                <tr><td colspan="5" class="px-6 py-12 text-center text-red-500" x-text="newsError"></td></tr>
                                             </template>
                                             <template x-if="!isLoadingNews && !newsError && filteredNews.length === 0">
-                                                <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500 italic">No news found for this filter.</td></tr>
+                                                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-500 italic">No news found for this filter.</td></tr>
                                             </template>
                                             <template x-for="news in paginatedNews" :key="news.id">
                                                 <tr @click="selectedArticle = news" 
-                                                    class="cursor-pointer transition-colors"
+                                                    class="cursor-pointer transition-colors group"
                                                     :class="selectedArticle && selectedArticle.id === news.id ? 'bg-indigo-50/80 border-l-2 border-l-primary' : 'hover:bg-gray-50 border-l-2 border-l-transparent'">
                                                     <td class="px-6 py-3 font-medium text-gray-600 truncate max-w-[150px]" x-text="getSourceName(news.sourceId)"></td>
-                                                    <td class="px-6 py-3 font-medium text-gray-900 truncate max-w-[300px]" x-text="news.title"></td>
-                                                    <td class="px-6 py-3 text-gray-500 text-xs whitespace-nowrap" x-text="formatDate(news.publishedAt)"></td>
-                                                    <td class="px-6 py-3 text-center">
-                                                        <span x-show="!news.read" class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500" :title="t('rss.mark_read')"></span>
-                                                        <span x-show="news.read" class="inline-block w-2.5 h-2.5 rounded-full bg-gray-300" :title="t('rss.mark_unread')"></span>
+                                                    <td class="px-6 py-3 font-medium text-gray-900 max-w-[300px]">
+                                                        <div class="flex items-center justify-between gap-2">
+                                                            <span class="truncate" x-text="news.title"></span>
+                                                            <a :href="news.url" target="_blank" @click.stop class="text-gray-400 hover:text-primary transition-colors flex-shrink-0" :title="t('rss.read')">
+                                                                <i class="fa-solid fa-external-link-alt text-xs"></i>
+                                                            </a>
+                                                        </div>
                                                     </td>
+                                                    <td class="px-6 py-3 text-gray-500 text-xs whitespace-nowrap" x-text="formatDate(news.publishedAt)"></td>
+                                                <td class="px-6 py-3 text-center" @dblclick.stop="toggleRead(news.id)">
+                                                    <span x-show="!news.read" class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500 cursor-pointer hover:scale-150 transition-transform" :title="t('rss.mark_read')"></span>
+                                                    <span x-show="news.read" class="inline-block w-2.5 h-2.5 rounded-full bg-gray-300 cursor-pointer hover:scale-150 transition-transform" :title="t('rss.mark_unread')"></span>
+                                                    </td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button @click.stop="curateWithAI(news)" class="text-gray-400 hover:text-primary transition-colors p-1.5" :title="t('rss.curate_ai')">
+                                                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                                        </button>
+                                                        <button @click.stop="curateManual(news)" class="text-gray-400 hover:text-primary transition-colors p-1.5" :title="t('rss.curate_manual')">
+                                                            <i class="fa-solid fa-pen-nib"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
                                                 </tr>
                                             </template>
                                         </tbody>
@@ -376,7 +354,14 @@
                 
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.content_lbl')"></label>
+                                <div class="flex justify-between items-end mb-1">
+                                    <label class="block text-sm font-medium text-gray-700" x-text="t('compose.content_lbl')"></label>
+                                    <div class="text-xs transition-colors" 
+                                         :class="(manualPost.twitter && (manualPost.content.length + manualPost.url.length + manualPost.tags.length > 280)) ? 'text-red-500 font-bold' : 'text-gray-500 font-medium'">
+                                        <span x-text="(manualPost.content.length + manualPost.url.length + manualPost.tags.length)"></span>
+                                        <span x-text="manualPost.twitter ? '/280 chars' : ' chars'"></span>
+                                    </div>
+                                </div>
                                 <textarea x-model="manualPost.content" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm resize-none"></textarea>
                             </div>
                             
@@ -410,12 +395,12 @@
                                     <div class="flex flex-col gap-3">
                                         <div class="flex flex-wrap items-center gap-4">
                                             <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" value="now" x-model="manualPost.scheduleType" class="text-primary focus:ring-primary h-4 w-4">
-                                                <span class="text-sm font-medium text-gray-700" x-text="t('compose.now')"></span>
-                                            </label>
-                                            <label class="flex items-center gap-2 cursor-pointer">
                                                 <input type="radio" value="random" x-model="manualPost.scheduleType" class="text-primary focus:ring-primary h-4 w-4">
                                                 <span class="text-sm font-medium text-gray-700" x-text="t('compose.random')"></span>
+                                            </label>                                            
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" value="now" x-model="manualPost.scheduleType" class="text-primary focus:ring-primary h-4 w-4">
+                                                <span class="text-sm font-medium text-gray-700" x-text="t('compose.now')"></span>
                                             </label>
                                             <label class="flex items-center gap-2 cursor-pointer">
                                                 <input type="radio" value="specific" x-model="manualPost.scheduleType" class="text-primary focus:ring-primary h-4 w-4">
@@ -444,83 +429,119 @@
                             <p class="text-gray-500" x-text="t('compose.sub')"></p>
                         </div>
 
-                        <!-- URL Input and Generate Button -->
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 items-end">
-                            <div class="flex-1 w-full">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('compose.url')"></label>
-                                <input type="text" x-model="composeData.url" :placeholder="t('compose.placeholder')" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <!-- STATE 1 & 2: INPUT & GENERATING -->
+                            <div class="p-6 md:p-8" x-show="aiGenerator.step === 'input' || aiGenerator.step === 'review'" x-transition>
+                                <div class="flex flex-col md:flex-row gap-4 items-end">
+                                    <div class="flex-1 w-full">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">News URL (Source)</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fa-solid fa-link text-gray-400"></i>
+                                            </div>
+                                            <input type="url" x-model="aiGenerator.url" placeholder="https://example.com/industry-news" 
+                                                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-sm"
+                                                :disabled="aiGenerator.isGenerating || aiGenerator.step === 'review'">
+                                        </div>
+                                    </div>
+                                    <button @click="generateAiContent" :disabled="aiGenerator.isGenerating || !aiGenerator.url || aiGenerator.step === 'review'" 
+                                        class="w-full md:w-auto bg-gray-900 hover:bg-black text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <template x-if="!aiGenerator.isGenerating">
+                                            <span><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Posts</span>
+                                        </template>
+                                        <template x-if="aiGenerator.isGenerating">
+                                            <span><i class="fa-solid fa-circle-notch fa-spin"></i> Generating...</span>
+                                        </template>
+                                    </button>
+                                </div>
                             </div>
-                            <button @click="generateContent" :disabled="isGenerating || !composeData.url" class="bg-gray-900 hover:bg-black text-white px-6 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto">
-                                <template x-if="!isGenerating">
-                                    <span><i class="fa-solid fa-robot mr-1"></i> <span x-text="t('compose.gen')"></span></span>
-                                </template>
-                                <template x-if="isGenerating">
-                                    <span><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> <span x-text="t('compose.creating')"></span></span>
-                                </template>
-                            </button>
-                        </div>
 
-                        <!-- Editing Areas -->
-                        <div x-show="contentGenerated" x-transition class="space-y-6">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- STATE 3: REVIEW & EDIT -->
+                            <div class="border-t border-gray-100 bg-[#f9fafb] p-6 md:p-8" x-show="aiGenerator.step === 'review'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-cloak style="display: none;">
                                 
-                                <!-- LinkedIn -->
-                                <div class="bg-white rounded-xl shadow-sm border border-blue-200 overflow-hidden">
-                                    <div class="bg-blue-50/50 px-4 py-3 border-b border-blue-100 flex items-center justify-between">
-                                        <div class="flex items-center gap-2 text-linkedin font-bold">
-                                            <i class="fa-brands fa-linkedin text-lg"></i> <span x-text="t('compose.linkedin')"></span>
+                                <div class="space-y-6">
+                                    <!-- Textarea 1: LinkedIn Company Page -->
+                                    <div class="bg-white rounded-xl shadow-sm border border-blue-100 overflow-hidden focus-within:border-blue-300 focus-within:ring-1 focus-within:ring-blue-300 transition-all">
+                                        <div class="px-4 py-3 border-b border-blue-50 bg-blue-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fa-brands fa-linkedin text-linkedin text-lg"></i>
+                                                <span class="font-semibold text-gray-800 text-sm">LinkedIn Company Page Post</span>
+                                            </div>
+                                            <div class="flex items-center gap-3 self-start sm:self-auto">
+                                                <span class="text-xs text-gray-500 font-medium" x-text="aiGenerator.content.linkedinCompany.length + ' chars'"></span>
+                                                <span class="text-[11px] font-semibold text-blue-600 bg-blue-100/80 px-2.5 py-1 rounded-md">Optimized for structure/hashtags</span>
+                                            </div>
+                                        </div>
+                                        <div class="p-0">
+                                            <textarea x-model="aiGenerator.content.linkedinCompany" rows="6" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed"></textarea>
                                         </div>
                                     </div>
-                                    <div class="p-4">
-                                        <textarea x-model="composeData.linkedin" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-linkedin focus:border-linkedin outline-none resize-none text-sm"></textarea>
+
+                                    <!-- Textarea 2: X (Twitter) Post -->
+                                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden focus-within:border-gray-300 focus-within:ring-1 focus-within:ring-gray-300 transition-all">
+                                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fa-brands fa-x-twitter text-gray-900 text-lg"></i>
+                                                <span class="font-semibold text-gray-800 text-sm">X (Twitter) Post</span>
+                                            </div>
+                                            <div class="flex items-center gap-3 self-start sm:self-auto">
+                                                <span class="text-xs font-medium" :class="aiGenerator.content.twitter.length > 280 ? 'text-red-500' : 'text-gray-500'" x-text="aiGenerator.content.twitter.length + '/280 chars'"></span>
+                                                <span class="text-[11px] font-semibold text-gray-600 bg-gray-200/60 px-2.5 py-1 rounded-md">Optimized for length/hashtags</span>
+                                            </div>
+                                        </div>
+                                        <div class="p-0">
+                                            <textarea x-model="aiGenerator.content.twitter" rows="4" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Textarea 3: LinkedIn Personal Bump -->
+                                    <div class="bg-white rounded-xl shadow-sm border border-indigo-100 overflow-hidden focus-within:border-indigo-300 focus-within:ring-1 focus-within:ring-indigo-300 transition-all">
+                                        <div class="px-4 py-3 border-b border-indigo-50 bg-indigo-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fa-solid fa-reply text-primary"></i>
+                                                <span class="font-semibold text-gray-800 text-sm">LinkedIn Personal Bump</span>
+                                            </div>
+                                            <div class="flex items-center gap-3 self-start sm:self-auto">
+                                                <span class="text-xs text-gray-500 font-medium" x-text="aiGenerator.content.linkedinBump.length + ' chars'"></span>
+                                                <span class="text-[11px] font-semibold text-indigo-600 bg-indigo-100/80 px-2.5 py-1 rounded-md">Scheduled 3-4 hours later</span>
+                                            </div>
+                                        </div>
+                                        <div class="p-0">
+                                            <textarea x-model="aiGenerator.content.linkedinBump" rows="3" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed"></textarea>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Twitter -->
-                                <div class="bg-white rounded-xl shadow-sm border border-sky-200 overflow-hidden">
-                                    <div class="bg-sky-50/50 px-4 py-3 border-b border-sky-100 flex items-center justify-between">
-                                        <div class="flex items-center gap-2 text-twitter font-bold">
-                                            <i class="fa-brands fa-twitter text-lg"></i> <span x-text="t('compose.twitter')"></span>
-                                        </div>
-                                    </div>
-                                    <div class="p-4">
-                                        <textarea x-model="composeData.twitter" rows="5" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-twitter focus:border-twitter outline-none resize-none text-sm"></textarea>
-                                    </div>
-                                </div>
-
-                                <!-- Bump 1 (3-4 hours) -->
-                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
-                                        <div class="flex items-center gap-2 text-gray-700 font-bold">
-                                            <i class="fa-solid fa-reply text-gray-400"></i> <span x-text="t('compose.bump1')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump1_sub')"></span>
-                                        </div>
-                                    </div>
-                                    <div class="p-4">
-                                        <textarea x-model="composeData.bump1" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
-                                    </div>
-                                </div>
-
-                                <!-- Bump 2 (Next day) -->
-                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center">
-                                        <div class="flex items-center gap-2 text-gray-700 font-bold">
-                                            <i class="fa-solid fa-reply-all text-gray-400"></i> <span x-text="t('compose.bump2')"></span> <span class="text-xs font-normal text-gray-500" x-text="t('compose.bump2_sub')"></span>
-                                        </div>
-                                    </div>
-                                    <div class="p-4">
-                                        <textarea x-model="composeData.bump2" rows="3" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none resize-none text-sm text-gray-600"></textarea>
+                                <!-- ACTION BUTTONS -->
+                                <div class="mt-8 flex flex-col-reverse sm:flex-row items-center justify-between pt-6 border-t border-gray-200 gap-4">
+                                    <button @click="discardAi" class="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2">
+                                        <i class="fa-regular fa-trash-can"></i> Discard
+                                    </button>
+                                    <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+                                        <button @click="generateAiContent" :disabled="aiGenerator.isGenerating" class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-rotate-right"></i> Regenerate
+                                        </button>
+                                        <button @click="scheduleAiPosts" :disabled="aiGenerator.isScheduling" class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white bg-primary hover:bg-indigo-700 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                            <template x-if="!aiGenerator.isScheduling">
+                                                <span><i class="fa-solid fa-paper-plane"></i> Accept & Schedule</span>
+                                            </template>
+                                            <template x-if="aiGenerator.isScheduling">
+                                                <span><i class="fa-solid fa-circle-notch fa-spin"></i> Scheduling...</span>
+                                            </template>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Final Scheduling Panel -->
-                            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div>
-                                    <h4 class="font-bold text-indigo-900" x-text="t('compose.send_cfg')"></h4>
-                                    <p class="text-sm text-indigo-700" x-text="t('compose.send_sub')"></p>
+                            <!-- STATE 4: SUCCESS -->
+                            <div class="p-12 text-center" x-show="aiGenerator.step === 'success'" x-transition x-cloak style="display: none;">
+                                <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-5 shadow-sm">
+                                    <i class="fa-solid fa-check text-2xl"></i>
                                 </div>
-                                <button @click="schedulePosts" class="bg-primary hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg w-full md:w-auto flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-paper-plane"></i> <span x-text="t('compose.schedule_btn')"></span>
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2">Successfully Scheduled!</h2>
+                                <p class="text-gray-500 mb-8 max-w-md mx-auto">Your social media posts have been securely added to the queue and will be published at their designated times.</p>
+                                <button @click="discardAi" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm">
+                                    Create Another Post
                                 </button>
                             </div>
                         </div>
