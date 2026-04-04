@@ -28,38 +28,40 @@ function app() {
         i18n: {
             en: {
                 login: { title: "AI4Media Platform", sub: "Sign in to access your workspace", google_btn: "Sign in with Google" },
-                nav: { rss: "News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", settings: "Settings", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                nav: { rss: "News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", reading_list: "Reading List", settings: "Settings", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
                 rss: { 
                     title: "News", add: "Add Source", cat: "Categories", 
                     categories: { technology: "Technology", marketing: "Marketing", development: "Development" },
-                    read: "Read original", curate_ai: "AI Generate", curate_manual: "Manual Post", time_ago: "ago", hours: "hours", 
+                    read: "Read original", curate_ai: "AI Generate", curate_manual: "Manual Post", save_reading_list: "Save for later", time_ago: "ago", hours: "hours", 
                     show_read: "Show read", hide_read: "Hide read", mark_read: "Mark as read", mark_unread: "Mark as unread", read_badge: "Read",
                     no_sources: "No sources added.", edit_source: "Edit Source", source_name: "Source Name", source_url: "RSS URL", source_category: "Category", source_tags: "Tags (e.g. #AI #Tech)", cancel: "Cancel", save: "Save",
                     all_news: "All News", add_cat: "Add Category", cat_name: "Category Name", mark_all_read: "Mark all as read", filter_by: "Filtering by:",
                     showing: "Showing", to: "to", of: "of", entries: "entries", prev: "Prev", next: "Next", show: "Show:"
                 },
+                reading_list: { title: "Reading List", sub: "Save articles to read or process later.", add: "Add Link", empty: "Your reading list is empty.", edit: "Edit Link", url: "URL", title_label: "Title", comments: "Comments", date: "Date", cancel: "Cancel", save: "Save" },
                 compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
                 sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts found.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:", filters: "Filters", network: "Network", tags_regex: "Tags (Regex)", date: "Date", all_networks: "All Networks", table_network: "Net", table_content: "Content", table_tags: "Tags", table_source: "Source", table_date: "Scheduled For", table_status: "Status", original_url: "Original URL" },
                 stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month", published_list: "Published Posts Log", table_post: "Post Link", empty: "No published posts found." },
-                alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync." },
+                alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync.", saved_reading_list: "Added to reading list!", delete_reading_list: "Remove from reading list?" },
                 settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login.", news_sync: "News Sync", sync_now: "Sync Now", syncing: "Syncing...", sources_manage: "Manage Sources & Synchronization", sources_manage_sub: "Add, edit, remove, and sync your RSS feeds.", actions: "Actions", expand_all: "Expand All", collapse_all: "Collapse All", unread: "Unread", sources_count: "Sources", last_sync: "Last Sync", success: "Success", sync_error: "Error", never: "Never" }
             },
             es: {
                 login: { title: "Plataforma AI4Media", sub: "Inicia sesión para acceder a tu espacio", google_btn: "Iniciar sesión con Google" },
-                nav: { rss: "Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", settings: "Configuración", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                nav: { rss: "Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", reading_list: "Lista de Lectura", settings: "Configuración", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
                 rss: { 
                     title: "Noticias", add: "Añadir Fuente", cat: "Categorías", 
                     categories: { technology: "Tecnología", marketing: "Marketing", development: "Desarrollo" },
-                    read: "Leer original", curate_ai: "Generar con IA", curate_manual: "Post Manual", time_ago: "Hace", hours: "horas", 
+                    read: "Leer original", curate_ai: "Generar con IA", curate_manual: "Post Manual", save_reading_list: "Guardar para después", time_ago: "Hace", hours: "horas", 
                     show_read: "Mostrar leídos", hide_read: "Ocultar leídos", mark_read: "Marcar como leído", mark_unread: "Marcar como no leído", read_badge: "Leído",
                     no_sources: "No hay fuentes.", edit_source: "Editar Fuente", source_name: "Nombre de la Fuente", source_url: "URL del RSS", source_category: "Categoría", source_tags: "Etiquetas (ej. #IA #Tech)", cancel: "Cancelar", save: "Guardar",
                     all_news: "Todas las Noticias", add_cat: "Añadir Categoría", cat_name: "Nombre de la Categoría", mark_all_read: "Marcar todo como leído", filter_by: "Filtrando por:",
                     showing: "Mostrando", to: "a", of: "de", entries: "entradas", prev: "Ant", next: "Sig", show: "Mostrar:"
                 },
+                reading_list: { title: "Lista de Lectura", sub: "Guarda artículos para leer o procesar más tarde.", add: "Añadir Enlace", empty: "Tu lista de lectura está vacía.", edit: "Editar Enlace", url: "URL", title_label: "Título", comments: "Comentarios", date: "Fecha", cancel: "Cancelar", save: "Guardar" },
                 compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
                 sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:", filters: "Filtros", network: "Red", tags_regex: "Etiquetas (Regex)", date: "Fecha", all_networks: "Todas las Redes", table_network: "Red", table_content: "Contenido", table_tags: "Etiquetas", table_source: "Origen", table_date: "Programado Para", table_status: "Estado", original_url: "URL Original" },
                 stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior", published_list: "Registro de Publicaciones", table_post: "Enlace del Post", empty: "No se encontraron posts publicados." },
-                alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias." },
+                alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias.", saved_reading_list: "¡Añadido a la lista de lectura!", delete_reading_list: "¿Eliminar de la lista de lectura?" },
                 settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth.", news_sync: "Sincronizar Noticias", sync_now: "Sincronizar Ahora", syncing: "Sincronizando...", sources_manage: "Gestionar Fuentes y Sincronización", sources_manage_sub: "Añade, edita, elimina y sincroniza tus feeds RSS.", actions: "Acciones", expand_all: "Expandir Todo", collapse_all: "Contraer Todo", unread: "No leídos", sources_count: "Fuentes", last_sync: "Última Sincronización", success: "Éxito", sync_error: "Error", never: "Nunca" }
             }
         },
@@ -410,6 +412,14 @@ function app() {
             specificTime: ''
         },
 
+        // Reading List State
+        readingList: [],
+        isLoadingReadingList: false,
+        readingListCurrentPage: 1,
+        readingListItemsPerPage: 20,
+        isReadingListModalOpen: false,
+        readingListForm: { id: null, title: '', url: '', comments: '', newsDate: '' },
+
         // Scheduled posts state
         scheduledList: [],
         isLoadingScheduled: false,
@@ -501,6 +511,89 @@ function app() {
         },
         get publishedTotalPages() {
             return Math.max(1, Math.ceil(this.publishedList.length / this.publishedItemsPerPage));
+        },
+
+        // Reading List Data
+        async loadReadingList() {
+            this.isLoadingReadingList = true;
+            try {
+                const data = await this.apiCall('/api/reading-list');
+                this.readingList = Array.isArray(data) ? data : [];
+                this.readingListCurrentPage = 1;
+            } catch (e) {
+                console.error("Failed to load reading list", e);
+                this.readingList = [];
+            } finally {
+                this.isLoadingReadingList = false;
+            }
+        },
+
+        async saveToReadingList(newsItem = null) {
+            try {
+                if (newsItem) {
+                    // Quick save directly from the News feed
+                    const payload = {
+                        title: newsItem.title,
+                        url: newsItem.url,
+                        comments: newsItem.summary || '',
+                        newsDate: new Date(newsItem.publishedAt * 1000).toISOString()
+                    };
+                    await this.apiCall('/api/reading-list', 'POST', payload);
+                    alert(this.t('alerts.saved_reading_list'));
+                } else {
+                    // Save from the Modal
+                    const payload = {
+                        title: this.readingListForm.title,
+                        url: this.readingListForm.url,
+                        comments: this.readingListForm.comments,
+                        newsDate: this.readingListForm.newsDate ? new Date(this.readingListForm.newsDate).toISOString() : null
+                    };
+                    if (this.readingListForm.id) {
+                        await this.apiCall(`/api/reading-list/${this.readingListForm.id}`, 'PUT', payload);
+                    } else {
+                        await this.apiCall('/api/reading-list', 'POST', payload);
+                    }
+                    this.isReadingListModalOpen = false;
+                    this.loadReadingList();
+                }
+            } catch (e) {
+                console.error("Failed to save to reading list", e);
+            }
+        },
+
+        openReadingListModal(item = null) {
+            if (item) {
+                this.readingListForm = {
+                    id: item.id,
+                    title: item.title,
+                    url: item.url,
+                    comments: item.comments || '',
+                    newsDate: item.newsDate ? new Date(item.newsDate).toISOString().slice(0, 16) : ''
+                };
+            } else {
+                this.readingListForm = { id: null, title: '', url: '', comments: '', newsDate: '' };
+            }
+            this.isReadingListModalOpen = true;
+        },
+
+        async deleteFromReadingList(id) {
+            if (confirm(this.t('alerts.delete_reading_list'))) {
+                try {
+                    await this.apiCall(`/api/reading-list/${id}`, 'DELETE');
+                    this.readingList = this.readingList.filter(item => item.id !== id);
+                } catch (e) {
+                    console.error("Failed to delete", e);
+                }
+            }
+        },
+
+        get paginatedReadingList() {
+            const start = (this.readingListCurrentPage - 1) * this.readingListItemsPerPage;
+            return this.readingList.slice(start, start + parseInt(this.readingListItemsPerPage));
+        },
+
+        get readingListTotalPages() {
+            return Math.max(1, Math.ceil(this.readingList.length / this.readingListItemsPerPage));
         },
 
         // Stats Computed Properties

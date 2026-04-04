@@ -102,6 +102,10 @@
                         <i class="fa-regular fa-calendar-check w-6 text-center"></i>
                         <span x-text="t('nav.scheduled')"></span>
                     </button>
+                    <button @click="currentView = 'reading_list'; loadReadingList()" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'reading_list', 'text-gray-600 hover:bg-gray-50': currentView !== 'reading_list'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
+                        <i class="fa-solid fa-bookmark w-6 text-center"></i>
+                        <span x-text="t('nav.reading_list')"></span>
+                    </button>
                     <button @click="currentView = 'stats'; loadPublishedPosts()" :class="{'bg-primary/10 text-primary font-semibold': currentView === 'stats', 'text-gray-600 hover:bg-gray-50': currentView !== 'stats'}" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors">
                         <i class="fa-solid fa-chart-simple w-6 text-center"></i>
                         <span x-text="t('nav.stats')"></span>
@@ -146,6 +150,7 @@
                     <button @click="currentView = 'rss'" class="p-2 text-gray-600"><i class="fa-solid fa-rss"></i></button>
                     <button @click="currentView = 'compose'" class="p-2 text-gray-600"><i class="fa-solid fa-pen"></i></button>
                     <button @click="currentView = 'scheduled'; loadScheduledPosts()" class="p-2 text-gray-600"><i class="fa-regular fa-calendar"></i></button>
+                    <button @click="currentView = 'reading_list'; loadReadingList()" class="p-2 text-gray-600"><i class="fa-regular fa-bookmark"></i></button>
                     <button @click="currentView = 'stats'; loadPublishedPosts()" class="p-2 text-gray-600"><i class="fa-solid fa-chart-simple"></i></button>
                     <button @click="currentView = 'settings'; loadSettings()" class="p-2 text-gray-600"><i class="fa-solid fa-gear"></i></button>
                 </div>
@@ -300,6 +305,9 @@
                                                     </td>
                                                 <td class="px-4 py-3 text-center">
                                                     <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button @click.stop="saveToReadingList(news)" class="text-gray-400 hover:text-yellow-500 transition-colors p-1.5" :title="t('rss.save_reading_list')">
+                                                            <i class="fa-regular fa-bookmark"></i>
+                                                        </button>
                                                         <button @click.stop="curateWithAI(news)" class="text-gray-400 hover:text-primary transition-colors p-1.5" :title="t('rss.curate_ai')">
                                                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                                                         </button>
@@ -688,6 +696,83 @@
                     </div>
                 </div>
 
+                <!-- VIEW: READING LIST -->
+                <div x-show="currentView === 'reading_list'" x-transition.opacity>
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800" x-text="t('reading_list.title')"></h2>
+                            <p class="text-gray-500" x-text="t('reading_list.sub')"></p>
+                        </div>
+                        <button @click="openReadingListModal()" class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition-colors">
+                            <i class="fa-solid fa-plus mr-2"></i> <span x-text="t('reading_list.add')"></span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                        <div class="overflow-x-auto flex-1 min-h-[400px] overflow-y-auto">
+                            <table class="w-full text-left border-collapse table-fixed">
+                                <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm border-b border-gray-200">
+                                    <tr class="text-xs text-gray-500 uppercase tracking-wider">
+                                        <th class="px-6 py-3 font-medium w-1/3" x-text="t('reading_list.title_label')"></th>
+                                        <th class="px-4 py-3 font-medium w-1/4" x-text="t('reading_list.comments')"></th>
+                                        <th class="px-4 py-3 font-medium w-40" x-text="t('reading_list.date')"></th>
+                                        <th class="px-4 py-3 font-medium text-right w-40" x-text="t('settings.actions')"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-gray-100">
+                                    <template x-if="isLoadingReadingList">
+                                        <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Loading...</td></tr>
+                                    </template>
+                                    <template x-if="!isLoadingReadingList && readingList.length === 0">
+                                        <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500 italic" x-text="t('reading_list.empty')"></td></tr>
+                                    </template>
+                                    <template x-for="item in paginatedReadingList" :key="item.id">
+                                        <tr class="hover:bg-gray-50 transition-colors group">
+                                            <td class="px-6 py-4">
+                                                <a :href="item.url" target="_blank" class="font-medium text-gray-800 hover:text-primary transition-colors block mb-1" x-text="item.title"></a>
+                                                <a :href="item.url" target="_blank" class="text-xs text-gray-400 truncate w-full block" :title="item.url" x-text="item.url"></a>
+                                            </td>
+                                            <td class="px-4 py-4 text-gray-600 line-clamp-3 text-xs" :title="item.comments" x-text="item.comments"></td>
+                                            <td class="px-4 py-4 text-xs text-gray-500" x-text="formatDate(item.newsDate || item.createdAt)"></td>
+                                            <td class="px-4 py-4 text-right">
+                                                <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button @click="curateWithAI({url: item.url, id: item.id})" class="text-gray-400 hover:text-primary transition-colors p-1" :title="t('rss.curate_ai')">
+                                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                                    </button>
+                                                    <button @click="curateManual({url: item.url, id: item.id, title: item.title, summary: item.comments, tags: []})" class="text-gray-400 hover:text-primary transition-colors p-1" :title="t('rss.curate_manual')">
+                                                        <i class="fa-solid fa-pen-nib"></i>
+                                                    </button>
+                                                    <button @click="openReadingListModal(item)" class="text-gray-400 hover:text-primary transition-colors p-1 ml-1" :title="t('reading_list.edit')">
+                                                        <i class="fa-solid fa-pen"></i>
+                                                    </button>
+                                                    <button @click="deleteFromReadingList(item.id)" class="text-gray-400 hover:text-red-500 transition-colors p-1" :title="t('alerts.delete_reading_list')">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination Controls -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50 shrink-0 gap-3">
+                            <div class="text-xs text-gray-500">
+                                <span x-text="t('rss.showing')"></span> <span class="font-medium text-gray-700" x-text="readingList.length === 0 ? 0 : ((readingListCurrentPage - 1) * readingListItemsPerPage) + 1"></span> <span x-text="t('rss.to')"></span> <span class="font-medium text-gray-700" x-text="Math.min(readingListCurrentPage * readingListItemsPerPage, readingList.length)"></span> <span x-text="t('rss.of')"></span> <span class="font-medium text-gray-700" x-text="readingList.length"></span> <span x-text="t('rss.entries')"></span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="readingListCurrentPage > 1 ? readingListCurrentPage-- : null" :disabled="readingListCurrentPage === 1" class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-1">
+                                    <i class="fa-solid fa-chevron-left text-xs"></i> <span x-text="t('rss.prev')"></span>
+                                </button>
+                                <button @click="readingListCurrentPage < readingListTotalPages ? readingListCurrentPage++ : null" :disabled="readingListCurrentPage === readingListTotalPages || readingListTotalPages === 0" class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-1">
+                                    <span x-text="t('rss.next')"></span> <i class="fa-solid fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- VIEW: STATISTICS -->
                 <div x-show="currentView === 'stats'" x-transition.opacity>
                     <div class="mb-6">
@@ -995,6 +1080,40 @@
                         <div class="flex justify-end gap-3">
                             <button type="button" @click="isSourceModalOpen = false" class="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition" x-text="t('rss.cancel')"></button>
                             <button type="submit" class="px-5 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm transition" x-text="t('rss.save')"></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reading List Editor Modal -->
+            <div x-show="isReadingListModalOpen" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" x-cloak x-transition>
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative border border-gray-100" @click.away="isReadingListModalOpen = false">
+                    <button @click="isReadingListModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" x-text="readingListForm.id ? t('reading_list.edit') : t('reading_list.add')"></h3>
+                    
+                    <form @submit.prevent="saveToReadingList(null)">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('reading_list.title_label')"></label>
+                            <input type="text" x-model="readingListForm.title" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('reading_list.url')"></label>
+                            <input type="url" x-model="readingListForm.url" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('reading_list.date')"></label>
+                            <input type="datetime-local" x-model="readingListForm.newsDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition text-sm">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" x-text="t('reading_list.comments')"></label>
+                            <textarea x-model="readingListForm.comments" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition text-sm resize-none"></textarea>
+                        </div>
+                        <div class="flex justify-end gap-3">
+                            <button type="button" @click="isReadingListModalOpen = false" class="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition" x-text="t('reading_list.cancel')"></button>
+                            <button type="submit" class="px-5 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm transition" x-text="t('reading_list.save')"></button>
                         </div>
                     </form>
                 </div>

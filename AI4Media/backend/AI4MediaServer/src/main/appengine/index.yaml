@@ -28,3 +28,8 @@ indexes:
   - name: userId
   - name: scheduledTime
     direction: desc
+- kind: ReadingList
+  properties:
+  - name: userId
+  - name: createdAt
+    direction: desc
