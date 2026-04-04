@@ -577,9 +577,9 @@
                         <h2 class="text-2xl font-bold text-gray-800" x-text="t('sched.title')"></h2>
                     </div>
 
-                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="flex flex-col gap-6">
                         <!-- Filters & Table of Scheduled Posts -->
-                        <div class="xl:col-span-2 flex flex-col gap-4">
+                        <div class="flex flex-col gap-4">
                             
                             <!-- Filters Row -->
                             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-end">
@@ -659,6 +659,9 @@
                                                               }" x-text="post.status"></span>
                                                     </td>
                                                     <td class="px-2 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button @click="publishScheduled(post.id)" x-show="post.status !== 'PUBLISHED'" class="text-gray-400 hover:text-green-500 transition-colors p-1 mr-1" title="Publish Now">
+                                                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                                                    </button>
                                                         <button @click="deleteScheduled(post.id)" class="text-gray-400 hover:text-red-500 transition-colors p-1" title="Delete">
                                                             <i class="fa-solid fa-trash text-xs"></i>
                                                         </button>
@@ -682,29 +685,6 @@
                                             <span x-text="t('rss.next')"></span> <i class="fa-solid fa-chevron-right text-xs"></i>
                                         </button>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Calendar Iframe -->
-                        <div class="xl:col-span-1">
-                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 h-[600px] flex flex-col overflow-hidden">
-                                <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                                    <h3 class="font-bold text-gray-700" x-text="t('sched.cal_title')"></h3>
-                                    <div class="text-xs text-gray-500 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> <span x-text="t('sched.cal_via')"></span></div>
-                                </div>
-                                <!-- Iframe Container -->
-                                <div class="flex-1 w-full bg-gray-100 relative">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 p-6 text-center z-0">
-                                        <i class="fa-regular fa-calendar-days text-6xl mb-4 text-gray-300"></i>
-                                        <p class="font-medium text-lg" x-text="t('sched.cal_place')"></p>
-                                        <p class="text-sm mt-2" x-text="t('sched.cal_sub')"></p>
-                                    </div>
-                                    <iframe 
-                                        src="about:blank" 
-                                        class="absolute inset-0 w-full h-full border-0 z-10 opacity-50" 
-                                        title="Calendario de Contenido">
-                                    </iframe>
                                 </div>
                             </div>
                         </div>

@@ -212,9 +212,9 @@ fun Application.configureRouting() {
         }
 
         //
-        // Rutas para Cloud Tasks
-        authenticate("google-cloud-tasks") {
-            // Solo accesible con el OIDC Token de Google
+        // Rutas para Cloud Tasks y publicación manual
+        authenticate("google-cloud-tasks", "firebase-auth") {
+            // Accesible con el OIDC Token de Google o Firebase Auth
             post("/publish/{id}") {
                 val postId = call.parameters["id"]
                 if (postId == null) {
@@ -234,8 +234,15 @@ fun Application.configureRouting() {
                     return@post
                 }
 
+                val userId = entity.getString("userId")
+                
+                val user = call.principal<User>()
+                if (user != null && user.userId != userId) {
+                    call.respond(HttpStatusCode.Forbidden, "Forbidden")
+                    return@post
+                }
+
                 try {
-                    val userId = entity.getString("userId")
                     val textContent = entity.getString("textContent")
                     val urlContent = if (entity.contains("urlContent")) entity.getString("urlContent") else null
 
