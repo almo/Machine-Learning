@@ -36,7 +36,9 @@ function app() {
                     show_read: "Show read", hide_read: "Hide read", mark_read: "Mark as read", mark_unread: "Mark as unread", read_badge: "Read",
                     no_sources: "No sources added.", edit_source: "Edit Source", source_name: "Source Name", source_url: "RSS URL", source_category: "Category", source_tags: "Tags (e.g. #AI #Tech)", cancel: "Cancel", save: "Save",
                     all_news: "All News", add_cat: "Add Category", cat_name: "Category Name", mark_all_read: "Mark all as read", filter_by: "Filtering by:",
-                    showing: "Showing", to: "to", of: "of", entries: "entries", prev: "Prev", next: "Next", show: "Show:"
+                    showing: "Showing", to: "to", of: "of", entries: "entries", prev: "Prev", next: "Next", show: "Show:",
+                    fetch_all: "Fetch All (Server)", fetch_unread: "Fetch Unread (Server)", refresh: "Refresh",
+                    sync_read: "Sync Status", pending_sync: "pending updates"
                 },
                 reading_list: { title: "Reading List", sub: "Save articles to read or process later.", add: "Add Link", empty: "Your reading list is empty.", edit: "Edit Link", url: "URL", title_label: "Title", comments: "Comments", date: "Date", cancel: "Cancel", save: "Save" },
                 compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
@@ -55,7 +57,9 @@ function app() {
                     show_read: "Mostrar leídos", hide_read: "Ocultar leídos", mark_read: "Marcar como leído", mark_unread: "Marcar como no leído", read_badge: "Leído",
                     no_sources: "No hay fuentes.", edit_source: "Editar Fuente", source_name: "Nombre de la Fuente", source_url: "URL del RSS", source_category: "Categoría", source_tags: "Etiquetas (ej. #IA #Tech)", cancel: "Cancelar", save: "Guardar",
                     all_news: "Todas las Noticias", add_cat: "Añadir Categoría", cat_name: "Nombre de la Categoría", mark_all_read: "Marcar todo como leído", filter_by: "Filtrando por:",
-                    showing: "Mostrando", to: "a", of: "de", entries: "entradas", prev: "Ant", next: "Sig", show: "Mostrar:"
+                    showing: "Mostrando", to: "a", of: "de", entries: "entradas", prev: "Ant", next: "Sig", show: "Mostrar:",
+                    fetch_all: "Bajar Todas (Servidor)", fetch_unread: "Bajar No Leídas (Servidor)", refresh: "Actualizar",
+                    sync_read: "Sincronizar", pending_sync: "pendientes"
                 },
                 reading_list: { title: "Lista de Lectura", sub: "Guarda artículos para leer o procesar más tarde.", add: "Añadir Enlace", empty: "Tu lista de lectura está vacía.", edit: "Editar Enlace", url: "URL", title_label: "Título", comments: "Comentarios", date: "Fecha", cancel: "Cancelar", save: "Guardar" },
                 compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
@@ -143,7 +147,17 @@ function app() {
         },
 
         // Show/Hide read articles flag
-        showRead: true,
+        showRead: false,
+
+        // Fetch only unread articles from server flag
+        fetchUnreadOnly: true,
+
+        // Read status tracking
+        pendingReadStatusUpdates: {},
+        isSyncingReadStatus: false,
+        get pendingSyncCount() {
+            return Object.keys(this.pendingReadStatusUpdates).length;
+        },
 
         // Selected Filter State (type can be 'all', 'category', or 'source')
         selectedFilter: { type: 'all', value: null },
@@ -188,7 +202,34 @@ function app() {
         // Toggle read status for single article
         toggleRead(id) {
             const news = this.newsList.find(n => n.id === id);
-            if (news) news.read = !news.read;
+            if (news) {
+                news.read = !news.read;
+                this.pendingReadStatusUpdates[id] = news.read;
+            }
+        },
+
+        async syncReadStatus() {
+            const ids = Object.keys(this.pendingReadStatusUpdates);
+            if (ids.length === 0) return;
+            
+            this.isSyncingReadStatus = true;
+            try {
+                const toRead = ids.filter(id => this.pendingReadStatusUpdates[id] === true);
+                const toUnread = ids.filter(id => this.pendingReadStatusUpdates[id] === false);
+                
+                if (toRead.length > 0) {
+                    await this.apiCall('/api/news/read', 'PUT', { newsIds: toRead, read: true });
+                }
+                if (toUnread.length > 0) {
+                    await this.apiCall('/api/news/read', 'PUT', { newsIds: toUnread, read: false });
+                }
+                
+                this.pendingReadStatusUpdates = {}; // Clear on success
+            } catch (error) {
+                console.error("Failed to sync read status", error);
+            } finally {
+                this.isSyncingReadStatus = false;
+            }
         },
 
         // Mark all as read for category or source
@@ -200,7 +241,10 @@ function app() {
             } else if (type === 'source') {
                 newsToMark = this.newsList.filter(n => String(n.sourceId) === String(value));
             }
-            newsToMark.forEach(n => n.read = true);
+            newsToMark.forEach(n => {
+                n.read = true;
+                this.pendingReadStatusUpdates[n.id] = true;
+            });
         },
 
         // Categories list
@@ -369,7 +413,8 @@ function app() {
             this.isLoadingNews = true;
             this.newsError = null;
             try {
-                const data = await this.apiCall('/api/news');
+                const unreadOnly = this.fetchUnreadOnly;
+                const data = await this.apiCall(`/api/news?unreadOnly=${unreadOnly}`);
                 this.newsList = Array.isArray(data) ? data : [];
                 if (this.newsList.length > 0) this.selectedArticle = this.newsList[0];
             } catch (e) {
@@ -730,7 +775,10 @@ function app() {
             
             // Auto-mark as read when curated
             const news = this.newsList.find(n => n.id === article.id);
-            if (news) news.read = true;
+            if (news) {
+                news.read = true;
+                this.pendingReadStatusUpdates[news.id] = true;
+            }
         },
 
         curateManual(article) {
@@ -742,7 +790,10 @@ function app() {
             
             // Auto-mark as read when curated
             const news = this.newsList.find(n => n.id === article.id);
-            if (news) news.read = true;
+            if (news) {
+                news.read = true;
+                this.pendingReadStatusUpdates[news.id] = true;
+            }
         },
 
         async generateAiContent() {

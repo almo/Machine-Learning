@@ -257,7 +257,22 @@
                                                 <option value="100">100</option>
                                             </select>
                                         </div>
-                                        <button @click="showRead = !showRead; currentPage = 1" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
+                                    <div class="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 shadow-sm hidden lg:flex" title="Pending Status Updates">
+                                        <span :class="pendingSyncCount > 0 ? 'text-amber-600 font-bold' : 'text-gray-400'" x-text="pendingSyncCount"></span>
+                                        <span x-text="t('rss.pending_sync')"></span>
+                                    </div>
+                                    <button @click="syncReadStatus()" :disabled="pendingSyncCount === 0 || isSyncingReadStatus" class="text-sm font-medium transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm flex items-center gap-2" :class="pendingSyncCount > 0 ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200' : 'text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed'" :title="t('rss.sync_read')">
+                                        <i class="fa-solid fa-cloud-arrow-up" :class="isSyncingReadStatus ? 'fa-fade' : ''"></i>
+                                        <span class="hidden xl:inline" x-text="t('rss.sync_read')"></span>
+                                    </button>
+                                    <button @click="currentPage = 1; loadNews()" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm" :title="t('rss.refresh')">
+                                        <i class="fa-solid fa-rotate" :class="isLoadingNews ? 'fa-spin' : ''"></i>
+                                    </button>
+                                    <button @click="fetchUnreadOnly = !fetchUnreadOnly; currentPage = 1; loadNews()" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm" title="Toggle backend fetching mode">
+                                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                                        <span x-text="fetchUnreadOnly ? t('rss.fetch_all') : t('rss.fetch_unread')"></span>
+                                    </button>
+                                    <button @click="showRead = !showRead; currentPage = 1" class="text-sm font-medium text-primary hover:text-indigo-800 flex items-center gap-2 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm" title="Toggle visibility of read news in current session">
                                             <i class="fa-solid" :class="showRead ? 'fa-eye-slash' : 'fa-eye'"></i>
                                             <span x-text="showRead ? t('rss.hide_read') : t('rss.show_read')"></span>
                                         </button>

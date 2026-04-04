@@ -10,6 +10,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -66,9 +67,20 @@ fun Application.configureNewsRouting() {
                 val user = call.principal<User>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
                 try {
                     val datastore = DatastoreOptions.getDefaultInstance().service
+                    val unreadOnly = call.request.queryParameters["unreadOnly"]?.toBoolean() ?: false
+
+                    val filter = if (unreadOnly) {
+                        StructuredQuery.CompositeFilter.and(
+                            StructuredQuery.PropertyFilter.eq("userId", user.userId),
+                            StructuredQuery.PropertyFilter.eq("read", false)
+                        )
+                    } else {
+                        StructuredQuery.PropertyFilter.eq("userId", user.userId)
+                    }
+
                     val query = Query.newEntityQueryBuilder()
                         .setKind("RSSNews")
-                        .setFilter(StructuredQuery.PropertyFilter.eq("userId", user.userId))
+                        .setFilter(filter)
                         .setOrderBy(StructuredQuery.OrderBy.desc("publishedAt"))
                         .build()
 
@@ -133,6 +145,45 @@ fun Application.configureNewsRouting() {
                     mapOf("status" to "RSS News sync started for user ${user.userId}")
                 )
             }
+
+                put("/api/news/read") {
+                    val user = call.principal<User>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
+                    val request = try {
+                        call.receive<UpdateReadStatusRequest>()
+                    } catch (e: Exception) {
+                        return@put call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid request body"))
+                    }
+
+                    try {
+                        val datastore = DatastoreOptions.getDefaultInstance().service
+                        val keyFactory = datastore.newKeyFactory().setKind("RSSNews")
+                        val keys = request.newsIds.map { keyFactory.newKey(it) }
+
+                        val entities = datastore.get(keys)
+                        val updatedEntities = mutableListOf<Entity>()
+
+                        while (entities.hasNext()) {
+                            val entity = entities.next()
+                            if (entity.contains("userId") && entity.getString("userId") == user.userId) {
+                                val updated = Entity.newBuilder(entity)
+                                    .set("read", request.read)
+                                    .build()
+                                updatedEntities.add(updated)
+                            }
+                        }
+
+                        if (updatedEntities.isNotEmpty()) {
+                            updatedEntities.chunked(500).forEach { batch ->
+                                datastore.put(*batch.toTypedArray())
+                            }
+                        }
+
+                        call.respond(HttpStatusCode.OK, mapOf("status" to "success", "updatedCount" to updatedEntities.size.toString()))
+                    } catch (e: Exception) {
+                        call.application.log.error("Error updating read status for user ${user.userId}", e)
+                        call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Internal Server Error"))
+                    }
+                }
         }
     }
 }
@@ -489,4 +540,10 @@ data class NewsItem(
     val read: Boolean,
     val comments: String,
     val tags: List<String>
+)
+
+@Serializable
+data class UpdateReadStatusRequest(
+    val newsIds: List<String>,
+    val read: Boolean
 )
