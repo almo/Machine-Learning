@@ -320,6 +320,9 @@
                                                     </td>
                                                 <td class="px-4 py-3 text-center">
                                                     <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button @click.stop="toggleRead(news.id)" class="text-gray-400 transition-colors p-1.5" :class="news.read ? 'hover:text-blue-500' : 'hover:text-green-500'" :title="news.read ? t('rss.mark_unread') : t('rss.mark_read')">
+                                                            <i class="fa-solid" :class="news.read ? 'fa-envelope' : 'fa-check'"></i>
+                                                        </button>
                                                         <button @click.stop="saveToReadingList(news)" class="text-gray-400 hover:text-yellow-500 transition-colors p-1.5" :title="t('rss.save_reading_list')">
                                                             <i class="fa-regular fa-bookmark"></i>
                                                         </button>
