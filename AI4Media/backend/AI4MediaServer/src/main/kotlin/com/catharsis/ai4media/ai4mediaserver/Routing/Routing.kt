@@ -225,7 +225,8 @@ fun Application.configureRouting() {
 
                 // Recuperar la entidad desde DataStore
                 val datastore = DatastoreOptions.getDefaultInstance().service
-                val key = datastore.newKeyFactory().setKind("SocialContent").newKey(postId)
+                val keyFactory = datastore.newKeyFactory().setKind("SocialContent")
+                val key = postId.toLongOrNull()?.let { keyFactory.newKey(it) } ?: keyFactory.newKey(postId)
                 val entity = datastore.get(key)
 
                 if (entity == null) {
@@ -239,6 +240,12 @@ fun Application.configureRouting() {
                 val user = call.principal<User>()
                 if (user != null && user.userId != userId) {
                     call.respond(HttpStatusCode.Forbidden, "Forbidden")
+                    return@post
+                }
+
+                if (entity.contains("status") && entity.getString("status") == PostStatus.PUBLISHED.name) {
+                    call.application.log.info("Post already published (ID: $postId)")
+                    call.respond(HttpStatusCode.OK)
                     return@post
                 }
 

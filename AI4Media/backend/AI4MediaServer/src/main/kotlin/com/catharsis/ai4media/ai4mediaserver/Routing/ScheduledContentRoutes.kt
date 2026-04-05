@@ -51,7 +51,6 @@ fun Application.configureScheduledContentRouting() {
                             } else LocalDateTime.now(AppConfig.timeZone)
 
                             val idStr = entity.key.nameOrId.toString()
-                            val id = try { UUID.fromString(idStr) } catch (e: Exception) { UUID.randomUUID() }
 
                             val networkStr = if (entity.contains("network")) entity.getString("network") else ""
                             val network = try { SocialNetwork.valueOf(networkStr.uppercase()) } catch (e: Exception) { SocialNetwork.LINKEDIN }
@@ -60,7 +59,7 @@ fun Application.configureScheduledContentRouting() {
 
                             scheduledList.add(
                                 SocialContent(
-                                    id = id,
+                                    id = idStr,
                                     userId = if (entity.contains("userId")) entity.getString("userId") else "",
                                     textContent = if (entity.contains("textContent")) entity.getString("textContent") else "",
                                     urlContent = if (entity.contains("urlContent")) entity.getString("urlContent") else "",
@@ -134,7 +133,6 @@ fun Application.configureScheduledContentRouting() {
                             } else LocalDateTime.now(AppConfig.timeZone)
 
                             val idStr = entity.key.nameOrId.toString()
-                            val id = try { UUID.fromString(idStr) } catch (e: Exception) { UUID.randomUUID() }
 
                             val networkStr = if (entity.contains("network")) entity.getString("network") else ""
                             val network = try { SocialNetwork.valueOf(networkStr.uppercase()) } catch (e: Exception) { SocialNetwork.LINKEDIN }
@@ -143,7 +141,7 @@ fun Application.configureScheduledContentRouting() {
 
                             publishedList.add(
                                 SocialContent(
-                                    id = id,
+                                    id = idStr,
                                     userId = if (entity.contains("userId")) entity.getString("userId") else "",
                                     textContent = if (entity.contains("textContent")) entity.getString("textContent") else "",
                                     urlContent = if (entity.contains("urlContent")) entity.getString("urlContent") else "",
@@ -162,6 +160,32 @@ fun Application.configureScheduledContentRouting() {
                     call.respond(publishedList)
                 } catch (e: Exception) {
                     call.application.log.error("Error fetching published content for user ${user.userId}", e)
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Internal Server Error"))
+                }
+            }
+
+            delete("/api/scheduled/{id}") {
+                val user = call.principal<User>() ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+                val postId = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "Missing post ID")
+
+                try {
+                    val datastore = DatastoreOptions.getDefaultInstance().service
+                    val keyFactory = datastore.newKeyFactory().setKind("SocialContent")
+                    val key = postId.toLongOrNull()?.let { keyFactory.newKey(it) } ?: keyFactory.newKey(postId)
+                    val entity = datastore.get(key)
+
+                    if (entity == null || (entity.contains("userId") && entity.getString("userId") != user.userId)) {
+                        return@delete call.respond(HttpStatusCode.NotFound, "Post not found or unauthorized")
+                    }
+
+                    val updatedEntity = Entity.newBuilder(entity)
+                        .set("status", PostStatus.DELETED.name)
+                        .build()
+                    datastore.put(updatedEntity)
+
+                    call.respond(HttpStatusCode.OK, mapOf("status" to "success"))
+                } catch (e: Exception) {
+                    call.application.log.error("Error deleting scheduled content for user ${user.userId}", e)
                     call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Internal Server Error"))
                 }
             }

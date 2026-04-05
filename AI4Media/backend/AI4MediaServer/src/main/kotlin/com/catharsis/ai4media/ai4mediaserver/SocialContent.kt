@@ -50,7 +50,7 @@ data class SocialContentRequest(
 
 @Serializable
 data class SocialContent(
-        @Serializable(with = UUIDSerializer::class) val id: UUID = UUID.randomUUID(),
+        val id: String = UUID.randomUUID().toString(),
         val userId: String,
         val textContent: String,
         val urlContent: String,
@@ -76,7 +76,9 @@ enum class PostStatus {
     /** The post failed to publish. */
     FAILED,
     /** The post is currently being published. */
-    PUBLISHING
+    PUBLISHING,
+    /** The post has been deleted. */
+    DELETED
 }
 
 /** Enumerates the supported social networks for publishing. */

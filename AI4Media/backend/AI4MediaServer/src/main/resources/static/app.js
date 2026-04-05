@@ -137,9 +137,15 @@ function app() {
                 const response = await fetch(`${API_BASE}${endpoint}`, options);
 
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                // Si es un DELETE que no devuelve body, evitamos error al hacer json()
-                if (method === 'DELETE') return true; 
-                return await response.json();
+                
+                const text = await response.text();
+                if (!text) return true;
+                
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    return text; // Return raw text if response is not JSON
+                }
             } catch (error) {
                 console.error('Backend integration error:', error);
                 throw error;
@@ -914,16 +920,24 @@ function app() {
             return null;
         },
 
-        deleteScheduled(id) {
-            if(confirm(this.t('alerts.delete'))) {
-                this.scheduledList = this.scheduledList.filter(post => post.id !== id);
-            }
+        async deleteScheduled(id) {
+           
+                try {
+                    await this.apiCall(`/api/scheduled/${id}`, 'DELETE');
+                    this.loadScheduledPosts();
+                    this.loadPublishedPosts();
+                } catch (e) {
+                    console.error("Failed to delete post", e);
+                    this.scheduledList = this.scheduledList.filter(post => post.id !== id);
+                }
+            
         },
 
         async publishScheduled(id) {
                 try {
                     await this.apiCall(`/publish/${id}`, 'POST');
                     this.loadScheduledPosts();
+                    this.loadPublishedPosts();
                 } catch (e) {
                     console.error("Failed to publish post", e);
                     alert("Error publishing post.");
