@@ -14,6 +14,8 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
         tailwind.config = {
@@ -183,9 +185,17 @@
 
                                 <div class="flex justify-between items-center mb-3">
                                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider" x-text="t('rss.cat')"></h3>
-                                    <button @click="isCategoryModalOpen = true" class="text-gray-400 hover:text-primary transition-colors p-1" :title="t('rss.add_cat')">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </button>
+                                    <div class="flex items-center gap-1">
+                                        <button @click="expandAllCategories()" class="text-gray-400 hover:text-primary transition-colors p-1" :title="t('settings.expand_all') || 'Expand All'">
+                                            <i class="fa-solid fa-angles-down text-[10px]"></i>
+                                        </button>
+                                        <button @click="collapseAllCategories()" class="text-gray-400 hover:text-primary transition-colors p-1" :title="t('settings.collapse_all') || 'Collapse All'">
+                                            <i class="fa-solid fa-angles-up text-[10px]"></i>
+                                        </button>
+                                        <button @click="isCategoryModalOpen = true" class="text-gray-400 hover:text-primary transition-colors p-1 ml-1" :title="t('rss.add_cat')">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 
                                 <ul class="space-y-4">
@@ -194,8 +204,13 @@
                                             <!-- Category Header -->
                                             <div class="flex justify-between items-center mb-1 group rounded-lg transition-colors cursor-pointer"
                                                  :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'bg-indigo-50/50' : 'hover:bg-gray-50'">
-                                                <div @click="setFilter('category', cat)" class="flex-1 py-1.5 px-2 flex items-center justify-between">
-                                                    <span class="font-bold text-sm" :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'text-primary' : 'text-gray-700'" x-text="t('rss.categories.' + cat) || capitalize(cat)"></span>
+                                                <div class="flex-1 py-1.5 px-2 flex items-center justify-between">
+                                                    <div class="flex items-center gap-2">
+                                                        <button @click.stop="toggleCategory(cat)" class="text-gray-400 hover:text-gray-600 transition-transform" :class="!isCategoryExpanded(cat) && '-rotate-90'">
+                                                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                                        </button>
+                                                        <span @click="setFilter('category', cat)" class="font-bold text-sm hover:text-primary transition-colors cursor-pointer" :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'text-primary' : 'text-gray-700'" x-text="t('rss.categories.' + cat) || capitalize(cat)"></span>
+                                                    </div>
                                                     <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full" :class="selectedFilter.type === 'category' && selectedFilter.value === cat ? 'bg-indigo-100 text-indigo-700' : ''" x-text="getArticlesCountByCategory(cat)"></span>
                                                 </div>
                                                 <button @click.stop="markAllAsRead('category', cat)" class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-green-500 px-2 py-1 transition-all" :title="t('rss.mark_all_read')">
@@ -204,7 +219,7 @@
                                             </div>
 
                                             <!-- Sources per category -->
-                                            <ul class="space-y-0.5 pl-3 border-l-2 border-gray-100 ml-3">
+                                            <ul x-show="isCategoryExpanded(cat)" x-transition class="space-y-0.5 pl-3 border-l-2 border-gray-100 ml-3">
                                                 <template x-for="source in sources.filter(s => s.category === cat)" :key="source.id">
                                                     <li class="group flex justify-between items-center py-1.5 pl-2 pr-1 rounded-lg text-sm transition-colors cursor-pointer"
                                                         :class="selectedFilter.type === 'source' && selectedFilter.value === source.id ? 'bg-indigo-50/80 text-primary font-medium' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'"
@@ -776,6 +791,22 @@
                     <div class="mb-6">
                         <h2 class="text-2xl font-bold text-gray-800" x-text="t('stats.title')"></h2>
                         <p class="text-gray-500" x-text="t('stats.sub')"></p>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Radar Chart -->
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-4" x-text="t('stats.tags_analysis') || 'Tags Analysis'"></h3>
+                                <div class="relative h-[350px] w-full flex justify-center"><canvas id="tagsRadarChart"></canvas></div>
+                            </div>
+                            <!-- Time Series Chart -->
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-4" x-text="t('stats.activity') || 'Publishing Activity'"></h3>
+                                <div class="relative h-[350px] w-full flex justify-center"><canvas id="timeSeriesChart"></canvas></div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Published Posts Table -->
