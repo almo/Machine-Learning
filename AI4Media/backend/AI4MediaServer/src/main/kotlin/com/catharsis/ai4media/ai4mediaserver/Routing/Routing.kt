@@ -235,14 +235,6 @@ fun Application.configureRouting() {
                     return@post
                 }
 
-                val userId = entity.getString("userId")
-                
-                val user = call.principal<User>()
-                if (user != null && user.userId != userId) {
-                    call.respond(HttpStatusCode.Forbidden, "Forbidden")
-                    return@post
-                }
-
                 if (entity.contains("status") && entity.getString("status") == PostStatus.PUBLISHED.name) {
                     call.application.log.info("Post already published (ID: $postId)")
                     call.respond(HttpStatusCode.OK)
@@ -250,6 +242,7 @@ fun Application.configureRouting() {
                 }
 
                 try {
+                    val userId = entity.getString("userId")
                     val textContent = entity.getString("textContent")
                     val urlContent = if (entity.contains("urlContent")) entity.getString("urlContent") else null
 

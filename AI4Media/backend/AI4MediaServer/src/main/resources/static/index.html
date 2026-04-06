@@ -144,25 +144,32 @@
             </button>
 
             <!-- Mobile Header (only visible on small screens) -->
-            <header class="md:hidden bg-white h-16 border-b flex items-center justify-between px-4">
-                <span class="font-bold text-lg text-gray-800">AI4Media</span>
-                <!-- Simple menu (for this prototype uses quick buttons) -->
-                <div class="flex space-x-2 text-sm items-center">
-                    <button @click="toggleLang()" class="px-2 font-bold text-primary" x-text="lang === 'en' ? 'ES' : 'EN'"></button>
-                    <button @click="currentView = 'rss'" class="p-2 text-gray-600"><i class="fa-solid fa-rss"></i></button>
-                    <button @click="currentView = 'compose'" class="p-2 text-gray-600"><i class="fa-solid fa-pen"></i></button>
-                    <button @click="currentView = 'scheduled'; loadScheduledPosts()" class="p-2 text-gray-600"><i class="fa-regular fa-calendar"></i></button>
-                    <button @click="currentView = 'reading_list'; loadReadingList()" class="p-2 text-gray-600"><i class="fa-regular fa-bookmark"></i></button>
-                    <button @click="currentView = 'stats'; loadPublishedPosts()" class="p-2 text-gray-600"><i class="fa-solid fa-chart-simple"></i></button>
-                    <button @click="currentView = 'settings'; loadSettings()" class="p-2 text-gray-600"><i class="fa-solid fa-gear"></i></button>
-                </div>
+            <header class="md:hidden bg-white h-16 border-b border-gray-100 shadow-sm flex items-center justify-between px-4 sticky top-0 z-30">
+                <span class="font-bold text-lg text-gray-800 flex items-center gap-2"><i class="fa-solid fa-rocket text-primary"></i> AI4Media</span>
+                
+                <nav class="flex space-x-1 text-sm items-center" aria-label="Mobile Navigation">
+                    <button @click="toggleLang()" class="px-2 py-1 font-bold text-primary hover:bg-indigo-50 rounded transition-colors" x-text="lang === 'en' ? 'ES' : 'EN'" aria-label="Toggle Language"></button>
+                    <button @click="currentView = 'rss'" class="p-2 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors" :class="{'text-primary bg-indigo-50': currentView === 'rss'}" :title="t('nav.rss')" aria-label="News"><i class="fa-solid fa-rss"></i></button>
+                    <button @click="currentView = 'compose'" class="p-2 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors" :class="{'text-primary bg-indigo-50': currentView === 'compose'}" :title="t('nav.compose')" aria-label="Compose"><i class="fa-solid fa-pen"></i></button>
+                    <button @click="currentView = 'scheduled'; loadScheduledPosts()" class="p-2 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors" :class="{'text-primary bg-indigo-50': currentView === 'scheduled'}" :title="t('nav.scheduled')" aria-label="Scheduled"><i class="fa-regular fa-calendar"></i></button>
+                    <button @click="currentView = 'reading_list'; loadReadingList()" class="p-2 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors" :class="{'text-primary bg-indigo-50': currentView === 'reading_list'}" :title="t('nav.reading_list')" aria-label="Reading List"><i class="fa-regular fa-bookmark"></i></button>
+                    
+                    <!-- Grouped less critical mobile links -->
+                    <div class="relative" x-data="{ mobileMenuOpen: false }">
+                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-gray-500 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors" aria-label="More options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50" x-transition.opacity x-cloak>
+                            <button @click="currentView = 'stats'; loadPublishedPosts(); mobileMenuOpen = false" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors"><i class="fa-solid fa-chart-simple w-5 text-center mr-1"></i> <span x-text="t('nav.stats') || 'Stats'"></span></button>
+                            <button @click="currentView = 'settings'; loadSettings(); mobileMenuOpen = false" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors"><i class="fa-solid fa-gear w-5 text-center mr-1"></i> <span x-text="t('nav.settings') || 'Settings'"></span></button>
+                        </div>
+                    </div>
+                </nav>
             </header>
 
             <!-- Scrollable views area -->
             <div class="flex-1 overflow-y-auto p-4 transition-all duration-300" :class="isSidebarOpen ? 'md:p-8' : 'md:py-8 md:pr-8 md:pl-24'">
                 
-                <!-- VIEW: RSS AND NEWS -->
-                <div x-show="currentView === 'rss'" x-transition.opacity>
+                <!-- ==================== RSS AND NEWS VIEW ==================== -->
+                <section x-show="currentView === 'rss'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pb-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-gray-800" x-text="t('rss.title')"></h2>
                         <button @click="openSourceModal()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center shadow-sm">
@@ -372,10 +379,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- VIEW: COMPOSE / SCHEDULE -->
-                <div x-show="currentView === 'compose'" x-transition.opacity>
+                <!-- ==================== COMPOSE / SCHEDULE VIEW ==================== -->
+                <section x-show="currentView === 'compose'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pb-6">
                     <!-- COMPOSE MODE TABS -->
                     <div class="flex space-x-4 mb-6 border-b border-gray-200">
                         <button @click="composeMode = 'ai'" :class="composeMode === 'ai' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors">
@@ -587,10 +594,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- VIEW: SCHEDULED AND CALENDAR -->
-                <div x-show="currentView === 'scheduled'" x-transition.opacity>
+                <!-- ==================== SCHEDULED QUEUE VIEW ==================== -->
+                <section x-show="currentView === 'scheduled'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pb-6">
                     <div class="mb-6">
                         <h2 class="text-2xl font-bold text-gray-800" x-text="t('sched.title')"></h2>
                     </div>
@@ -707,10 +714,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- VIEW: READING LIST -->
-                <div x-show="currentView === 'reading_list'" x-transition.opacity>
+                <!-- ==================== READING LIST VIEW ==================== -->
+                <section x-show="currentView === 'reading_list'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pb-6">
                     <div class="flex justify-between items-center mb-6">
                         <div>
                             <h2 class="text-2xl font-bold text-gray-800" x-text="t('reading_list.title')"></h2>
@@ -784,10 +791,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- VIEW: STATISTICS -->
-                <div x-show="currentView === 'stats'" x-transition.opacity>
+                <!-- ==================== STATISTICS VIEW ==================== -->
+                <section x-show="currentView === 'stats'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pb-6">
                     <div class="mb-6">
                         <h2 class="text-2xl font-bold text-gray-800" x-text="t('stats.title')"></h2>
                         <p class="text-gray-500" x-text="t('stats.sub')"></p>
@@ -893,10 +900,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- VIEW: SETTINGS -->
-                <div x-show="currentView === 'settings'" x-transition.opacity>
+                <!-- ==================== SETTINGS VIEW ==================== -->
+                <section x-show="currentView === 'settings'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pb-6">
                     <div class="mb-6">
                         <h2 class="text-2xl font-bold text-gray-800" x-text="t('settings.title')"></h2>
                         <p class="text-gray-500" x-text="t('settings.sub')"></p>
@@ -1051,17 +1058,19 @@
                             </table>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
             
-            <!-- Category Editor Modal (Hidden by default) -->
-            <div x-show="isCategoryModalOpen" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" x-cloak x-transition>
-                <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative border border-gray-100" @click.away="isCategoryModalOpen = false">
+            <!-- ==================== MODALS ==================== -->
+
+            <!-- Category Editor Modal -->
+            <div x-show="isCategoryModalOpen" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="modal-category-title">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative border border-gray-100" @click.away="isCategoryModalOpen = false" x-show="isCategoryModalOpen" x-transition:enter="transition ease-out duration-300 delay-75" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
                     <button @click="isCategoryModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
                     
-                    <h3 class="text-xl font-bold text-gray-800 mb-6" x-text="t('rss.add_cat')"></h3>
+                    <h3 id="modal-category-title" class="text-xl font-bold text-gray-800 mb-6" x-text="t('rss.add_cat')"></h3>
                     
                     <form @submit.prevent="saveCategory">
                         <div class="mb-6">
@@ -1076,14 +1085,14 @@
                 </div>
             </div>
 
-            <!-- Source Editor Modal (Hidden by default) -->
-            <div x-show="isSourceModalOpen" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" x-cloak x-transition>
-                <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative border border-gray-100" @click.away="isSourceModalOpen = false">
+            <!-- Source Editor Modal -->
+            <div x-show="isSourceModalOpen" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="modal-source-title">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative border border-gray-100" @click.away="isSourceModalOpen = false" x-show="isSourceModalOpen" x-transition:enter="transition ease-out duration-300 delay-75" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
                     <button @click="isSourceModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
                     
-                    <h3 class="text-xl font-bold text-gray-800 mb-6" x-text="editingSourceId ? t('rss.edit_source') : t('rss.add_source')"></h3>
+                    <h3 id="modal-source-title" class="text-xl font-bold text-gray-800 mb-6" x-text="editingSourceId ? t('rss.edit_source') : t('rss.add_source')"></h3>
                     
                     <form @submit.prevent="saveSource">
                         <div class="mb-4">
@@ -1114,14 +1123,14 @@
                 </div>
             </div>
 
-            <!-- Reading List Editor Modal -->
-            <div x-show="isReadingListModalOpen" style="display: none;" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" x-cloak x-transition>
-                <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative border border-gray-100" @click.away="isReadingListModalOpen = false">
+            <!-- Reading List Modal -->
+            <div x-show="isReadingListModalOpen" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="modal-reading-title">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative border border-gray-100" @click.away="isReadingListModalOpen = false" x-show="isReadingListModalOpen" x-transition:enter="transition ease-out duration-300 delay-75" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
                     <button @click="isReadingListModalOpen = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
                     
-                    <h3 class="text-xl font-bold text-gray-800 mb-6" x-text="readingListForm.id ? t('reading_list.edit') : t('reading_list.add')"></h3>
+                    <h3 id="modal-reading-title" class="text-xl font-bold text-gray-800 mb-6" x-text="readingListForm.id ? t('reading_list.edit') : t('reading_list.add')"></h3>
                     
                     <form @submit.prevent="saveToReadingList(null)">
                         <div class="mb-4">
