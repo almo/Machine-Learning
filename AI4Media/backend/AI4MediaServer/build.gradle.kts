@@ -20,7 +20,7 @@ plugins {
 }
 
 application {
-    mainClass.set("io.ktor.server.netty.EngineMain")
+    mainClass.set("io.ktor.server.cio.EngineMain")
 }
 
 repositories {
@@ -35,26 +35,19 @@ configure<AppEngineAppYamlExtension> {
     }
 
     deploy {       
-        version = "beta002"
+        version = "main100"
         projectId = "meta-gear-464720-g3"
     }
 }
 
 dependencies {
-    // Google OR-Tools
-    implementation("com.google.ortools:ortools-java:9.14.6206")
-    implementation("com.google.ortools:ortools-darwin-aarch64:9.14.6206") // For your local development on M1 Mac
-    implementation("com.google.ortools:ortools-linux-x86-64:9.14.6206")   // For your deployment target if it's Linux x64
-
-    // Core Google ADK library for Java
-    implementation("com.google.adk:google-adk:0.1.0")
 
     // Kotlin, Ktor and Netty
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-cio:$ktor_version")
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     implementation("io.ktor:ktor-server-auth:$ktor_version")

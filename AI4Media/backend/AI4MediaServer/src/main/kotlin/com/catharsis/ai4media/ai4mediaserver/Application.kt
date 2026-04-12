@@ -30,7 +30,7 @@ data class AI4MediaSession(
         val codeVerifier: String = oAuthPKCE.generateCodeVerifier()
 )
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
 
 fun Application.module() {
 
