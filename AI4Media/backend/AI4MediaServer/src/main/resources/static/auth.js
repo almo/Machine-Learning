@@ -15,6 +15,9 @@ window.getFirebaseAuthToken = async () => {
     return null;
 };
 
+// Expose user ID getter for API payloads
+window.getFirebaseUserId = () => auth.currentUser ? auth.currentUser.uid : "";
+
 const btn = document.getElementById('google-signin-btn');
 const status = document.getElementById('status');
 

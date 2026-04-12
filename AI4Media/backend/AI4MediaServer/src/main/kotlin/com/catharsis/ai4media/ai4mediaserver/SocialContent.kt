@@ -40,7 +40,7 @@ object UUIDSerializer : KSerializer<UUID> {
  */
 @Serializable
 data class SocialContentRequest(
-    val userId: String,
+    val userId: String = "",
     val textContent: String,
     val urlContent: String,
     val scheduledTime: String,

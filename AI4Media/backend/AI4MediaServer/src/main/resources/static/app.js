@@ -41,7 +41,7 @@ function app() {
                     sync_read: "Sync Status", pending_sync: "pending updates"
                 },
                 reading_list: { title: "Reading List", sub: "Save articles to read or process later.", add: "Add Link", empty: "Your reading list is empty.", edit: "Edit Link", url: "URL", title_label: "Title", comments: "Comments", date: "Date", cancel: "Cancel", save: "Save" },
-                compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "News URL (Source)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
+                compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "Source URL (Any link)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
                 sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts found.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:", filters: "Filters", network: "Network", tags_regex: "Tags (Regex)", date: "Date", all_networks: "All Networks", table_network: "Net", table_content: "Content", table_tags: "Tags", table_source: "Source", table_date: "Scheduled For", table_status: "Status", original_url: "Original URL" },
                 stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", tags_analysis: "Tags Analysis", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month", published_list: "Published Posts Log", table_post: "Post Link", empty: "No published posts found." },
                 alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", publish_confirm: "Are you sure you want to publish this post right now?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync.", saved_reading_list: "Added to reading list!", delete_reading_list: "Remove from reading list?" },
@@ -62,7 +62,7 @@ function app() {
                     sync_read: "Sincronizar", pending_sync: "pendientes"
                 },
                 reading_list: { title: "Lista de Lectura", sub: "Guarda artículos para leer o procesar más tarde.", add: "Añadir Enlace", empty: "Tu lista de lectura está vacía.", edit: "Editar Enlace", url: "URL", title_label: "Título", comments: "Comentarios", date: "Fecha", cancel: "Cancelar", save: "Guardar" },
-                compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Noticia (Fuente)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
+                compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Fuente (Cualquier enlace)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
                 sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:", filters: "Filtros", network: "Red", tags_regex: "Etiquetas (Regex)", date: "Fecha", all_networks: "Todas las Redes", table_network: "Red", table_content: "Contenido", table_tags: "Etiquetas", table_source: "Origen", table_date: "Programado Para", table_status: "Estado", original_url: "URL Original" },
                 stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", tags_analysis: "Análisis de Etiquetas", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior", published_list: "Registro de Publicaciones", table_post: "Enlace del Post", empty: "No se encontraron posts publicados." },
                 alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", publish_confirm: "¿Estás seguro de que deseas publicar este post ahora mismo?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias.", saved_reading_list: "¡Añadido a la lista de lectura!", delete_reading_list: "¿Eliminar de la lista de lectura?" },
@@ -78,6 +78,15 @@ function app() {
         // Helper to capitalize strings
         capitalize(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
+        },
+
+        // Helper to format tags ensuring they start with #
+        formatTags(tagsStr) {
+            if (!tagsStr) return '';
+            return String(tagsStr).split(/[\s,]+/)
+                .filter(t => t.trim().length > 0)
+                .map(t => t.startsWith('#') ? t : '#' + t)
+                .join(' ');
         },
 
         // Toggle language
@@ -448,8 +457,10 @@ function app() {
             content: {
                 linkedinCompany: '',
                 twitter: '',
-                linkedinBump: ''
-            }
+                linkedinBump: '',
+                strategyRationale: ''
+            },
+            status: { linkedin: false, twitter: false, linkedinBump: false }
         },
 
         // Manual composition state
@@ -876,7 +887,7 @@ function app() {
             if(window.firebaseSignOut) window.firebaseSignOut();
             
             // Reset state
-            this.aiGenerator = { url: '', isGenerating: false, isScheduling: false, step: 'input', content: { linkedinCompany: '', twitter: '', linkedinBump: '' } };
+            this.aiGenerator = { url: '', isGenerating: false, isScheduling: false, step: 'input', content: { linkedinCompany: '', linkedinCompanyUrl: '', linkedinCompanyTags: '', twitter: '', twitterUrl: '', twitterTags: '', linkedinBump: '', strategyRationale: '' }, status: { linkedin: false, twitter: false, linkedinBump: false } };
         },
 
         curateWithAI(article) {
@@ -885,7 +896,8 @@ function app() {
             this.aiGenerator.step = 'input';
             this.aiGenerator.isGenerating = false;
             this.aiGenerator.isScheduling = false;
-            this.aiGenerator.content = { linkedinCompany: '', twitter: '', linkedinBump: '' };
+            this.aiGenerator.content = { linkedinCompany: '', linkedinCompanyUrl: '', linkedinCompanyTags: '', twitter: '', twitterUrl: '', twitterTags: '', linkedinBump: '', strategyRationale: '' };
+            this.aiGenerator.status = { linkedin: false, twitter: false, linkedinBump: false };
             this.currentView = 'compose';
             
             // Auto-mark as read when curated
@@ -912,44 +924,123 @@ function app() {
         },
 
         async generateAiContent() {
-            if (!this.aiGenerator.url) return;
+            if (!this.aiGenerator.url || this.aiGenerator.url.trim() === '') return;
+            
+            // Auto-prepend https:// if missing so the backend URL parser accepts it
+            if (!/^https?:\/\//i.test(this.aiGenerator.url)) {
+                this.aiGenerator.url = 'https://' + this.aiGenerator.url.trim();
+            }
+
             this.aiGenerator.isGenerating = true;
             
             try {
-                const response = await fetch('/api/ai/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: this.aiGenerator.url })
-                });
-                if (!response.ok) throw new Error('Backend not available');
+                const data = await this.apiCall('/api/ai/generate', 'POST', { url: this.aiGenerator.url });
                 
-                const data = await response.json();
+                // Format tags to ensure they explicitly include the # symbol
+                if (data.linkedinCompanyTags) data.linkedinCompanyTags = this.formatTags(data.linkedinCompanyTags);
+                if (data.twitterTags) data.twitterTags = this.formatTags(data.twitterTags);
+                
                 this.aiGenerator.content = { ...data };
+                this.aiGenerator.status = { linkedin: false, twitter: false, linkedinBump: false };
             } catch (error) {
                 console.warn('Backend unavailable, utilizing mock data for UI testing.', error);
                 await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
                 
-                this.aiGenerator.content.linkedinCompany = `🚀 Exciting news in the tech space! We're thrilled to share this latest breakdown on industry trends.\n\nDiscover how this impacts future innovations and what it means for your business moving forward.\n\nRead the full breakdown here: ${this.aiGenerator.url}\n\n#TechTrends #Innovation #BusinessGrowth #FutureOfTech`;
-                this.aiGenerator.content.twitter = `Big shifts happening! 🚨 \n\nJust read this insightful article on where the industry is heading next. A must-read for anyone in the space.\n\nCheck it out 👇\n${this.aiGenerator.url}\n\n#TechNews #Innovation`;
+                this.aiGenerator.content.linkedinCompany = `🚀 Exciting news in the tech space! We're thrilled to share this latest breakdown on industry trends.\n\nDiscover how this impacts future innovations and what it means for your business moving forward.`;
+                this.aiGenerator.content.linkedinCompanyUrl = this.aiGenerator.url;
+                this.aiGenerator.content.linkedinCompanyTags = '#TechTrends #Innovation #BusinessGrowth #FutureOfTech';
+                this.aiGenerator.content.twitter = `Big shifts happening! 🚨 \n\nJust read this insightful article on where the industry is heading next. A must-read for anyone in the space. 👇`;
+                this.aiGenerator.content.twitterUrl = this.aiGenerator.url;
+                this.aiGenerator.content.twitterTags = '#TechNews #Innovation';
                 this.aiGenerator.content.linkedinBump = `In case you missed this earlier today – the insights on resource optimization are spot on. Highly recommend giving it a quick read! Thoughts? 🤔👇`;
+                this.aiGenerator.content.strategyRationale = `The strategy for this content was to use strong, action-oriented keywords like 'Exciting news' and 'Big shifts' to create urgency. Hashtags were chosen for broad reach within the tech community.`;
+                this.aiGenerator.status = { linkedin: false, twitter: false, linkedinBump: false };
             } finally {
                 this.aiGenerator.isGenerating = false;
                 this.aiGenerator.step = 'review';
             }
         },
 
-        async scheduleAiPosts() {
+        async scheduleSingleAiPost(type, timeStr = 'AUTOMATIC') {
             this.aiGenerator.isScheduling = true;
             try {
-                const response = await fetch('/api/posts/schedule', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: this.aiGenerator.url, content: this.aiGenerator.content })
-                });
-                if (!response.ok) throw new Error('Backend not available');
+                if (type === 'linkedin' && this.aiGenerator.content.linkedinCompany) {
+                    await this.apiCall('/schedule', 'POST', {
+                        userId: window.getFirebaseUserId ? window.getFirebaseUserId() : "",
+                        textContent: this.aiGenerator.content.linkedinCompany,
+                        urlContent: this.aiGenerator.content.linkedinCompanyUrl || this.aiGenerator.url,
+                        tags: this.formatTags(this.aiGenerator.content.linkedinCompanyTags),
+                        networks: 'linkedin',
+                        scheduledTime: timeStr
+                    });
+                    this.aiGenerator.status.linkedin = true;
+                } else if (type === 'twitter' && this.aiGenerator.content.twitter) {
+                    await this.apiCall('/schedule', 'POST', {
+                        userId: window.getFirebaseUserId ? window.getFirebaseUserId() : "",
+                        textContent: this.aiGenerator.content.twitter,
+                        urlContent: this.aiGenerator.content.twitterUrl || this.aiGenerator.url,
+                        tags: this.formatTags(this.aiGenerator.content.twitterTags),
+                        networks: 'twitter',
+                        scheduledTime: timeStr
+                    });
+                    this.aiGenerator.status.twitter = true;
+                } else if (type === 'linkedinBump' && this.aiGenerator.content.linkedinBump) {
+                    await this.apiCall('/schedule', 'POST', {
+                        userId: window.getFirebaseUserId ? window.getFirebaseUserId() : "",
+                        textContent: this.aiGenerator.content.linkedinBump,
+                        urlContent: this.aiGenerator.url,
+                        tags: '',
+                        networks: 'linkedin',
+                        scheduledTime: timeStr
+                    });
+                    this.aiGenerator.status.linkedinBump = true;
+                }
             } catch (error) {
-                console.warn('Backend unavailable, simulating successful scheduling delay.', error);
-                await new Promise(resolve => setTimeout(resolve, 1200)); // Simulate Scheduling Delay
+                console.error(`Failed to schedule ${type} post:`, error);
+                alert("Error scheduling post.");
+            } finally {
+                this.aiGenerator.isScheduling = false;
+            }
+        },
+
+        async scheduleAiPosts(timeStr = 'AUTOMATIC') {
+            this.aiGenerator.isScheduling = true;
+            try {
+                if (this.aiGenerator.content.linkedinCompany) {
+                    await this.apiCall('/schedule', 'POST', {
+                        userId: window.getFirebaseUserId ? window.getFirebaseUserId() : "",
+                        textContent: this.aiGenerator.content.linkedinCompany,
+                        urlContent: this.aiGenerator.content.linkedinCompanyUrl || this.aiGenerator.url,
+                        tags: this.formatTags(this.aiGenerator.content.linkedinCompanyTags),
+                        networks: 'linkedin',
+                        scheduledTime: timeStr
+                    });
+                }
+                
+                if (this.aiGenerator.content.twitter) {
+                    await this.apiCall('/schedule', 'POST', {
+                        userId: window.getFirebaseUserId ? window.getFirebaseUserId() : "",
+                        textContent: this.aiGenerator.content.twitter,
+                        urlContent: this.aiGenerator.content.twitterUrl || this.aiGenerator.url,
+                        tags: this.formatTags(this.aiGenerator.content.twitterTags),
+                        networks: 'twitter',
+                        scheduledTime: timeStr
+                    });
+                }
+
+                if (this.aiGenerator.content.linkedinBump) {
+                    await this.apiCall('/schedule', 'POST', {
+                        userId: window.getFirebaseUserId ? window.getFirebaseUserId() : "",
+                        textContent: this.aiGenerator.content.linkedinBump,
+                        urlContent: this.aiGenerator.url,
+                        tags: '',
+                        networks: 'linkedin',
+                        scheduledTime: timeStr
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to schedule AI posts:', error);
+                alert("Error scheduling posts.");
             } finally {
                 this.aiGenerator.isScheduling = false;
                 this.aiGenerator.step = 'success';
@@ -957,10 +1048,19 @@ function app() {
         },
 
         discardAi() {
+            this.aiGenerator.isGenerating = false;
+            this.aiGenerator.isScheduling = false;
+            this.aiGenerator.content = { linkedinCompany: '', linkedinCompanyUrl: '', linkedinCompanyTags: '', twitter: '', twitterUrl: '', twitterTags: '', linkedinBump: '', strategyRationale: '' };
+            this.aiGenerator.status = { linkedin: false, twitter: false, linkedinBump: false };
+            this.aiGenerator.step = 'input';
+        },
+
+        startOverAi() {
             this.aiGenerator.url = '';
             this.aiGenerator.isGenerating = false;
             this.aiGenerator.isScheduling = false;
-            this.aiGenerator.content = { linkedinCompany: '', twitter: '', linkedinBump: '' };
+            this.aiGenerator.content = { linkedinCompany: '', linkedinCompanyUrl: '', linkedinCompanyTags: '', twitter: '', twitterUrl: '', twitterTags: '', linkedinBump: '', strategyRationale: '' };
+            this.aiGenerator.status = { linkedin: false, twitter: false, linkedinBump: false };
             this.aiGenerator.step = 'input';
         },
 
@@ -1001,10 +1101,10 @@ function app() {
             if (this.manualPost.twitter) networksArr.push('twitter');
 
             const payload = {
-                userId: "dummy", // Validated / overridden on backend via principal user
+                userId: window.getFirebaseUserId ? window.getFirebaseUserId() : "",
                 textContent: this.manualPost.content,
                 urlContent: this.manualPost.url || "",
-                tags: this.manualPost.tags || "",
+                tags: this.formatTags(this.manualPost.tags),
                 networks: networksArr.join('|'),
                 scheduledTime: timeStr
             };

@@ -521,7 +521,22 @@
                                             </div>
                                         </div>
                                         <div class="p-0">
-                                            <textarea x-model="aiGenerator.content.linkedinCompany" rows="6" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed"></textarea>
+                                            <textarea x-model="aiGenerator.content.linkedinCompany" :readonly="aiGenerator.status.linkedin" rows="6" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed" :class="aiGenerator.status.linkedin ? 'opacity-50 cursor-default' : ''"></textarea>
+                                        </div>
+                                        <div class="px-4 py-3 bg-blue-50/30 border-t border-blue-50 flex items-center justify-between gap-4">
+                                            <div class="flex items-center gap-2 flex-1">
+                                                <i class="fa-solid fa-hashtag text-blue-400"></i>
+                                                <input type="text" x-model="aiGenerator.content.linkedinCompanyTags" :readonly="aiGenerator.status.linkedin" class="w-full bg-transparent outline-none text-sm text-gray-600 focus:text-gray-900 placeholder-blue-300" :class="aiGenerator.status.linkedin ? 'opacity-50 cursor-default' : ''" placeholder="Add hashtags (e.g. #Tech #AI)">
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <span x-show="aiGenerator.status.linkedin" class="text-green-600 text-sm font-semibold flex items-center gap-1 whitespace-nowrap"><i class="fa-solid fa-check-circle"></i> Done</span>
+                                                <button @click="scheduleSingleAiPost('linkedin', 'NOW')" :disabled="!aiGenerator.content.linkedinCompany || aiGenerator.isScheduling || aiGenerator.status.linkedin" class="whitespace-nowrap px-3 py-1.5 bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-bolt"></i> Send Now
+                                                </button>
+                                                <button @click="scheduleSingleAiPost('linkedin', 'AUTOMATIC')" :disabled="!aiGenerator.content.linkedinCompany || aiGenerator.isScheduling || aiGenerator.status.linkedin" class="whitespace-nowrap px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                                    <i class="fa-solid fa-paper-plane"></i> Schedule
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -533,12 +548,27 @@
                                                 <span class="font-semibold text-gray-800 text-sm">X (Twitter) Post</span>
                                             </div>
                                             <div class="flex items-center gap-3 self-start sm:self-auto">
-                                                <span class="text-xs font-medium" :class="aiGenerator.content.twitter.length > 280 ? 'text-red-500' : 'text-gray-500'" x-text="aiGenerator.content.twitter.length + '/280 chars'"></span>
+                                                <span class="text-xs font-medium" :class="(aiGenerator.content.twitter.length + (aiGenerator.content.twitterUrl || '').length + (aiGenerator.content.twitterTags || '').length) > 280 ? 'text-red-500' : 'text-gray-500'" x-text="(aiGenerator.content.twitter.length + (aiGenerator.content.twitterUrl || '').length + (aiGenerator.content.twitterTags || '').length) + '/280 chars'"></span>
                                                 <span class="text-[11px] font-semibold text-gray-600 bg-gray-200/60 px-2.5 py-1 rounded-md">Optimized for length/hashtags</span>
                                             </div>
                                         </div>
                                         <div class="p-0">
-                                            <textarea x-model="aiGenerator.content.twitter" rows="4" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed"></textarea>
+                                            <textarea x-model="aiGenerator.content.twitter" :readonly="aiGenerator.status.twitter" rows="4" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed" :class="aiGenerator.status.twitter ? 'opacity-50 cursor-default' : ''"></textarea>
+                                        </div>
+                                        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-4">
+                                            <div class="flex items-center gap-2 flex-1">
+                                                <i class="fa-solid fa-hashtag text-gray-400"></i>
+                                                <input type="text" x-model="aiGenerator.content.twitterTags" :readonly="aiGenerator.status.twitter" class="w-full bg-transparent outline-none text-sm text-gray-600 focus:text-gray-900 placeholder-gray-400" :class="aiGenerator.status.twitter ? 'opacity-50 cursor-default' : ''" placeholder="Add hashtags (e.g. #TechNews)">
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <span x-show="aiGenerator.status.twitter" class="text-green-600 text-sm font-semibold flex items-center gap-1 whitespace-nowrap"><i class="fa-solid fa-check-circle"></i> Done</span>
+                                                <button @click="scheduleSingleAiPost('twitter', 'NOW')" :disabled="!aiGenerator.content.twitter || aiGenerator.isScheduling || aiGenerator.status.twitter" class="whitespace-nowrap px-3 py-1.5 bg-white border border-gray-900 text-gray-900 hover:bg-gray-100 text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-bolt"></i> Send Now
+                                                </button>
+                                                <button @click="scheduleSingleAiPost('twitter', 'AUTOMATIC')" :disabled="!aiGenerator.content.twitter || aiGenerator.isScheduling || aiGenerator.status.twitter" class="whitespace-nowrap px-4 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                                    <i class="fa-solid fa-paper-plane"></i> Schedule
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -555,21 +585,59 @@
                                             </div>
                                         </div>
                                         <div class="p-0">
-                                            <textarea x-model="aiGenerator.content.linkedinBump" rows="3" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed"></textarea>
+                                            <textarea x-model="aiGenerator.content.linkedinBump" :readonly="aiGenerator.status.linkedinBump" rows="3" class="w-full p-4 bg-transparent outline-none resize-none text-sm text-gray-700 leading-relaxed" :class="aiGenerator.status.linkedinBump ? 'opacity-50 cursor-default' : ''"></textarea>
+                                        </div>
+                                        <div class="px-4 py-3 bg-indigo-50/30 border-t border-indigo-50 flex items-center justify-end gap-2">
+                                            <div class="flex items-center gap-3">
+                                                <span x-show="aiGenerator.status.linkedinBump" class="text-green-600 text-sm font-semibold flex items-center gap-1 whitespace-nowrap"><i class="fa-solid fa-check-circle"></i> Done</span>
+                                                <button @click="scheduleSingleAiPost('linkedinBump', 'NOW')" :disabled="!aiGenerator.content.linkedinBump || aiGenerator.isScheduling || aiGenerator.status.linkedinBump" class="whitespace-nowrap px-3 py-1.5 bg-white border border-indigo-600 text-indigo-600 hover:bg-indigo-50 text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-bolt"></i> Send Now
+                                                </button>
+                                                <button @click="scheduleSingleAiPost('linkedinBump', 'AUTOMATIC')" :disabled="!aiGenerator.content.linkedinBump || aiGenerator.isScheduling || aiGenerator.status.linkedinBump" class="whitespace-nowrap px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                                    <i class="fa-solid fa-paper-plane"></i> Schedule
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rationale Readonly Field -->
+                                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between gap-2">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fa-solid fa-lightbulb text-yellow-500"></i>
+                                                <span class="font-semibold text-gray-800 text-sm">Strategy Rationale</span>
+                                            </div>
+                                            <span class="text-[11px] font-semibold text-gray-600 bg-gray-200/60 px-2.5 py-1 rounded-md">Read-only</span>
+                                        </div>
+                                        <div class="p-4 bg-gray-50/50">
+                                            <p class="text-sm text-gray-600 leading-relaxed" x-text="aiGenerator.content.strategyRationale"></p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- ACTION BUTTONS -->
                                 <div class="mt-8 flex flex-col-reverse sm:flex-row items-center justify-between pt-6 border-t border-gray-200 gap-4">
-                                    <button @click="discardAi" class="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2">
-                                        <i class="fa-regular fa-trash-can"></i> Discard
-                                    </button>
+                                    <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+                                        <button @click="discardAi" class="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2" title="Keep the URL and discard the text">
+                                            <i class="fa-regular fa-trash-can"></i> Discard
+                                        </button>
+                                        <button @click="startOverAi" class="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-file-circle-plus"></i> Start Over
+                                        </button>
+                                    </div>
                                     <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
                                         <button @click="generateAiContent" :disabled="aiGenerator.isGenerating" class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                                             <i class="fa-solid fa-rotate-right"></i> Regenerate
                                         </button>
-                                        <button @click="scheduleAiPosts" :disabled="aiGenerator.isScheduling" class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white bg-primary hover:bg-indigo-700 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                        <button @click="scheduleAiPosts('NOW')" :disabled="aiGenerator.isScheduling" class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-primary bg-white border border-primary hover:bg-indigo-50 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                            <template x-if="!aiGenerator.isScheduling">
+                                                <span><i class="fa-solid fa-bolt"></i> Send All Now</span>
+                                            </template>
+                                            <template x-if="aiGenerator.isScheduling">
+                                                <span><i class="fa-solid fa-circle-notch fa-spin"></i> Sending...</span>
+                                            </template>
+                                        </button>
+                                        <button @click="scheduleAiPosts('AUTOMATIC')" :disabled="aiGenerator.isScheduling" class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white bg-primary hover:bg-indigo-700 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
                                             <template x-if="!aiGenerator.isScheduling">
                                                 <span><i class="fa-solid fa-paper-plane"></i> Accept & Schedule</span>
                                             </template>
