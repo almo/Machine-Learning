@@ -743,6 +743,7 @@
                                                     <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap truncate" x-text="formatDate(post.scheduledTime)"></td>
                                                     <td class="px-2 py-3 text-center">
                                                         <span class="px-2 py-0.5 text-[10px] font-bold rounded-full" 
+                                                              :title="post.id"
                                                               :class="{
                                                                 'bg-amber-100 text-amber-700': post.status === 'SCHEDULED' || post.status === 'AUTOSCHEDULED',
                                                                 'bg-green-100 text-green-700': post.status === 'PUBLISHED',
@@ -938,7 +939,8 @@
                                             </td>
                                             <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap truncate" x-text="formatDate(post.scheduledTime)"></td>
                                             <td class="px-2 py-3 text-center">
-                                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full" 
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full cursor-help" 
+                                                  :title="post.id"
                                                       :class="{
                                                         'bg-amber-100 text-amber-700': post.status === 'SCHEDULED' || post.status === 'AUTOSCHEDULED',
                                                         'bg-green-100 text-green-700': post.status === 'PUBLISHED',

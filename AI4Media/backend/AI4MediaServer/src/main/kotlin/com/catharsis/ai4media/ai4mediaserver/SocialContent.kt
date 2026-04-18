@@ -60,7 +60,8 @@ data class SocialContent(
         val firstComment: String? = null,
         val tags: List<String> = emptyList(),
         val status: PostStatus = PostStatus.DRAFT,        
-        val network: SocialNetwork = SocialNetwork.LINKEDIN
+        val network: SocialNetwork = SocialNetwork.LINKEDIN,
+        val profile: SocialProfile = SocialProfile.PERSONAL
 )
 
 /** Enumerates the possible states of a [SocialContent] post. */
@@ -86,4 +87,10 @@ enum class PostStatus {
 enum class SocialNetwork {
     LINKEDIN,
     TWITTER
+}
+
+@Serializable
+enum class SocialProfile {
+    PERSONAL,
+    COMPANY
 }

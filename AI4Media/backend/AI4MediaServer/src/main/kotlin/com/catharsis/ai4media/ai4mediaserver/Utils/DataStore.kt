@@ -20,6 +20,7 @@ object DataStoreWrapper {
             urlContent: String?,
             scheduledTime: LocalDateTime,
             network: SocialNetwork,
+            profile: SocialProfile,
             tags: List<String>
     ): String {
 
@@ -35,7 +36,8 @@ object DataStoreWrapper {
                         scheduledTime = scheduledTime,
                         createdTime = LocalDateTime.now(AppConfig.timeZone), 
                         tags = tags,
-                        network = network 
+                        network = network, 
+                        profile = profile
                 )
 
             val key = datastore.newKeyFactory().setKind("SocialContent").newKey(content.id.toString())
@@ -47,7 +49,9 @@ object DataStoreWrapper {
                 .set("scheduledTime", Timestamp.of(Date.from(content.scheduledTime.atZone(AppConfig.timeZone).toInstant())))
                 .set("createdTime", Timestamp.of(Date.from(content.createdTime.atZone(AppConfig.timeZone).toInstant())))
                 .set("status", content.status.name)
-                .set("network",content.network.name).set("tags",content.tags.map {StringValue.of(it)})
+                .set("network",content.network.name)
+                .set("profile",content.profile.name)
+                .set("tags",content.tags.map {StringValue.of(it)})
                 .build()
 
             datastore.put(entity)
