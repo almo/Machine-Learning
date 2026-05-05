@@ -15,20 +15,29 @@ function app() {
         itemsPerPage: 25,
         
         // Patterns for login background
-        patterns: ['bg-pattern-1', 'bg-pattern-2', 'bg-pattern-3', 'bg-pattern-4', 'bg-pattern-5', 'bg-pattern-6'],
+        patterns: ['bg-dynamic-1', 'bg-dynamic-2', 'bg-dynamic-3'],
         currentPattern: '',
+        
+        // Newsletter specific state
+        newsletterMonth: '',
+        newsletterSelected: [],
 
         // Auto-run on initialization
         init() {
             // Pick a random pattern
             this.currentPattern = this.patterns[Math.floor(Math.random() * this.patterns.length)];
+            
+            // Set default newsletter month to previous month
+            const d = new Date();
+            d.setMonth(d.getMonth() - 1);
+            this.newsletterMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         },
 
         // Translations dictionary
         i18n: {
             en: {
                 login: { title: "AI4Media Platform", sub: "Sign in to access your workspace", google_btn: "Sign in with Google" },
-                nav: { rss: "News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", reading_list: "Reading List", settings: "Settings", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                nav: { rss: "News", compose: "Write Content", scheduled: "Scheduled", stats: "Stats", reading_list: "Reading List", newsletter: "Newsletter", settings: "Settings", logout: "Logout", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
                 rss: { 
                     title: "News", add: "Add Source", cat: "Categories", 
                     categories: { technology: "Technology", marketing: "Marketing", development: "Development" },
@@ -43,13 +52,28 @@ function app() {
                 reading_list: { title: "Reading List", sub: "Save articles to read or process later.", add: "Add Link", empty: "Your reading list is empty.", edit: "Edit Link", url: "URL", title_label: "Title", comments: "Comments", date: "Date", cancel: "Cancel", save: "Save" },
                 compose: { title: "AI Content Generator", sub: "Review and edit the generated content before scheduling.", url: "Source URL (Any link)", placeholder: "https://example.com/interesting-news", gen: "Generate Posts", creating: "Creating...", linkedin: "LinkedIn Post", twitter: "Twitter (X) Post", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Sending Configuration", send_sub: "Posts will be sent immediately or in the next available slot.", schedule_btn: "Schedule All", manual_title: "Create Manual Post", manual_sub: "Write and schedule your own custom content.", content_lbl: "Post Content", url_lbl: "Link URL (Optional)", tags_lbl: "Tags (e.g. #Tech)", networks_lbl: "Publish to", schedule_lbl: "Publishing Time", now: "Send Now", random: "Random Time", specific: "Specific Time", select_time: "Select Date & Time", post_btn: "Schedule Post" },
                 sched: { title: "Publishing Queue", upcoming: "Upcoming Posts", empty: "No scheduled posts found.", cal_title: "Visual Calendar", cal_via: "Via Iframe", cal_place: "Your Calendar Iframe goes here", cal_sub: "Replace the 'src' of the iframe with your real calendar URL.", scheduled_for: "Scheduled for:", filters: "Filters", network: "Network", tags_regex: "Tags (Regex)", date: "Date", all_networks: "All Networks", table_network: "Net", table_content: "Content", table_tags: "Tags", table_source: "Source", table_date: "Scheduled For", table_status: "Status", original_url: "Original URL" },
+                newsletter: {
+                    title: "Newsletter Builder",
+                    sub: "Curate your top posts into a structured newsletter.",
+                    month_filter: "Filter Month",
+                    top_table: "Selected Content",
+                    bottom_table: "Published Content",
+                    table_cat: "Category",
+                    select_cat: "Select category...",
+                    add: "Add",
+                    added: "Added",
+                    remove: "Remove",
+                    empty_top: "No content selected for the newsletter.",
+                    empty_bottom: "No published posts found for this month.",
+                    categories: { ai: "AI", software: "Software", open_source: "Open Source", startups: "Startups", science: "Science", misc: "Misc" }
+                },
                 stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", tags_analysis: "Tags Analysis", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month", published_list: "Published Posts Log", table_post: "Post Link", empty: "No published posts found." },
                 alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", publish_confirm: "Are you sure you want to publish this post right now?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync.", saved_reading_list: "Added to reading list!", delete_reading_list: "Remove from reading list?" },
                 settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login.", news_sync: "News Sync", sync_now: "Sync Now", syncing: "Syncing...", sources_manage: "Manage Sources & Synchronization", sources_manage_sub: "Add, edit, remove, and sync your RSS feeds.", actions: "Actions", expand_all: "Expand All", collapse_all: "Collapse All", unread: "Unread", sources_count: "Sources", last_sync: "Last Sync", success: "Success", sync_error: "Error", never: "Never" }
             },
             es: {
                 login: { title: "Plataforma AI4Media", sub: "Inicia sesión para acceder a tu espacio", google_btn: "Iniciar sesión con Google" },
-                nav: { rss: "Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", reading_list: "Lista de Lectura", settings: "Configuración", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
+                nav: { rss: "Noticias", compose: "Redactar Contenido", scheduled: "Programados", stats: "Estadísticas", reading_list: "Lista de Lectura", newsletter: "Boletín (Newsletter)", settings: "Configuración", logout: "Cerrar Sesión", switch_es: "Cambiar a Español", switch_en: "Switch to English" },
                 rss: { 
                     title: "Noticias", add: "Añadir Fuente", cat: "Categorías", 
                     categories: { technology: "Tecnología", marketing: "Marketing", development: "Desarrollo" },
@@ -64,6 +88,21 @@ function app() {
                 reading_list: { title: "Lista de Lectura", sub: "Guarda artículos para leer o procesar más tarde.", add: "Añadir Enlace", empty: "Tu lista de lectura está vacía.", edit: "Editar Enlace", url: "URL", title_label: "Título", comments: "Comentarios", date: "Fecha", cancel: "Cancelar", save: "Guardar" },
                 compose: { title: "Generador de Contenido IA", sub: "Revisa y edita el contenido generado antes de programarlo.", url: "URL de la Fuente (Cualquier enlace)", placeholder: "https://ejemplo.com/noticia-interesante", gen: "Generar Posts", creating: "Creando...", linkedin: "Post LinkedIn", twitter: "Post Twitter (X)", bump1: "Bump 1", bump1_sub: "(+3/4 hours)", bump2: "Bump 2", bump2_sub: "(+24 hours)", send_cfg: "Configuración de Envío", send_sub: "Los posts se enviarán inmediatamente o en el próximo bloque disponible.", schedule_btn: "Programar Todo", manual_title: "Crear Post Manual", manual_sub: "Escribe y programa tu propio contenido personalizado.", content_lbl: "Contenido del Post", url_lbl: "URL del Enlace (Opcional)", tags_lbl: "Etiquetas (ej. #Tech)", networks_lbl: "Publicar en", schedule_lbl: "Momento de Publicación", now: "Enviar Ahora", random: "Tiempo Aleatorio", specific: "Hora Específica", select_time: "Seleccionar Fecha y Hora", post_btn: "Programar Post" },
                 sched: { title: "Cola de Publicación", upcoming: "Próximos Envíos", empty: "No hay posts programados.", cal_title: "Calendario Visual", cal_via: "Vía Iframe", cal_place: "Aquí irá tu Iframe del Calendario", cal_sub: "Reemplaza el 'src' del iframe con la URL de tu backend.", scheduled_for: "Programado para:", filters: "Filtros", network: "Red", tags_regex: "Etiquetas (Regex)", date: "Fecha", all_networks: "Todas las Redes", table_network: "Red", table_content: "Contenido", table_tags: "Etiquetas", table_source: "Origen", table_date: "Programado Para", table_status: "Estado", original_url: "URL Original" },
+                newsletter: {
+                    title: "Constructor de Boletín",
+                    sub: "Cura tus mejores posts en un boletín estructurado.",
+                    month_filter: "Filtrar por Mes",
+                    top_table: "Contenido Seleccionado",
+                    bottom_table: "Contenido Publicado",
+                    table_cat: "Categoría",
+                    select_cat: "Seleccionar categoría...",
+                    add: "Añadir",
+                    added: "Añadido",
+                    remove: "Quitar",
+                    empty_top: "No se ha seleccionado contenido para el boletín.",
+                    empty_bottom: "No se encontraron posts publicados en este mes.",
+                    categories: { ai: "IA", software: "Software", open_source: "Código Abierto", startups: "Startups", science: "Ciencia", misc: "Otros" }
+                },
                 stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", tags_analysis: "Análisis de Etiquetas", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior", published_list: "Registro de Publicaciones", table_post: "Enlace del Post", empty: "No se encontraron posts publicados." },
                 alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", publish_confirm: "¿Estás seguro de que deseas publicar este post ahora mismo?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias.", saved_reading_list: "¡Añadido a la lista de lectura!", delete_reading_list: "¿Eliminar de la lista de lectura?" },
                 settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth.", news_sync: "Sincronizar Noticias", sync_now: "Sincronizar Ahora", syncing: "Sincronizando...", sources_manage: "Gestionar Fuentes y Sincronización", sources_manage_sub: "Añade, edita, elimina y sincroniza tus feeds RSS.", actions: "Acciones", expand_all: "Expandir Todo", collapse_all: "Contraer Todo", unread: "No leídos", sources_count: "Fuentes", last_sync: "Última Sincronización", success: "Éxito", sync_error: "Error", never: "Nunca" }
@@ -578,6 +617,62 @@ function app() {
         },
         get publishedTotalPages() {
             return Math.max(1, Math.ceil(this.publishedList.length / this.publishedItemsPerPage));
+        },
+
+        // Newsletter Computed Properties & Functions
+        get groupedNewsletterSelected() {
+            const order = ['ai', 'software', 'open_source', 'startups', 'science', 'misc'];
+            return order.map(cat => {
+                return {
+                    category: cat,
+                    items: this.newsletterSelected.filter(p => p.newsletterCategory === cat)
+                };
+            }).filter(group => group.items.length > 0);
+        },
+
+        get newsletterFilteredPublished() {
+            const selectedIds = new Set(this.newsletterSelected.map(p => p.id));
+            
+            let filtered = this.publishedList.filter(post => {
+                // 1. Only LinkedIn Company profile
+                if (this.getNetwork(post) !== 'linkedin') return false;
+                
+                // 2. Hide if already selected
+                if (selectedIds.has(post.id)) return false;
+                
+                // 3. Ensure it has a valid date
+                if (!post.scheduledTime) return false;
+                let d;
+                try {
+                    if (typeof post.scheduledTime === 'string') d = new Date(post.scheduledTime);
+                    else if (typeof post.scheduledTime === 'object') d = new Date((post.scheduledTime.seconds || post.scheduledTime.epochSecond) * 1000);
+                    else d = new Date(post.scheduledTime);
+                } catch (e) { return false; }
+                
+                if (isNaN(d.getTime())) return false;
+                
+                post._parsedDate = d.getTime();
+                
+                // 4. Filter by month if set
+                if (this.newsletterMonth) {
+                    const [year, month] = this.newsletterMonth.split('-');
+                    if (d.getFullYear() !== parseInt(year, 10) || (d.getMonth() + 1) !== parseInt(month, 10)) return false;
+                }
+                return true;
+            });
+            
+            // 5. Order by publication date (descending)
+            return filtered.sort((a, b) => b._parsedDate - a._parsedDate);
+        },
+        addToNewsletter(post, category) {
+            if (!category) return alert(this.lang === 'en' ? 'Please select a category first.' : 'Por favor selecciona una categoría primero.');
+            if (!this.isPostInNewsletter(post.id)) this.newsletterSelected.push({ ...post, newsletterCategory: category });
+        },
+        removeFromNewsletter(postId) {
+            this.newsletterSelected = this.newsletterSelected.filter(p => p.id !== postId);
+        },
+        isPostInNewsletter(postId) {
+            return this.newsletterSelected.some(p => p.id === postId);
         },
 
         // Reading List Data
