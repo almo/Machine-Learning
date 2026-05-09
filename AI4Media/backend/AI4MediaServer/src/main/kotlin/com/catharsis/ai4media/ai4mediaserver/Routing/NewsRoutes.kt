@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.net.URI
 import com.google.auth.ServiceAccountSigner
 import com.google.auth.oauth2.GoogleCredentials
+import io.ktor.client.engine.cio.*
 
 private const val RSSFeedSourceKIND = "RSSFeedSource"
 
@@ -275,7 +276,7 @@ suspend fun syncNewsForUser(userId: String, application: Application) {
 }
 
 // Define your client with a default User-Agent
-private val httpClient = HttpClient {
+private val httpClient = HttpClient(CIO) {
     install(io.ktor.client.plugins.UserAgent) {
         agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     }
@@ -313,6 +314,8 @@ private suspend fun processSourceAndSaveNews(
 
         // Fetch the feed
         val response: HttpResponse = httpClient.get(url) {
+            header(HttpHeaders.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            header(HttpHeaders.AcceptEncoding, "gzip, deflate")
             header(
                 HttpHeaders.Accept,
                 "application/rss+xml, application/atom+xml, text/xml"

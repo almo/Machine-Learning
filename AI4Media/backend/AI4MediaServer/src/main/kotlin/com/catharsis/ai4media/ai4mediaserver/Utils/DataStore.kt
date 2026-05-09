@@ -89,32 +89,37 @@ object DataStoreWrapper {
         }
     }
 
-    fun getFutureAutoScheduledPosts(userId: String, network: SocialNetwork): List<LocalDateTime> {
+    fun getPostsForScheduling(userId: String, network: SocialNetwork): List<LocalDateTime> {
+        val startOfDay = LocalDateTime.now(AppConfig.timeZone).toLocalDate().atStartOfDay()
+        val timestampLimit = Timestamp.of(Date.from(startOfDay.atZone(AppConfig.timeZone).toInstant()))
+
         val query = Query.newEntityQueryBuilder()
             .setKind("SocialContent")
             .setFilter(
                 StructuredQuery.CompositeFilter.and(
                     StructuredQuery.PropertyFilter.eq("userId", userId),
                     StructuredQuery.PropertyFilter.eq("network", network.name),
-                    StructuredQuery.PropertyFilter.eq("status", PostStatus.AUTOSCHEDULED.name),
-                    StructuredQuery.PropertyFilter.gt("scheduledTime", Timestamp.now())
+                    StructuredQuery.PropertyFilter.ge("scheduledTime", timestampLimit)
                 )
             )
             .setOrderBy(StructuredQuery.OrderBy.asc("scheduledTime"))
             .build()
 
         val results = datastore.run(query)
-        val futurePosts = mutableListOf<LocalDateTime>()
+        val posts = mutableListOf<LocalDateTime>()
 
         while (results.hasNext()) {
             val entity = results.next()
-            if (entity.contains("scheduledTime")) {
-                val googleTimestamp = entity.getTimestamp("scheduledTime")
-                val instant = Instant.ofEpochSecond(googleTimestamp.seconds, googleTimestamp.nanos.toLong())
-                val scheduledTime = LocalDateTime.ofInstant(instant, AppConfig.timeZone)
-                futurePosts.add(scheduledTime)
+            val status = if (entity.contains("status")) entity.getString("status") else ""
+            if (status in listOf(PostStatus.PUBLISHED.name, PostStatus.PUBLISHING.name, PostStatus.SCHEDULED.name, PostStatus.AUTOSCHEDULED.name)) {
+                if (entity.contains("scheduledTime")) {
+                    val googleTimestamp = entity.getTimestamp("scheduledTime")
+                    val instant = Instant.ofEpochSecond(googleTimestamp.seconds, googleTimestamp.nanos.toLong())
+                    val scheduledTime = LocalDateTime.ofInstant(instant, AppConfig.timeZone)
+                    posts.add(scheduledTime)
+                }
             }
         }
-        return futurePosts
+        return posts
     }
 }

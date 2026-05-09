@@ -21,10 +21,8 @@ private fun buildAiGeneratedPrompt(targetUrl: String, scrapedText: String): Stri
                        professional industry observer. Start the post content immediately—do
                        NOT include headers, labels, or prefixes like "Sharing Industry News:"
                        or "Update:".
-                       * Attribution: Use phrases like "New research indicates..." or
-                         "Current developments in [Topic] suggest..." to ensure we are not
-                          claiming ownership of the work.
-                       * Strategic Value: Weave the relevance for Tech, Software, and AI
+                       * Strategic Value: Weave the relevance for Tech, Open Source, AI,
+                         Software, Startups, and Science
                          sectors directly into the narrative. Do NOT append a list of 
                          industries or a "This is relevant for..." disclaimer at the end.
                          The value should be implied through a professional, strategic 

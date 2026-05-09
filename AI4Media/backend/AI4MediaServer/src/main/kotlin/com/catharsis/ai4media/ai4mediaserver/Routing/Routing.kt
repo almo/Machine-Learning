@@ -57,23 +57,22 @@ object UserSettingsRegistry {
  * 
  * @param network The target social network.
  * @param settings The schedule settings for the user (limits, sweet spots).
- * @param futureAutoScheduledPosts A list of LocalDateTime representing all currently future AUTOSCHEDULED posts for this user and network.
+ * @param existingPosts A list of LocalDateTime representing all existing posts for this user and network from today onwards.
  * @return A LocalDateTime representing the calculated optimized schedule time.
  */
 fun calculateOptimizedScheduleTime(
     network: SocialNetwork,
     settings: UserScheduleSettings,
-    futureAutoScheduledPosts: List<LocalDateTime>
+    existingPosts: List<LocalDateTime>
 ): LocalDateTime {
     val now = LocalDateTime.now(AppConfig.timeZone)
-    val lastPostTime = futureAutoScheduledPosts.maxOrNull() ?: now
-    var currentDate = lastPostTime.toLocalDate()
+    var currentDate = now.toLocalDate()
 
     val dailyLimit = settings.dailyLimits[network] ?: 2
     val spots = settings.sweetSpots
 
     while (true) {
-        val postsOnDate = futureAutoScheduledPosts.filter { it.toLocalDate() == currentDate }
+        val postsOnDate = existingPosts.filter { it.toLocalDate() == currentDate }
         
         if (postsOnDate.size < dailyLimit) {
             val availableSpots = spots.mapNotNull { spot ->
@@ -83,7 +82,7 @@ fun calculateOptimizedScheduleTime(
                 // Skip if spot is already completely in the past
                 if (!spotEnd.isAfter(now)) return@mapNotNull null
                 
-                // Check if the spot is already occupied by any existing auto-scheduled post
+                // Check if the spot is already occupied by any existing post
                 val isOccupied = postsOnDate.any { it >= spotStart && it <= spotEnd }
                 
                 if (!isOccupied) (spotStart to spotEnd) else null
@@ -157,8 +156,8 @@ fun Application.configureRouting() {
                         val parsedTime =
                             if (request.scheduledTime == "AUTOMATIC") {
                                 val userSettings = UserSettingsRegistry.getSettingsForUser(user.userId)
-                                val futureAutoScheduledPosts = DataStoreWrapper.getFutureAutoScheduledPosts(user.userId, parsedNetwork)
-                                calculateOptimizedScheduleTime(parsedNetwork, userSettings, futureAutoScheduledPosts)
+                                val existingPosts = DataStoreWrapper.getPostsForScheduling(user.userId, parsedNetwork)
+                                calculateOptimizedScheduleTime(parsedNetwork, userSettings, existingPosts)
                             } else if (request.scheduledTime == "NOW") {
                                 LocalDateTime.now(AppConfig.timeZone)
                             } else {
