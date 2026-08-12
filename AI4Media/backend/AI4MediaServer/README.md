@@ -46,7 +46,7 @@ flowchart TD
     ROUTING -->|Sign Assets| GCS
     ROUTING -->|Store & Query| DATASTORE
     ROUTING -->|Enqueue Task| TASKS
-    TASKS -->|POST /publish/{id} (OIDC)| ROUTING
+    TASKS -->|"POST /publish/{id} (OIDC)"| ROUTING
     ROUTING -->|Validate Tokens| AUTH_MOD
     AUTH_MOD -->|Refresh Tokens| LI_API
     AUTH_MOD -->|Refresh Tokens| TW_API
