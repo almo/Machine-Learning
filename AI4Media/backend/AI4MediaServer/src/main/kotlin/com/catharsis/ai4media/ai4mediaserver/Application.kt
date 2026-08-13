@@ -229,4 +229,5 @@ fun Application.module() {
     this.configureNewsRouting()
     this.configureScheduledContentRouting()
     this.configureReadingListRouting()
+    this.configureAIGenerationRouting()
 }

@@ -11,9 +11,16 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
+/**
+ * Configures the routing module for handling scheduled and published social media content.
+ * This includes retrieving the queue of upcoming posts, retrieving the history of published posts,
+ * and allowing users to delete scheduled posts.
+ */
 fun Application.configureScheduledContentRouting() {
     routing {
+        // Protect these endpoints with Firebase Authentication
         authenticate("firebase-auth") {
+            // GET: Retrieve all upcoming scheduled and auto-scheduled posts for the user
             get("/api/scheduled") {
                 val user = call.principal<User>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
                 
@@ -50,6 +57,7 @@ fun Application.configureScheduledContentRouting() {
                                 LocalDateTime.ofInstant(Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()), AppConfig.timeZone)
                             } else LocalDateTime.now(AppConfig.timeZone)
 
+                            // Extract identifying properties and parse enums safely
                             val idStr = entity.key.nameOrId.toString()
 
                             val networkStr = if (entity.contains("network")) entity.getString("network") else ""
@@ -82,6 +90,7 @@ fun Application.configureScheduledContentRouting() {
                 }
             }
 
+            // GET: Retrieve all published or failed posts within a specific time window (default 30 days)
             get("/api/published") {
                 val user = call.principal<User>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
                 val daysParam = call.request.queryParameters["days"]?.toLongOrNull() ?: 30L
@@ -132,6 +141,7 @@ fun Application.configureScheduledContentRouting() {
                                 LocalDateTime.ofInstant(Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()), AppConfig.timeZone)
                             } else LocalDateTime.now(AppConfig.timeZone)
 
+                            // Extract identifying properties and parse enums safely
                             val idStr = entity.key.nameOrId.toString()
 
                             val networkStr = if (entity.contains("network")) entity.getString("network") else ""
@@ -164,6 +174,7 @@ fun Application.configureScheduledContentRouting() {
                 }
             }
 
+            // DELETE: Soft delete a scheduled post by changing its status to DELETED
             delete("/api/scheduled/{id}") {
                 val user = call.principal<User>() ?: return@delete call.respond(HttpStatusCode.Unauthorized)
                 val postId = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "Missing post ID")
@@ -174,10 +185,12 @@ fun Application.configureScheduledContentRouting() {
                     val key = postId.toLongOrNull()?.let { keyFactory.newKey(it) } ?: keyFactory.newKey(postId)
                     val entity = datastore.get(key)
 
+                    // Verify the post exists and belongs to the authenticated user
                     if (entity == null || (entity.contains("userId") && entity.getString("userId") != user.userId)) {
                         return@delete call.respond(HttpStatusCode.NotFound, "Post not found or unauthorized")
                     }
 
+                    // Perform a soft delete instead of a hard delete to maintain history if needed
                     val updatedEntity = Entity.newBuilder(entity)
                         .set("status", PostStatus.DELETED.name)
                         .build()

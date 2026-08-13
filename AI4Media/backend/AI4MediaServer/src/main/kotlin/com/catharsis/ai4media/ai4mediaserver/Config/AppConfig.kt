@@ -1,6 +1,8 @@
 package com.catharsis.ai4media.ai4mediaserver
 
 import java.time.ZoneId
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 
 /**
@@ -97,15 +99,20 @@ object AppConfig {
     init {
         projectId = System.getenv("GOOGLE_CLOUD_PROJECT") ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
         baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
-        cloudLocationId      =   SecretManager.getSecret(projectId, "CLOUD_LOCATION_ID") 
-        cloudTasksQueueId    =   SecretManager.getSecret(projectId, "CLOUD_TASKS_QUEUE_ID") 
-        serviceAccount       =   SecretManager.getSecret(projectId, "GOOGLE_CLOUD_SERVICE_ACCOUNT") 
-        twitterClientId      =   SecretManager.getSecret(projectId, "TWITTER_CLIENT_ID") 
-        twitterClientSecret  =   SecretManager.getSecret(projectId, "TWITTER_CLIENT_SECRET") 
-        linkedinClientId     =   SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_ID") 
-        linkedinClientSecret =   SecretManager.getSecret(projectId, "LINKEDIN_CLIENT_SECRET") 
-        sessionSecretString  =   SecretManager.getSecret(projectId, "OAUTH_SESSION_SECRET_KEY") 
-        sessionEncryptKey    =   SecretManager.getSecret(projectId, "SECRET_ENCRYPT_KEY") 
+
+        val ai4mediaSecretJson = SecretManager.getSecret(projectId, "AI4MEDIA")
+        val secrets = Json.decodeFromString<Map<String, String>>(ai4mediaSecretJson)
+
+        cloudLocationId      = secrets["CLOUD_LOCATION_ID"] ?: throw IllegalStateException("CLOUD_LOCATION_ID missing in AI4MEDIA secret")
+        cloudTasksQueueId    = secrets["CLOUD_TASKS_QUEUE_ID"] ?: throw IllegalStateException("CLOUD_TASKS_QUEUE_ID missing in AI4MEDIA secret")
+        serviceAccount       = secrets["GOOGLE_CLOUD_SERVICE_ACCOUNT"] ?: throw IllegalStateException("GOOGLE_CLOUD_SERVICE_ACCOUNT missing in AI4MEDIA secret")
+        twitterClientId      = secrets["TWITTER_CLIENT_ID"] ?: throw IllegalStateException("TWITTER_CLIENT_ID missing in AI4MEDIA secret")
+        twitterClientSecret  = secrets["TWITTER_CLIENT_SECRET"] ?: throw IllegalStateException("TWITTER_CLIENT_SECRET missing in AI4MEDIA secret")
+        linkedinClientId     = secrets["LINKEDIN_CLIENT_ID"] ?: throw IllegalStateException("LINKEDIN_CLIENT_ID missing in AI4MEDIA secret")
+        linkedinClientSecret = secrets["LINKEDIN_CLIENT_SECRET"] ?: throw IllegalStateException("LINKEDIN_CLIENT_SECRET missing in AI4MEDIA secret")
+        sessionSecretString  = secrets["OAUTH_SESSION_SECRET_KEY"] ?: throw IllegalStateException("OAUTH_SESSION_SECRET_KEY missing in AI4MEDIA secret")
+        sessionEncryptKey    = secrets["SECRET_ENCRYPT_KEY"] ?: throw IllegalStateException("SECRET_ENCRYPT_KEY missing in AI4MEDIA secret")
+
         timeZone             =   ZoneId.of("Europe/Zurich")
         rssNewsBaselineCutoffDays = System.getenv("RSS_NEWS_BASELINE_CUTOFF_DAYS")?.toLongOrNull() ?: 45L
         rssNewsRetentionDays = System.getenv("RSS_NEWS_RETENTION_DAYS")?.toLongOrNull() ?: 30L
