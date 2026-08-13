@@ -1,32 +1,46 @@
-# AI4Media
+ ## 1. What the System is Trying to Accomplish
 
-**AI4Media** is an intelligent content aggregation, generative AI copywriting, and automated social media scheduling platform. Architected as a serverless microservice on **Google Cloud App Engine Standard** (Java 21 / Kotlin / Ktor), it orchestrates the entire social marketing lifecycle—from high-concurrency RSS feed ingestion and heuristic web scraping, to LLM-powered multi-persona copy generation with Google Cloud Vertex AI (Gemini), intelligent algorithmic scheduling, and distributed multi-platform publishing.
-
----
-
-## 🏛️ System Architecture
-
-```mermaid
+  AI4MediaServer is an automated, serverless content aggregation, generative AI copywriting, and social media scheduling platform deployed on
+  Google Cloud App Engine Standard (Java 21 / Kotlin / Ktor).
+  The core objectives of the system are:
+  1. Automated Content Ingestion: Continuously fetch, parse, deduplicate, and curate news articles from user-configured RSS feeds on a daily
+  automated schedule.
+  2. Generative AI Copywriting: Scrape article content and generate multi-persona, audience-tailored copy using Google Cloud Vertex AI (Gemini
+  2.5 Flash Lite) with strict prompt-injection defenses:
+      • LinkedIn Company Page: Professional industry curator persona.
+      • LinkedIn Personal Profile: Thought leadership bump/discussion prompt designed to reshare and spark engagement.
+      • Twitter / X: Punchy, high-engagement tweets adhering to the 280-character limit.
+  3. Smart Algorithmic Scheduling: Automatically distribute posts into engagement "sweet spots" (Morning, Lunch, Commute, Night) while
+  enforcing daily per-network quota limits.
+  4. Reliable Cloud Tasks Dispatch: Queue delayed publication webhooks through Google Cloud Tasks protected by OpenID Connect (OIDC) service-
+  account validation.
+  5. Multi-Platform Publishing & Token Lifecycle: Publish rich posts and digital media assets to LinkedIn REST API v2 and Twitter/X API v2 with
+  transparent, preemptive OAuth token refresh.
+  6. Embedded Web Single-Page Application (SPA): Provide a lightweight, reactive UI (app.js + Tailwind CSS + Firebase Auth) for news curation,
+  drafting, queue management, reading lists, and analytics.
+  ──────
+  ## 2. System Architecture & Component Inventory
+  ```mermaid
 flowchart TD
-    subgraph Client["Frontend Client (SPA)"]
-        UI["Web Single Page App<br/>(resources/static)"]
-        FB_AUTH["Firebase Authentication<br/>(Google Sign-In)"]
+    subgraph Client["Frontend SPA (Alpine.js)"]
+        UI["Web App (index.html / app.js)"]
+        FB_AUTH["Firebase Authentication"]
     end
 
     subgraph Server["AI4MediaServer (Ktor / Java 21)"]
-        KTOR["Ktor CIO Engine<br/>(Application.kt)"]
-        ROUTING["Routing Controllers<br/>(Routing/)"]
-        AUTH_MOD["Auth & Token Service<br/>(Auth/)"]
-        SCRAPER["Scrapers & Parsers<br/>(ROME / Jsoup / Skrape)"]
+        KTOR["Ktor CIO Engine (Application.kt)"]
+        ROUTING["Routing Controllers (Routing/)"]
+        AUTH_MOD["Auth & Token Service (Auth/)"]
+        SCRAPER["Scrapers (ROME / Jsoup / Skrape)"]
     end
 
-    subgraph GCP["Google Cloud Platform Services"]
-        SECRETS["Secret Manager<br/>(AI4MEDIA Secret)"]
-        DATASTORE[("Cloud Datastore<br/>(News, Posts, Sources, Tokens)")]
-        VERTEX["Vertex AI<br/>(Gemini 2.5 Flash Lite)"]
-        GCS["Cloud Storage<br/>(Signed Image URLs)"]
-        TASKS["Cloud Tasks<br/>(Scheduled Job Queue)"]
-        CRON["App Engine Cron<br/>(/internal/cron/news-sync)"]
+    subgraph GCP["Google Cloud Platform"]
+        SECRETS["Secret Manager (AI4MEDIA Secret)"]
+        DATASTORE[("Cloud Datastore")]
+        VERTEX["Vertex AI (Gemini 2.5 Flash Lite)"]
+        GCS["Cloud Storage (Signed URLs)"]
+        TASKS["Cloud Tasks (Delayed Queue)"]
+        CRON["App Engine Cron (/internal/cron/news-sync)"]
     end
 
     subgraph External["External Networks & Feeds"]
@@ -35,175 +49,91 @@ flowchart TD
         TW_API["Twitter / X API v2"]
     end
 
-    %% Flow connections
     UI -->|Bearer JWT| ROUTING
     FB_AUTH -.->|ID Token| UI
-    CRON -->|Daily 03:00 Trigger| ROUTING
+    CRON -->|Daily 03:00 Sync| ROUTING
     KTOR -->|Load Secrets| SECRETS
     ROUTING -->|Ingest Feeds| RSS_FEEDS
     ROUTING -->|Scrape Web & Media| SCRAPER
     ROUTING -->|Synthesize Copy| VERTEX
-    ROUTING -->|Sign Assets| GCS
-    ROUTING -->|Store & Query| DATASTORE
-    ROUTING -->|Enqueue Task| TASKS
+    ROUTING -->|Sign Preview Images| GCS
+    ROUTING -->|CRUD Entities| DATASTORE
+    ROUTING -->|Enqueue Delayed Task| TASKS
     TASKS -->|"POST /publish/{id} (OIDC)"| ROUTING
-    ROUTING -->|Validate Tokens| AUTH_MOD
-    AUTH_MOD -->|Refresh Tokens| LI_API
-    AUTH_MOD -->|Refresh Tokens| TW_API
-    ROUTING -->|Publish Posts & UGC| LI_API
+    ROUTING -->|Preemptive Token Check| AUTH_MOD
+    AUTH_MOD -->|Refresh Expired Tokens| LI_API
+    AUTH_MOD -->|Refresh Expired Tokens| TW_API
+    ROUTING -->|Publish UGC & Media| LI_API
     ROUTING -->|Publish Tweets| TW_API
 ```
 
----
+### Submodule Documentation & Code References
 
-## 🎯 What AI4Media Accomplishes
+   Subsystem                 | Documentation Link | Key Source Files
+  ---------------------------|--------------------|--------------------------------------------------------------------------------------------
+   Core Server Bootstrap     | README.md          | Application.kt, SocialContent.kt, CloudTasks.kt
+   Authentication & Tokens   | README.md          | oAuthPKCE.kt, TokenService.kt, TokenVerifier.kt
+   Configuration & Secrets   | README.md          | AppConfig.kt, SecretManager.kt
+   Social Media Connectors   | README.md          | LinkedinConnector.kt, TwitterConnector.kt
+   HTTP Routing & REST APIs  | README.md          | Routing.kt, AiGenerateRoutes.kt, NewsRoutes.kt, AuthRoutes.kt, ScheduledContentRoutes.kt,
+                             |                    | ReadingListRoutes.kt, SourceRoutes.kt
+   Utilities & Integrations  | README.md          | VertexAI.kt, DataStore.kt, DatastoreSourceRepository.kt, NewsScrapper.kt, WebScrapper.kt,
+                             |                    | CloudStorage.kt
+   App Engine Infrastructure | README.md          | app.yaml, cron.yaml, dispatch.yaml, index.yaml
+   Client-Side Web SPA       | README.md          | index.html, app.js, auth.js, firebase-config.js, styles.css
+  ──────
+  
+## 3. How the System Works Across the Lifecycle
 
-1. **Automated Content Aggregation & Curation**:
-   - Ingests feeds across subscribed RSS sources concurrently with a pool of Kotlin coroutine workers.
-   - Heuristically extracts clean article text, metadata, and high-resolution preview images (evaluating OpenGraph, Twitter Cards, JSON-LD, and DOM dimensions).
-   - Deduplicates articles using SHA-256 URL keys and automatically prunes stale news based on retention limits.
+### Phase 1: Configuration, Startup, and Security
 
-2. **Generative AI Copywriting Pipeline**:
-   - Transforms scraped articles into platform-optimized copy using **Google Cloud Vertex AI (Gemini 2.5 Flash Lite)**.
-   - Enforces prompt-injection defenses and structured JSON schemas to generate:
-     - **LinkedIn Company Page**: Professional industry observer summary.
-     - **LinkedIn Personal Profile**: Analytical "thought leadership" bump / engagement prompt to spark discussions and reshare company posts.
-     - **Twitter / X**: Punchy post adhering strictly to the 280-character limit.
-     - Strategic SEO tags and reasoning.
+* **Dynamic Secret Loading:** On startup, `AppConfig.kt:16` combines environment variables with runtime secrets loaded from Google Cloud Secret Manager via `SecretManager.kt:13`.
+* **Engine Middleware in `Application.kt:35`:**
+  * Zstd / Gzip / Deflate Compression with BREACH attack mitigation.
+  * Encrypted Cookie Sessions (`AI4MEDIA_SESSION`) using AES encryption and HMAC-SHA256 signing.
+  * **Authentication Schemes:**
+    * `firebase-auth`: Validates user Firebase ID tokens from the frontend.
+    * `google-cloud-tasks`: Validates Google OIDC JWT tokens on automated callbacks via `TokenVerifier.kt:10`.
+    * `auth-twitter` & `auth-linkedin`: OAuth 2.0 PKCE authorization handlers using `oAuthPKCE.kt:9`.
 
-3. **Smart Algorithmic Scheduling**:
-   - Supports immediate (`NOW`), manual (`SCHEDULED`), and algorithmic (`AUTOMATIC`) scheduling.
-   - In automatic mode, calculates optimal time slots within high-engagement daily windows ("Morning", "Lunch", "Commute", "Night") while enforcing user-configured daily publication quotas per social network.
+### Phase 2: RSS Ingestion & Heuristic Web Scraping
 
-4. **Distributed Asynchronous Task Dispatch**:
-   - Enqueues delayed HTTP callbacks to Google Cloud Tasks with Google OpenID Connect (OIDC) service-account authentication targeting `/publish/{id}`.
+* **Cron Trigger:** App Engine Cron invokes `GET /internal/cron/news-sync` daily at 03:00 Europe/Zurich (`cron.yaml`).
+* **Concurrent Ingestion:** `NewsRoutes.kt` dispatches work across 20 coroutine workers, parsing feeds with ROME tools (`SyndFeedInput`) and deduplicating items with SHA-256 URL keys in Datastore.
+* **Media Resolution:** `NewsScrapper.kt` and `WebScrapper.kt` extract preview images via a hierarchical fallback chain: OpenGraph (`og:image`) → Twitter Cards (`twitter:image`) → JSON-LD structured data → Apple touch icons → DOM image dimensions.
+* **Data Pruning:** Articles older than `AppConfig.rssNewsRetentionDays` (default: 30 days) are automatically purged.
 
-5. **Multi-Platform Social Publishing & OAuth Lifecycle**:
-   - Connects to **LinkedIn REST API v2** (UGC posts, digital media asset registration/upload, and first-comment link sharing).
-   - Connects to **Twitter/X API v2** for tweet publishing.
-   - Manages OAuth 2.0 PKCE authorization and transparently refreshes expiring access tokens with a 60-second safety window.
+### Phase 3: Generative AI Copywriting Pipeline
 
-6. **Embedded Web Single-Page Application (SPA)**:
-   - Built with Alpine.js 3.x, Tailwind CSS, Font Awesome, and Chart.js, embedded directly in the backend resources.
-   - Features Firebase Google Sign-In, real-time bilingual localization (EN/ES), post composer, queue management, reading lists, and tag analytics.
+* **Endpoint `POST /api/ai/generate`:** Located in `AiGenerateRoutes.kt:86`.
+* **Scraping:** Fetches up to 5,000 characters of clean article text via Jsoup.
+* **Prompt Synthesis & Defenses:** Constructs structured instructions for `gemini-2.5-flash-lite` wrapped inside security boundary tags (`<article_text>`, `<url>`) to defend against prompt injection.
+* **Structured Response:** `VertexAI.kt:43` returns a typed JSON payload containing:
+  * `linkedinCompany`: Professional industry summary.
+  * `linkedinBump`: Provocative personal engagement thought.
+  * `twitter`: 280-character limited post.
+  * `strategyRationale` & SEO tags.
 
----
+### Phase 4: Smart Scheduling & Cloud Tasks Queue
 
-## 📁 Repository Structure & Documentation Index
+* **Endpoint `POST /schedule`:** Located in `Routing.kt:130`.
+* **Three Scheduling Modes:**
+  1. `NOW`: Immediately launches an asynchronous publishing coroutine.
+  2. `SCHEDULED`: Sets a specific ISO-8601 timestamp.
+  3. `AUTOMATIC`: Calls `Routing.kt:63` to allocate posts into available daily sweet spots (Morning, Lunch, Commute, Night) without exceeding per-network limits (Twitter: 5/day, LinkedIn: 2/day).
+* **Task Enqueuing:** For future posts, `CloudTasks.kt:18` creates an HTTP callback targeting `/publish/{id}` with an OIDC identity token and execution timestamp. The post entity is recorded in Datastore under `SocialContent.kt:73` or `SocialContent.kt:72`.
 
-```text
-AI4Media/
-└── backend/
-    └── AI4MediaServer/                 # Core Ktor backend server
-        ├── build.gradle.kts            # Gradle build configuration & toolchain
-        ├── settings.gradle.kts         # Gradle project settings
-        ├── README.md                   # AI4MediaServer root documentation
-        │
-        ├── src/main/                   # Main application source root
-        │   ├── README.md               # Source directory documentation
-        │   ├── appengine/              # App Engine deployment descriptors
-        │   │   ├── app.yaml            # Service descriptor, scaling & runtime
-        │   │   ├── cron.yaml           # App Engine cron job schedules
-        │   │   ├── dispatch.yaml       # Domain routing rules
-        │   │   ├── index.yaml          # Datastore composite index definitions
-        │   │   └── README.md           # App Engine deployment documentation
-        │   │
-        │   ├── kotlin/                 # Core Kotlin backend source code
-        │   │   └── com/catharsis/ai4media/ai4mediaserver/
-        │   │       ├── Application.kt  # Server bootstrap, plugins & auth configuration
-        │   │       ├── CloudTasks.kt   # Cloud Tasks queue client
-        │   │       ├── SocialContent.kt# Domain models & serializers
-        │   │       ├── README.md       # Backend package documentation
-        │   │       ├── Auth/           # OAuth 2.0 PKCE, Token persistence & OIDC
-        │   │       ├── Config/         # AppConfig & Secret Manager client
-        │   │       ├── Networks/       # LinkedIn & Twitter API v2 connectors
-        │   │       ├── Routing/        # REST API controllers & scheduler logic
-        │   │       └── Utils/          # Vertex AI, Datastore, GCS signer & scrapers
-        │   │
-        │   └── resources/              # Runtime configurations & static web assets
-        │       ├── application.conf    # Ktor HOCON server configuration
-        │       ├── logback.xml         # Logback console & GCP JSON logging profiles
-        │       ├── README.md           # Resources directory documentation
-        │       └── static/             # Client-side Single Page Application (SPA)
-        │           ├── index.html      # HTML5 layout & Alpine.js templates
-        │           ├── app.js          # Reactive state controller & API client
-        │           ├── auth.js         # Firebase Auth integration
-        │           ├── firebase-config.js # Firebase modular SDK initialization
-        │           ├── styles.css      # Styling & dynamic background patterns
-        │           └── README.md       # Frontend SPA documentation
-        │
-        └── test/                       # Automated test suites
-            └── kotlin/com/example/
-                ├── GoogleAppEngineTest.kt # Integration test suite for Ktor lifecycle
-                └── README.md           # Test suite documentation
-```
+### Phase 5: Multi-Platform Publishing & Token Refresh
 
-### Module Documentation Directory
+* **Webhook Callback `POST /publish/{id}`:** Triggered by Google Cloud Tasks or manual override in `Routing.kt:241`.
+* **Preemptive Token Verification:** `TokenService.kt:55` inspects token expiration against a 60-second safety window. If expiring or expired, it automatically executes a refresh grant with LinkedIn or Twitter and updates Datastore.
+* **Publishing Execution:**
+  * **LinkedIn (`LinkedinConnector.kt:26`):** Registers and uploads image binaries to the LinkedIn Digital Media Asset service, creates a UGC organization post, and posts the source URL as a first comment to maximize algorithm reach.
+  * **Twitter/X (`TwitterConnector.kt:14`):** Publishes the formatted tweet via Twitter API v2.
+* **State Finalization:** Datastore entity is updated with `SocialContent.kt:74` and the external `targetUrn` / `tweetId`, or marked as `SocialContent.kt:75` on error.
 
-| Component | Path | Documentation Link |
-| :--- | :--- | :--- |
-| **Backend Server** | `backend/AI4MediaServer` | [AI4MediaServer README](backend/AI4MediaServer/README.md) |
-| **Main Source Root** | `backend/AI4MediaServer/src/main` | [Main Source README](backend/AI4MediaServer/src/main/README.md) |
-| **App Engine Deployment** | `backend/AI4MediaServer/src/main/appengine` | [App Engine Deployment README](backend/AI4MediaServer/src/main/appengine/README.md) |
-| **Backend Package** | `backend/AI4MediaServer/src/main/kotlin/.../ai4mediaserver` | [Backend Core README](backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/README.md) |
-| **Authentication & Tokens** | `backend/AI4MediaServer/src/main/kotlin/.../Auth` | [Auth Submodule README](backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Auth/README.md) |
-| **Configuration & Secrets** | `backend/AI4MediaServer/src/main/kotlin/.../Config` | [Config Submodule README](backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Config/README.md) |
-| **Social Media Connectors** | `backend/AI4MediaServer/src/main/kotlin/.../Networks` | [Networks Submodule README](backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Networks/README.md) |
-| **HTTP Routing & APIs** | `backend/AI4MediaServer/src/main/kotlin/.../Routing` | [Routing Submodule README](backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Routing/README.md) |
-| **Utilities & Integrations** | `backend/AI4MediaServer/src/main/kotlin/.../Utils` | [Utils Submodule README](backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Utils/README.md) |
-| **Runtime Resources** | `backend/AI4MediaServer/src/main/resources` | [Resources README](backend/AI4MediaServer/src/main/resources/README.md) |
-| **Frontend Web SPA** | `backend/AI4MediaServer/src/main/resources/static` | [Frontend SPA README](backend/AI4MediaServer/src/main/resources/static/README.md) |
-| **Automated Tests** | `backend/AI4MediaServer/test/kotlin/com/example` | [Test Suite README](backend/AI4MediaServer/test/kotlin/com/example/README.md) |
+### Phase 6: Single-Page Application (SPA) Experience
 
----
-
-## 🛠️ Technology Stack
-
-| Layer | Technology | Details |
-| :--- | :--- | :--- |
-| **Language & Toolchain** | Kotlin `2.2.0` / Java `21` | Configured via Gradle Toolchain in [`build.gradle.kts`](backend/AI4MediaServer/build.gradle.kts) |
-| **Backend Framework** | Ktor `3.4.1` (CIO Engine) | Non-blocking asynchronous web server and HTTP client |
-| **Cloud Hosting** | Google App Engine Standard | Microservice `backend` running Java 21 runtime with automatic scaling |
-| **Databases & Queues** | Cloud Datastore & Cloud Tasks | NoSQL entity persistence and asynchronous task distribution |
-| **AI / Machine Learning** | Google Cloud Vertex AI | Gemini LLM (`gemini-2.5-flash-lite`) copy synthesis |
-| **Security & Auth** | Firebase Auth & OAuth 2.0 PKCE | Firebase client authentication and RFC 7636 PKCE social authorization |
-| **Secrets & Storage** | Secret Manager & Cloud Storage | Secure credential injection and V4 signed URL asset delivery |
-| **Frontend Framework** | Alpine.js `3.x` & Tailwind CSS | Lightweight reactive UI embedded directly in server resources |
-| **Build & Packaging** | Gradle & Shadow JAR `8.3.6` | Fat JAR compilation (`AI4MediaServer-all.jar`) and App Engine deployment |
-
----
-
-## 🚀 Building & Running Locally
-
-### Prerequisites
-- **JDK 21** installed (`JavaLanguageVersion.of(21)`).
-- **Google Cloud SDK (`gcloud`)** authenticated with application default credentials:
-  ```bash
-  gcloud auth application-default login
-  ```
-
-### Development Commands
-```bash
-cd backend/AI4MediaServer
-
-# Run local development server (port 8080)
-./gradlew run
-
-# Execute test suite
-./gradlew test
-
-# Build executable Shadow Fat JAR
-./gradlew shadowJar
-```
-
-### Deployment
-```bash
-# Automated deployment via Gradle
-./gradlew appengineDeploy
-
-# Manual component deployment via gcloud CLI
-gcloud app deploy src/main/appengine/app.yaml
-gcloud app deploy src/main/appengine/cron.yaml
-gcloud app deploy src/main/appengine/dispatch.yaml
-gcloud app deploy src/main/appengine/index.yaml
-```
+* Embedded in `README.md` and served directly by Ktor.
+* Uses `app.js` for reactive views (`login`, `rss`, `compose`, `scheduled`, `reading_list`, `stats`, `settings`).
+* Includes real-time bilingual localization (English and Spanish), Firebase Google Sign-In, and interactive `app.js:542` radar and activity charts.
