@@ -1,3 +1,5 @@
+package com.catharsis.ai4media.ai4mediaserver
+
 import com.google.auth.ServiceAccountSigner
 import com.google.auth.oauth2.UserCredentials
 import com.google.cloud.storage.BlobId
