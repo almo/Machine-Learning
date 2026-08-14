@@ -31,6 +31,16 @@ function app() {
             const d = new Date();
             d.setMonth(d.getMonth() - 1);
             this.newsletterMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+            // Handle OAuth redirect return
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('oauth') === 'success' || urlParams.get('auth') === 'success') {
+                this.currentView = 'settings';
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(() => {
+                    if (this.loadSettings) this.loadSettings();
+                }, 500);
+            }
         },
 
         // Translations dictionary

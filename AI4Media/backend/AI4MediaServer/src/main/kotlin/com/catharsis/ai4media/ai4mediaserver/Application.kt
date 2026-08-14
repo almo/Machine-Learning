@@ -104,7 +104,7 @@ fun Application.module() {
             cookie.path = "/"
             cookie.httpOnly = true
             cookie.secure = true
-            cookie.maxAgeInSeconds = 180
+            cookie.maxAgeInSeconds = 600
 
             transform(
                     SessionTransportTransformerEncrypt(
@@ -159,12 +159,8 @@ fun Application.module() {
                 "${AppConfig.baseUrl}/auth/twitter/callback"
             } // Callback URL for Twitter OAuth
             providerLookup = {
-                var session = sessions.get<AI4MediaSession>()
-
-                if (session == null) {
-                    session = AI4MediaSession("unknown_user") 
-                    sessions.set(session)
-                }
+                val session = sessions.get<AI4MediaSession>()
+                    ?: throw IllegalStateException("OAuth initiated without a valid user session. Please authenticate via the UI first.")
 
                 val codeVerifier = session.codeVerifier 
                 val codeChallenge = oAuthPKCE.generateCodeChallenge(codeVerifier)

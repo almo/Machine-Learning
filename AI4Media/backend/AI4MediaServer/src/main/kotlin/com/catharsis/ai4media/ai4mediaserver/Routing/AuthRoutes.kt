@@ -58,7 +58,7 @@ fun Application.configureAuthRouting() {
                 if (principal != null && session != null) {
                     TokenService.saveToken(session.userId, "twitter", principal.accessToken, principal.refreshToken, principal.expiresIn.toInt())
                     call.sessions.clear<AI4MediaSession>()
-                    call.respondRedirect("/dashboard.html?success=true")
+                    call.respondRedirect("/?oauth=success")
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Expired Session or Invalid Credentials")
                 }
@@ -74,7 +74,7 @@ fun Application.configureAuthRouting() {
                 if (principal != null && session != null) {
                     TokenService.saveToken(session.userId, "linkedin", principal.accessToken, principal.refreshToken, principal.expiresIn.toInt())
                     call.sessions.clear<AI4MediaSession>()
-                    call.respondRedirect("/dashboard.html?success=true")
+                    call.respondRedirect("/?oauth=success")
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Expired Session or Invalid Credentials")
                 }
