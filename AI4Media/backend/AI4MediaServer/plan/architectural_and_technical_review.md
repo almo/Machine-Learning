@@ -38,7 +38,7 @@ All findings have been logged as active issues in GitHub for incremental impleme
 | **[#48](https://github.com/almo/Machine-Learning/issues/48)** | `P0 - Critical` | Security | [[SECURITY] Encrypt OAuth Access and Refresh Tokens at Rest in Cloud Datastore](https://github.com/almo/Machine-Learning/issues/48) | `TokenService.kt` | Open |
 | **[#49](https://github.com/almo/Machine-Learning/issues/49)** | `P0 - Critical` | AI / Bug | [[BUG] Fix Invalid Vertex AI Model Identifier and High Generation Temperature](https://github.com/almo/Machine-Learning/issues/49) | `VertexAI.kt` | **Resolved** |
 | **[#50](https://github.com/almo/Machine-Learning/issues/50)** | `P1 - High` | Concurrency | [[CONCURRENCY] Prevent Twitter OAuth Refresh Token Rotation Stampede and Grant Revocation](https://github.com/almo/Machine-Learning/issues/50) | `TokenService.kt` | Open |
-| **[#51](https://github.com/almo/Machine-Learning/issues/51)** | `P2 - Medium` | Performance | [[PERFORMANCE] Fix Unbounded HttpClient Instantiation Leak in Ktor OAuth ProviderLookup](https://github.com/almo/Machine-Learning/issues/51) | `Application.kt` | Open |
+| **[#51](https://github.com/almo/Machine-Learning/issues/51)** | `P2 - Medium` | Performance | [[PERFORMANCE] Fix Unbounded HttpClient Instantiation Leak in Ktor OAuth ProviderLookup](https://github.com/almo/Machine-Learning/issues/51) | `Application.kt` | **Resolved** |
 | **[#52](https://github.com/almo/Machine-Learning/issues/52)** | `P2 - Medium` | Logging | [[LOGGING] Resolve Conflicting Duplicate Root Elements in Logback Configuration](https://github.com/almo/Machine-Learning/issues/52) | `logback.xml` | **Resolved** |
 
 ---

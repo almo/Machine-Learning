@@ -119,6 +119,14 @@ fun Application.module() {
     }
     log.info("Session management set...")
 
+    val oauthHttpClient = HttpClient(CIO) {
+        install(io.ktor.client.plugins.auth.Auth)
+    }
+
+    monitor.subscribe(ApplicationStopped) {
+        oauthHttpClient.close()
+    }
+
     install(Authentication) {
         // "bearer" is a built-in Ktor auth scheme for Token headers
         bearer("firebase-auth") {
@@ -185,7 +193,7 @@ fun Application.module() {
                         }
                 )
             }
-            client = HttpClient(CIO) { install(io.ktor.client.plugins.auth.Auth) }
+            client = oauthHttpClient
         }
 
         // LinkedIn OAuth 2.0
@@ -213,7 +221,7 @@ fun Application.module() {
                                 )
                 )
             }
-            client = HttpClient(CIO) { install(io.ktor.client.plugins.auth.Auth) }
+            client = oauthHttpClient
         }
     }
     log.info("Authentication set...")
