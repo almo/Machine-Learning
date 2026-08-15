@@ -1,6 +1,6 @@
 runtime: java21
-instance_class: F1
-entrypoint: 'java -jar AI4MediaServer-all.jar'
+instance_class: F2
+entrypoint: 'java -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -jar AI4MediaServer-all.jar'
 
 handlers:
 - url: /favicon.ico

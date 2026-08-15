@@ -34,7 +34,7 @@ All findings have been logged as active issues in GitHub for incremental impleme
 | **[#44](https://github.com/almo/Machine-Learning/issues/44)** | `P2 - Medium` | Cleanup | [[CLEANUP] Integrate or Prune Dead Scraper Subsystems (\`NewsScraper\` & \`ImageResolver\`)](https://github.com/almo/Machine-Learning/issues/44) | `NewsScrapper.kt`, `WebScrapper.kt` | Open |
 | **[#45](https://github.com/almo/Machine-Learning/issues/45)** | `P2 - Medium` | Testing | [[TESTING] Modernize Automated Integration & Unit Test Suite](https://github.com/almo/Machine-Learning/issues/45) | `test/` | Open |
 | **[#46](https://github.com/almo/Machine-Learning/issues/46)** | `P0 - Critical` | Bug | [[AI4MediaServer] Fix orphan Kotlin files missing package declarations](https://github.com/almo/Machine-Learning/issues/46) | `CloudStorage.kt`, `WebScrapper.kt` | **Resolved** |
-| **[#47](https://github.com/almo/Machine-Learning/issues/47)** | `P0 - Critical` | Infrastructure | [[INFRASTRUCTURE] Upgrade App Engine Instance Class to F2 and Configure JVM Memory Flags](https://github.com/almo/Machine-Learning/issues/47) | `app.yaml` | Open |
+| **[#47](https://github.com/almo/Machine-Learning/issues/47)** | `P0 - Critical` | Infrastructure | [[INFRASTRUCTURE] Upgrade App Engine Instance Class to F2 and Configure JVM Memory Flags](https://github.com/almo/Machine-Learning/issues/47) | `app.yaml` | **Resolved** |
 | **[#48](https://github.com/almo/Machine-Learning/issues/48)** | `P0 - Critical` | Security | [[SECURITY] Encrypt OAuth Access and Refresh Tokens at Rest in Cloud Datastore](https://github.com/almo/Machine-Learning/issues/48) | `TokenService.kt` | Open |
 | **[#49](https://github.com/almo/Machine-Learning/issues/49)** | `P0 - Critical` | AI / Bug | [[BUG] Fix Invalid Vertex AI Model Identifier and High Generation Temperature](https://github.com/almo/Machine-Learning/issues/49) | `VertexAI.kt` | **Resolved** |
 | **[#50](https://github.com/almo/Machine-Learning/issues/50)** | `P1 - High` | Concurrency | [[CONCURRENCY] Prevent Twitter OAuth Refresh Token Rotation Stampede and Grant Revocation](https://github.com/almo/Machine-Learning/issues/50) | `TokenService.kt` | Open |
@@ -149,17 +149,26 @@ All findings have been logged as active issues in GitHub for incremental impleme
 ### 3.1. Out-of-Memory (OOM) on App Engine F1 Instance Class
 * **GitHub Issue:** [#47](https://github.com/almo/Machine-Learning/issues/47)
 * **Location:** [`app.yaml:2`](file:///home/almo/Engineering/Machine-Learning/AI4Media/backend/AI4MediaServer/src/main/appengine/app.yaml#L2)
-* **Analysis:** `instance_class: F1` allocates only **256 MB RAM**. The application packages a fat JAR running:
+* **Analysis:** `instance_class: F1` allocates only **384 MB RAM** (600 MHz CPU). The application packages a fat JAR running:
   - Java 21 OpenJDK runtime
   - Ktor CIO asynchronous engine
   - Google Cloud SDKs: Vertex AI (gRPC), Secret Manager (gRPC), Cloud Datastore (gRPC/HTTP), Cloud Tasks (gRPC), Firebase Admin SDK
   - ROME XML feed parsers, Skrape{it}, and Jsoup DOM trees
 * **Consequence:** During daily cron execution (`syncNewsForAllSources`) or Vertex AI generation, memory spikes will cause GC thrashing and container crash (`OOMKilled` / Exit Code 137).
-* **Fix:** Upgrade `instance_class` to `F2` (512 MB) or `F4` (1024 MB), and configure JVM heap flags in `entrypoint`:
+* **Fix:** Upgrade `instance_class` to `F2` (**768 MB RAM / 1.2 GHz CPU**) and configure container-aware JVM heap flags in `entrypoint`:
   ```yaml
   instance_class: F2
   entrypoint: 'java -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -jar AI4MediaServer-all.jar'
   ```
+
+#### Garbage Collection (GC) Alternatives & Evaluation on App Engine:
+| Collector | JVM Flag | Profile on App Engine F2 (768 MB) | Evaluation & Tradeoffs |
+| :--- | :--- | :--- | :--- |
+| **G1 GC** *(Selected)* | `-XX:+UseG1GC` | Region-based incremental compaction; periodic memory uncommit back to OS (`G1PeriodicGCInterval`); predictable latency (`-XX:MaxGCPauseMillis=200`). | **Recommended**: Best balance of low request latency, background compaction, and elastic container memory management. |
+| **Serial GC** | `-XX:+UseSerialGC` | Single-threaded mark-sweep-compact with minimal memory/metadata overhead (~1% of heap vs 5% for G1). Short STW pauses (<50ms) on ~500MB heaps. | **Viable Alternative**: Extremely low memory footprint for single-core or fractional-CPU micro instances. |
+| **Parallel GC** | `-XX:+UseParallelGC` | Multi-threaded throughput collector. Maximizes compute efficiency at the expense of longer STW pauses. | **Not Recommended**: Not optimized for interactive HTTP APIs; risk of request lag. |
+| **Generational ZGC** | `-XX:+UseZGC` | Sub-millisecond pause times via colored pointers and load barriers. High memory/thread overhead. | **Unsuitable**: GC metadata overhead wastes scarce RAM in 768 MB containers. |
+| **Shenandoah GC** | `-XX:+UseShenandoahGC` | Concurrent evacuation with ultra-low pauses. | **Unsuitable**: High CPU overhead on fractional CPU instances. |
 
 ### 3.2. Coroutine Termination on App Engine Scaling
 * **GitHub Issue:** [#41](https://github.com/almo/Machine-Learning/issues/41)

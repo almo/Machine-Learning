@@ -27,8 +27,8 @@ The `appengine` directory is the central location for Google Cloud App Engine co
 The primary service configuration file for deploying the backend service on App Engine Standard.
 - **Runtime**: `java21` (Java 21 runtime).
 - **Service Name**: `backend` (deployed as a non-default microservice module).
-- **Instance Class**: `F1` (standard micro instance tier).
-- **Entrypoint**: `java -jar AI4MediaServer-all.jar` (runs the packaged Shadow fat JAR).
+- **Instance Class**: `F2` (768 MB memory tier / 1.2 GHz CPU for JVM + Ktor workloads).
+- **Entrypoint**: `java -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -jar AI4MediaServer-all.jar` (runs packaged Shadow fat JAR with container-aware heap allocation and G1 garbage collection).
 - **Scaling**: `automatic_scaling` with a cap of `max_instances: 2` to optimize resource usage and prevent unexpected scaling costs.
 - **Handlers**:
   - `/favicon.ico` served statically from `static/favicon.ico`.
