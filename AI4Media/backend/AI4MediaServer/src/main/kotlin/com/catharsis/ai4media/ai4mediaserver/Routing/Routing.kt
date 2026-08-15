@@ -208,7 +208,7 @@ fun Application.configureRouting() {
                             }
                             DataStoreWrapper.updateStatus(contentID, PostStatus.PUBLISHING)
                         } else {
-                            CloudTasks.createHttpTask(
+                            val taskName = CloudTasks.createHttpTask(
                                 projectId = AppConfig.projectId,
                                 locationId = AppConfig.cloudLocationId,
                                 queueId = AppConfig.cloudTasksQueueId,
@@ -218,7 +218,7 @@ fun Application.configureRouting() {
                             )
 
                             val finalStatus = if (request.scheduledTime == "AUTOMATIC") PostStatus.AUTOSCHEDULED else PostStatus.SCHEDULED
-                            DataStoreWrapper.updateStatus(contentID, finalStatus)
+                            DataStoreWrapper.updateStatus(contentID, finalStatus, cloudTaskName = taskName)
                         }
 
                         scheduledIds.add(contentID)
@@ -258,9 +258,23 @@ fun Application.configureRouting() {
                     return@post
                 }
 
-                if (entity.contains("status") && entity.getString("status") == PostStatus.PUBLISHED.name) {
+                val currentStatus = if (entity.contains("status")) entity.getString("status") else ""
+
+                if (currentStatus == PostStatus.PUBLISHED.name) {
                     call.application.log.info("Post already published (ID: $postId)")
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(HttpStatusCode.OK, "Post already published")
+                    return@post
+                }
+
+                if (currentStatus == PostStatus.DELETED.name || currentStatus == PostStatus.FAILED.name) {
+                    call.application.log.warn("Post $postId is in status '$currentStatus'; skipping publication.")
+                    call.respond(HttpStatusCode.OK, "Post is in status '$currentStatus', skipping publication")
+                    return@post
+                }
+
+                if (currentStatus != PostStatus.SCHEDULED.name && currentStatus != PostStatus.AUTOSCHEDULED.name) {
+                    call.application.log.warn("Post $postId is not in scheduled state (status='$currentStatus'); skipping.")
+                    call.respond(HttpStatusCode.OK, "Post is not in scheduled state")
                     return@post
                 }
 
