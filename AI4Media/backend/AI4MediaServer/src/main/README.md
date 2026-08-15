@@ -63,7 +63,7 @@ flowchart TD
     subgraph GCP["Google Cloud Services"]
         SECRETS["Secret Manager<br/>(AI4MEDIA Secret)"]
         DATASTORE[("Cloud Datastore<br/>(News, SocialContent, Sources, Tokens)")]
-        VERTEX["Vertex AI<br/>(Gemini 2.5 Flash Lite)"]
+        VERTEX["Vertex AI<br/>(Gemini 3.5 Flash Lite)"]
         GCS["Cloud Storage<br/>(Signed Image URLs)"]
         TASKS["Cloud Tasks Queue<br/>(Delayed /publish/{id} Callbacks)"]
     end

@@ -12,7 +12,7 @@ import com.google.cloud.vertexai.generativeai.GenerativeModel
 data class VertexAiConfig(
         val projectId: String = AppConfig.projectId,
         val location: String = "us-central1",
-        val modelName: String = "gemini-2.5-flash-lite"
+        val modelName: String = "gemini-3.5-flash-lite"
 )
 
 data class PricingConfig(
@@ -51,7 +51,7 @@ class GeminiClient(
     private val generationConfig =
             GenerationConfig.newBuilder()
                     .apply {
-                        setTemperature(1.2f)
+                        setTemperature(0.3f)
                         setMaxOutputTokens(2048)
                         setTopK(40f)
                         setTopP(0.95f)
