@@ -19,5 +19,6 @@ automatic_scaling:
 env_variables:
   # App Engine automatically sets GOOGLE_CLOUD_PROJECT
   # Define your production URL here:
-  APPENGINE_BASE_URL: "https://planner.catharsis.computer" 
+  APPENGINE_BASE_URL: "https://planner.catharsis.computer"
+  LOG_APPENDER: "GCP_JSON_CONSOLE"
   
