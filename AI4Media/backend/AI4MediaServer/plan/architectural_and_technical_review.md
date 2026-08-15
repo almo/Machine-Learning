@@ -20,7 +20,7 @@ All findings have been logged as active issues in GitHub for incremental impleme
 | Issue ID | Priority | Category | Title & Link | Target Component | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **[#32](https://github.com/almo/Machine-Learning/issues/32)** | `P0 - Critical` | Bug | [[BUG] Prevent Ghost Publishing of Deleted Posts in Cloud Tasks](https://github.com/almo/Machine-Learning/issues/32) | `Routing.kt`, `CloudTasks.kt` | Open |
-| **[#33](https://github.com/almo/Machine-Learning/issues/33)** | `P0 - Critical` | Bug | [[BUG] Fix Multi-Tenant Key Collision in RSS Ingestion Datastore Entities](https://github.com/almo/Machine-Learning/issues/33) | `NewsRoutes.kt` | Open |
+| **[#33](https://github.com/almo/Machine-Learning/issues/33)** | `P0 - Critical` | Bug | [[BUG] Fix Multi-Tenant Key Collision in RSS Ingestion Datastore Entities](https://github.com/almo/Machine-Learning/issues/33) | `NewsRoutes.kt` | **Resolved** |
 | **[#34](https://github.com/almo/Machine-Learning/issues/34)** | `P1 - High` | Feature | [[FEATURE] Implement Dynamic Multi-User LinkedIn URNs & Personal Reshare Bump Pipeline](https://github.com/almo/Machine-Learning/issues/34) | `LinkedinConnector.kt`, `Routing.kt` | Open |
 | **[#35](https://github.com/almo/Machine-Learning/issues/35)** | `P1 - High` | Security | [[SECURITY] Enforce Subject and Email Verification on Google Cloud Tasks OIDC Tokens](https://github.com/almo/Machine-Learning/issues/35) | `TokenVerifier.kt` | Open |
 | **[#36](https://github.com/almo/Machine-Learning/issues/36)** | `P1 - High` | Security | [[SECURITY] Prevent IDOR on \`/publish/{id}\` for Firebase-Authenticated Users](https://github.com/almo/Machine-Learning/issues/36) | `Routing.kt` | Open |
