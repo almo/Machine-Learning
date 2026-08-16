@@ -10,12 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v1.1.0] - 2026-08-16
 
 ### 🚀 Google Cloud Release
-* **App Engine Version ID**: `v1-1-0-f3a89e5`
+* **App Engine Version ID**: `v1-1-0-c4a3992`
 * **Target Service**: `backend` (Standard Environment)
 * **Instance Class**: `F2` (768 MB RAM / 1.2 GHz CPU)
 * **Runtime**: Java 21 OpenJDK / Ktor 3.4.1 (CIO Engine)
 * **Base URL**: `https://planner.catharsis.computer`
-* **Commit**: [`f3a89e5`](https://github.com/almo/Machine-Learning/commit/f3a89e5)
+* **Commit**: [`c4a3992`](https://github.com/almo/Machine-Learning/commit/c4a3992)
 
 ### ✨ Features & Enhancements
 - **Auto-Scheduling Preferences & Datastore Persistence** ([#38](https://github.com/almo/Machine-Learning/issues/38)):
