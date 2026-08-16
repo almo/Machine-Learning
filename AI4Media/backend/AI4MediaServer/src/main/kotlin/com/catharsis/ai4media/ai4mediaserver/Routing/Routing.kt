@@ -379,90 +379,84 @@ fun Application.configureRouting() {
                     return@post
                 }
 
-                // Recuperar la entidad desde DataStore
-                val datastore = DatastoreOptions.getDefaultInstance().service
-                val keyFactory = datastore.newKeyFactory().setKind("SocialContent")
-                val key = postId.toLongOrNull()?.let { keyFactory.newKey(it) } ?: keyFactory.newKey(postId)
-                val entity = datastore.get(key)
+                val claimResult = DataStoreWrapper.claimPostForPublishing(postId, leaseTimeoutSeconds = 90)
 
-                if (entity == null) {
-                    call.respond(HttpStatusCode.NotFound, "Post no encontrado")
-                    call.application.log.error("Post not found (ID: $postId)")
-                    return@post
-                }
-
-                val currentStatus = if (entity.contains("status")) entity.getString("status") else ""
-
-                if (currentStatus == PostStatus.PUBLISHED.name) {
-                    call.application.log.info("Post already published (ID: $postId)")
-                    call.respond(HttpStatusCode.OK, "Post already published")
-                    return@post
-                }
-
-                if (currentStatus == PostStatus.DELETED.name || currentStatus == PostStatus.FAILED.name) {
-                    call.application.log.warn("Post $postId is in status '$currentStatus'; skipping publication.")
-                    call.respond(HttpStatusCode.OK, "Post is in status '$currentStatus', skipping publication")
-                    return@post
-                }
-
-                if (currentStatus != PostStatus.SCHEDULED.name && currentStatus != PostStatus.AUTOSCHEDULED.name) {
-                    call.application.log.warn("Post $postId is not in scheduled state (status='$currentStatus'); skipping.")
-                    call.respond(HttpStatusCode.OK, "Post is not in scheduled state")
-                    return@post
-                }
-
-                try {
-                    val userId = entity.getString("userId")
-                    val textContent = entity.getString("textContent")
-                    val urlContent = if (entity.contains("urlContent")) entity.getString("urlContent") else null
-
-                    // Recuperamos los tags si existiesen en Datastore
-                    val tags =
-                        if (entity.contains("tags")) {
-                            entity.getList<com.google.cloud.datastore.Value<*>>("tags").map { it.get().toString() }
-                        } else emptyList()
-
-                    val network = if (entity.contains("network")) entity.getString("network") else "linkedin"
-                    var targetUrn: String? = null
-                    var tweetId: String? = null
-                    
-                    val updatedEntityBuilder = Entity.newBuilder(entity).set("status", PostStatus.PUBLISHED.name)
-                    
-                    if (network == "LINKEDIN") {
-                        targetUrn = LinkedinConnector.publishToOrganizationTimeline(
-                            userId = userId,
-                            textContent = textContent,
-                            urlContent = urlContent,
-                            tags = tags
-                        )
-                        
-                        updatedEntityBuilder.set("profile",SocialProfile.COMPANY.name)
-
-                    } else if (network == "TWITTER") {
-                        tweetId = TwitterConnector.publishToTwitterTimeline(
-                            userId = userId,
-                            textContent = textContent,
-                            urlContent = urlContent,
-                            tags = tags
-                        )
-
-                        updatedEntityBuilder.set("profile",SocialProfile.PERSONAL.name)
-                        
+                when (claimResult) {
+                    is ClaimPublishResult.NotFound -> {
+                        call.application.log.error("Post not found (ID: $postId)")
+                        call.respond(HttpStatusCode.NotFound, "Post not found")
+                        return@post
                     }
+                    is ClaimPublishResult.AlreadyPublished -> {
+                        call.application.log.info("Post $postId is already published; skipping publication.")
+                        call.respond(HttpStatusCode.OK, "Post already published")
+                        return@post
+                    }
+                    is ClaimPublishResult.Cancelled -> {
+                        call.application.log.info("Post $postId is in DELETED status; skipping publication.")
+                        call.respond(HttpStatusCode.OK, "Post was deleted")
+                        return@post
+                    }
+                    is ClaimPublishResult.CurrentlyInFlight -> {
+                        call.application.log.warn("Post $postId is currently in-flight by another worker (lockedAt=${claimResult.lockedAtSeconds}); returning 429 for backoff retry.")
+                        call.respond(HttpStatusCode.TooManyRequests, "Post publishing in progress")
+                        return@post
+                    }
+                    is ClaimPublishResult.Claimed -> {
+                        val entity = claimResult.entity
+                        val lockTimestamp = claimResult.lockTimestamp
 
-                    if (targetUrn != null)
-                        updatedEntityBuilder.set("targetUrn", targetUrn)
-                    else if (tweetId != null)
-                        updatedEntityBuilder.set("targetUrn", tweetId)
+                        try {
+                            val userId = entity.getString("userId")
+                            val textContent = entity.getString("textContent")
+                            val urlContent = if (entity.contains("urlContent")) entity.getString("urlContent") else null
 
-                    datastore.put(updatedEntityBuilder.build())
+                            val tags =
+                                if (entity.contains("tags")) {
+                                    entity.getList<com.google.cloud.datastore.Value<*>>("tags").map { it.get().toString() }
+                                } else emptyList()
 
-                    call.respond(HttpStatusCode.OK)
-                } catch (e: Exception) {
-                    call.application.log.error("Failed to publish post (ID: $postId)", e)
-                    val failedEntity = Entity.newBuilder(entity).set("status", PostStatus.FAILED.name).build()
-                    datastore.put(failedEntity)
-                    call.respond(HttpStatusCode.InternalServerError, "Error publishing post: ${e.message}")
+                            val network = if (entity.contains("network")) entity.getString("network") else "LINKEDIN"
+                            var targetUrn: String? = null
+                            var profile: SocialProfile = SocialProfile.PERSONAL
+
+                            if (network == "LINKEDIN") {
+                                targetUrn = LinkedinConnector.publishToOrganizationTimeline(
+                                    userId = userId,
+                                    textContent = textContent,
+                                    urlContent = urlContent,
+                                    tags = tags
+                                )
+                                profile = SocialProfile.COMPANY
+                            } else if (network == "TWITTER") {
+                                targetUrn = TwitterConnector.publishToTwitterTimeline(
+                                    userId = userId,
+                                    textContent = textContent,
+                                    urlContent = urlContent,
+                                    tags = tags
+                                )
+                                profile = SocialProfile.PERSONAL
+                            }
+
+                            val completed = DataStoreWrapper.completePublishing(
+                                postId = postId,
+                                lockTimestamp = lockTimestamp,
+                                targetUrn = targetUrn,
+                                profile = profile
+                            )
+
+                            if (completed) {
+                                call.respond(HttpStatusCode.OK)
+                            } else {
+                                call.application.log.warn("Publishing lease expired or overridden for post $postId")
+                                call.respond(HttpStatusCode.OK, "Post published but lease changed")
+                            }
+                        } catch (e: Exception) {
+                            call.application.log.error("Failed to publish post (ID: $postId)", e)
+                            DataStoreWrapper.updateStatus(postId, PostStatus.FAILED)
+                            call.respond(HttpStatusCode.InternalServerError, "Error publishing post: ${e.message}")
+                        }
+                    }
                 }
             }
         }

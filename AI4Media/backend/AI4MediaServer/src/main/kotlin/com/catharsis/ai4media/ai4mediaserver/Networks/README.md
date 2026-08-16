@@ -25,10 +25,11 @@ Singleton object (`LinkedinConnector`) implementing the integration with LinkedI
 
 - **`publishToOrganizationTimeline(userId, textContent, urlContent, tags, imageUrl)`**:
   - Validates and retrieves the user's LinkedIn OAuth token via `TokenService`.
+  - Configured with strict 30-second Ktor `HttpTimeout` (request and socket) to prevent hanging tasks.
   - Formats content text with optional link notes and hashtags.
   - If `imageUrl` is present, downloads the image binary and initiates an upload sequence via `uploadImage`.
   - Constructs and sends a UGC post request (`POST https://api.linkedin.com/v2/ugcPosts`) targeting the configured organization URN (`urn:li:organization:77043213`).
-  - If both an image and a link URL are provided, posts the link as a first comment under the created post (`POST https://api.linkedin.com/v2/socialActions/{postId}/comments`) to maximize engagement without cluttering media display.
+  - If both an image and a link URL are provided, posts the link as a first comment under the created post (`POST https://api.linkedin.com/v2/socialActions/{postId}/comments`). Failures during first-comment posting log warnings without aborting or invalidating the primary published post.
   - Returns the published LinkedIn post URN / ID.
 
 - **`shareToUserTimeline(userId, originalPostUrn, comment, tags, authorUrn)`**:

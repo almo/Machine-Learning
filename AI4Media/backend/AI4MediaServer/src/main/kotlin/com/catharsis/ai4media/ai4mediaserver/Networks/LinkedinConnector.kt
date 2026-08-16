@@ -3,6 +3,7 @@ package com.catharsis.ai4media.ai4mediaserver
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -18,6 +19,11 @@ object LinkedinConnector {
     private val httpClient =
             HttpClient(CIO) {
                 install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 30_000
+                    connectTimeoutMillis = 10_000
+                    socketTimeoutMillis = 30_000
+                }
             }
 
     private const val ORGANIZATION_URN = "urn:li:organization:77043213"
@@ -143,8 +149,7 @@ object LinkedinConnector {
 
             if (!commentResponse.status.isSuccess()) {
                 val errorBody = commentResponse.bodyAsText()
-                logger.error("Error adding comment with link to LinkedIn post (Status: {}): {}", commentResponse.status, errorBody)
-                throw Exception("Error al añadir el comentario con enlace (LinkedIn): $errorBody")
+                logger.warn("Warning: Primary post published (URN: {}), but first-comment failed (Status: {}): {}", postId, commentResponse.status, errorBody)
             }
         }
 
