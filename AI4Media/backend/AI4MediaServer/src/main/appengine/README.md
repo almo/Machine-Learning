@@ -33,7 +33,7 @@ The primary service configuration file for deploying the backend service on App 
 - **Handlers**:
   - `/favicon.ico` served statically from `static/favicon.ico`.
   - Catch-all `.*` routed automatically to the Ktor application with HTTPS enforced (`secure: always`).
-- **Environment Variables**: Defines `APPENGINE_BASE_URL` (`https://planner.catharsis.computer`).
+- **Environment Variables**: Defines `APPENGINE_BASE_URL` (`https://planner.catharsis.computer`), `LOG_APPENDER` (`GCP_JSON_CONSOLE`), and `VERTEX_AI_MODEL` (`gemini-2.5-flash`).
 
 ---
 

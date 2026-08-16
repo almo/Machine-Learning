@@ -11,8 +11,8 @@ import com.google.cloud.vertexai.generativeai.GenerativeModel
 // 1. Configuration Data Classes (Clean separation of environments)
 data class VertexAiConfig(
         val projectId: String = AppConfig.projectId,
-        val location: String = "us-central1",
-        val modelName: String = "gemini-3.5-flash-lite"
+        val location: String =  "us-central1" ,
+        val modelName: String = AppConfig.vertexAiModel
 )
 
 data class PricingConfig(

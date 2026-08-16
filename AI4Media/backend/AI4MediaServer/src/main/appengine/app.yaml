@@ -21,4 +21,5 @@ env_variables:
   # Define your production URL here:
   APPENGINE_BASE_URL: "https://planner.catharsis.computer"
   LOG_APPENDER: "GCP_JSON_CONSOLE"
+  VERTEX_AI_MODEL: "gemini-2.5-flash-lite"
   
