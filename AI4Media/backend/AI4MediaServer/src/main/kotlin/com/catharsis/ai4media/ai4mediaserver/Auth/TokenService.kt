@@ -13,7 +13,15 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.security.SecureRandom
 import java.time.Instant
+import java.util.Base64
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -47,6 +55,44 @@ object TokenService {
     }
     // ToDo -- configurations
     private const val KIND = "UserTokens"
+    private const val ENCRYPTION_PREFIX = "enc:v1:"
+    private const val GCM_IV_LENGTH = 12
+    private const val GCM_TAG_LENGTH = 128
+
+    private val secretKey: SecretKey by lazy {
+        val rawKeyBytes = try {
+            Base64.getDecoder().decode(AppConfig.sessionEncryptKey)
+        } catch (e: Exception) {
+            AppConfig.sessionEncryptKey.toByteArray(StandardCharsets.UTF_8)
+        }
+        val keyBytes = if (rawKeyBytes.size in listOf(16, 24, 32)) {
+            rawKeyBytes
+        } else {
+            MessageDigest.getInstance("SHA-256").digest(rawKeyBytes)
+        }
+        SecretKeySpec(keyBytes, "AES")
+    }
+
+    private fun encrypt(plaintext: String): String {
+        val iv = ByteArray(GCM_IV_LENGTH).also { SecureRandom().nextBytes(it) }
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding").apply {
+            init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(GCM_TAG_LENGTH, iv))
+        }
+        val cipherText = cipher.doFinal(plaintext.toByteArray(StandardCharsets.UTF_8))
+        val combined = iv + cipherText
+        return ENCRYPTION_PREFIX + Base64.getEncoder().encodeToString(combined)
+    }
+
+    private fun decrypt(encrypted: String): String {
+        if (!encrypted.startsWith(ENCRYPTION_PREFIX)) return encrypted // Backward-compatible with existing plaintext
+        val combined = Base64.getDecoder().decode(encrypted.removePrefix(ENCRYPTION_PREFIX))
+        val iv = combined.sliceArray(0 until GCM_IV_LENGTH)
+        val cipherText = combined.sliceArray(GCM_IV_LENGTH until combined.size)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding").apply {
+            init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(GCM_TAG_LENGTH, iv))
+        }
+        return String(cipher.doFinal(cipherText), StandardCharsets.UTF_8)
+    }
 
     // Internal HTTP Client for backend-to-backend refresh calls
     private val httpClient =
@@ -78,9 +124,9 @@ object TokenService {
             val expiresAt = System.currentTimeMillis() + (expiresIn * 1000L)
 
             val providerEntityBuilder = FullEntity.newBuilder()
-            providerEntityBuilder.set("accessToken", accessToken)
+            providerEntityBuilder.set("accessToken", encrypt(accessToken))
             if (refreshToken != null) {
-                providerEntityBuilder.set("refreshToken", refreshToken)
+                providerEntityBuilder.set("refreshToken", encrypt(refreshToken))
             }
             providerEntityBuilder.set("expiresAt", expiresAt)
             providerEntityBuilder.set("updatedAt", System.currentTimeMillis())
@@ -112,11 +158,11 @@ object TokenService {
         // 2. Extraer los datos de la red social específica (twitter o linkedin)
         val providerEntity = entity.getEntity<IncompleteKey>(provider)
 
-        // 3. Mapear a una estructura local para trabajar fácilmente
-        val accessToken = providerEntity.getString("accessToken")
+        // 3. Mapear a una estructura local para trabajar fácilmente y desencriptar
+        val accessToken = decrypt(providerEntity.getString("accessToken"))
         val storedRefreshToken =
                 if (providerEntity.contains("refreshToken"))
-                        providerEntity.getString("refreshToken")
+                        decrypt(providerEntity.getString("refreshToken"))
                 else null
         val expiresAt = providerEntity.getLong("expiresAt") // Timestamp en milisegundos
 
