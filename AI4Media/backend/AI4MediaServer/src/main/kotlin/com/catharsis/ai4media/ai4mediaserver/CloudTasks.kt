@@ -28,48 +28,55 @@ object CloudTasks {
             url: String,
             serviceAccountEmail: String,
             scheduleTime: Instant
-    ) {
-        // Initialize the Cloud Tasks client
-        val client = CloudTasksClient.create()
-        // Construct the fully qualified queue name
-        val queuePath = QueueName.of(projectId, locationId, queueId).toString()
+    ): String {
+        return CloudTasksClient.create().use { client ->
+            // Construct the fully qualified queue name
+            val queuePath = QueueName.of(projectId, locationId, queueId).toString()
 
-        // Create the payload (JSON)
-        val jsonPayload = """{"url": "$url"}"""
-        val body = ByteString.copyFrom(jsonPayload, StandardCharsets.UTF_8)
+            // Create the payload (JSON)
+            val jsonPayload = """{"url": "$url"}"""
+            val body = ByteString.copyFrom(jsonPayload, StandardCharsets.UTF_8)
 
-        // Configurar el token OIDC para la autenticación de la llamada por Cloud Task
-        val oidcToken = OidcToken.newBuilder()
-        .setServiceAccountEmail(serviceAccountEmail)
-        .setAudience("${AppConfig.baseUrl}")
-        .build()
+            // Configurar el token OIDC para la autenticación de la llamada por Cloud Task
+            val oidcToken = OidcToken.newBuilder()
+            .setServiceAccountEmail(serviceAccountEmail)
+            .setAudience("${AppConfig.baseUrl}")
+            .build()
 
-        // Build the HTTP Request object for the task
-        val httpRequest =
-                HttpRequest.newBuilder()
-                        .setHttpMethod(HttpMethod.POST)
-                        .setUrl(url)
-                        .setOidcToken(oidcToken)
-                        .setBody(body)
-                        .putHeaders("Content-Type", "application/json")
-                        .build()
+            // Build the HTTP Request object for the task
+            val httpRequest =
+                    HttpRequest.newBuilder()
+                            .setHttpMethod(HttpMethod.POST)
+                            .setUrl(url)
+                            .setOidcToken(oidcToken)
+                            .setBody(body)
+                            .putHeaders("Content-Type", "application/json")
+                            .build()
 
-        // Convert Java Instant to Protobuf Timestamp
-        val protoTimestamp =
-                Timestamp.newBuilder()
-                        .setSeconds(scheduleTime.epochSecond)
-                        .setNanos(scheduleTime.nano)
-                        .build()
+            // Convert Java Instant to Protobuf Timestamp
+            val protoTimestamp =
+                    Timestamp.newBuilder()
+                            .setSeconds(scheduleTime.epochSecond)
+                            .setNanos(scheduleTime.nano)
+                            .build()
 
-        // Build the Task object with the schedule time
-        val task =
-                Task.newBuilder()
-                        .setHttpRequest(httpRequest)
-                        .setScheduleTime(protoTimestamp)
-                        .build()
+            // Build the Task object with the schedule time
+            val task =
+                    Task.newBuilder()
+                            .setHttpRequest(httpRequest)
+                            .setScheduleTime(protoTimestamp)
+                            .build()
 
-        // Send the task creation request
-        val response = client.createTask(queuePath, task)
-        println("Created task: ${response.name}")
+            // Send the task creation request
+            val response = client.createTask(queuePath, task)
+            println("Created task: ${response.name}")
+            response.name
+        }
+    }
+
+    fun deleteTask(taskName: String) {
+        CloudTasksClient.create().use { client ->
+            client.deleteTask(taskName)
+        }
     }
 }

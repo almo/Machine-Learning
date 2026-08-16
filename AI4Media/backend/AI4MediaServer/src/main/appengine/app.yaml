@@ -1,6 +1,6 @@
 runtime: java21
-instance_class: F1
-entrypoint: 'java -jar AI4MediaServer-all.jar'
+instance_class: F2
+entrypoint: 'java -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -jar AI4MediaServer-all.jar'
 
 handlers:
 - url: /favicon.ico
@@ -19,5 +19,7 @@ automatic_scaling:
 env_variables:
   # App Engine automatically sets GOOGLE_CLOUD_PROJECT
   # Define your production URL here:
-  APPENGINE_BASE_URL: "https://planner.catharsis.computer" 
+  APPENGINE_BASE_URL: "https://planner.catharsis.computer"
+  LOG_APPENDER: "GCP_JSON_CONSOLE"
+  VERTEX_AI_MODEL: "gemini-2.5-flash-lite"
   

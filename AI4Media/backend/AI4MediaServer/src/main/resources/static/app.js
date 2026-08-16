@@ -31,6 +31,16 @@ function app() {
             const d = new Date();
             d.setMonth(d.getMonth() - 1);
             this.newsletterMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+            // Handle OAuth redirect return
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('oauth') === 'success' || urlParams.get('auth') === 'success') {
+                this.currentView = 'settings';
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(() => {
+                    if (this.loadSettings) this.loadSettings();
+                }, 500);
+            }
         },
 
         // Translations dictionary
@@ -69,7 +79,7 @@ function app() {
                 },
                 stats: { title: "Impact & Performance", sub: "Summary of your publications from the last 30 days.", tags_analysis: "Tags Analysis", posts: "Published Posts", interactions: "Total Interactions", clicks: "Link Clicks", activity: "Publishing Activity", day: "Day", days_ago: "14 days ago", today: "Today", vs_last: "vs last month", published_list: "Published Posts Log", table_post: "Post Link", empty: "No published posts found." },
                 alerts: { success: "Content successfully scheduled and sent to backend!", delete: "Are you sure you want to remove this post from the queue?", publish_confirm: "Are you sure you want to publish this post right now?", delete_source: "Are you sure you want to delete this source?", sync_success: "News synchronization started successfully.", sync_error: "Error starting news sync.", saved_reading_list: "Added to reading list!", delete_reading_list: "Remove from reading list?" },
-                settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login.", news_sync: "News Sync", sync_now: "Sync Now", syncing: "Syncing...", sources_manage: "Manage Sources & Synchronization", sources_manage_sub: "Add, edit, remove, and sync your RSS feeds.", actions: "Actions", expand_all: "Expand All", collapse_all: "Collapse All", unread: "Unread", sources_count: "Sources", last_sync: "Last Sync", success: "Success", sync_error: "Error", never: "Never" }
+                settings: { title: "Settings", sub: "Manage your preferences and integrations.", social_accounts: "Social Accounts", connected: "Connected", not_connected: "Not connected", connect: "Connect", reconnect: "Reconnect", error: "Error initiating OAuth login.", news_sync: "News Sync", sync_now: "Sync Now", syncing: "Syncing...", sources_manage: "Manage Sources & Synchronization", sources_manage_sub: "Add, edit, remove, and sync your RSS feeds.", actions: "Actions", expand_all: "Expand All", collapse_all: "Collapse All", unread: "Unread", sources_count: "Sources", last_sync: "Last Sync", success: "Success", sync_error: "Error", never: "Never", schedule_settings: "Auto-Scheduling Preferences", schedule_settings_sub: "Configure daily publication quotas and time engagement sweet spots.", daily_limits: "Daily Limits", twitter_limit: "Twitter Posts / Day", linkedin_limit: "LinkedIn Posts / Day", sweet_spots: "Engagement Sweet Spots", add_spot: "Add Time Window", start_time: "Start Time", end_time: "End Time", save_schedule: "Save Preferences", saving: "Saving...", saved: "Saved successfully!", remove: "Remove" }
             },
             es: {
                 login: { title: "Plataforma AI4Media", sub: "Inicia sesión para acceder a tu espacio", google_btn: "Iniciar sesión con Google" },
@@ -105,7 +115,7 @@ function app() {
                 },
                 stats: { title: "Impacto y Rendimiento", sub: "Resumen de tus publicaciones de los últimos 30 días.", tags_analysis: "Análisis de Etiquetas", posts: "Posts Publicados", interactions: "Interacciones Totales", clicks: "Clics en Enlaces", activity: "Actividad de Publicación", day: "Día", days_ago: "Hace 14 días", today: "Hoy", vs_last: "vs mes anterior", published_list: "Registro de Publicaciones", table_post: "Enlace del Post", empty: "No se encontraron posts publicados." },
                 alerts: { success: "¡Contenido programado con éxito y enviado al backend!", delete: "¿Estás seguro de que deseas eliminar este post de la cola?", publish_confirm: "¿Estás seguro de que deseas publicar este post ahora mismo?", delete_source: "¿Estás seguro de que deseas eliminar esta fuente?", sync_success: "Sincronización de noticias iniciada con éxito.", sync_error: "Error al iniciar la sincronización de noticias.", saved_reading_list: "¡Añadido a la lista de lectura!", delete_reading_list: "¿Eliminar de la lista de lectura?" },
-                settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth.", news_sync: "Sincronizar Noticias", sync_now: "Sincronizar Ahora", syncing: "Sincronizando...", sources_manage: "Gestionar Fuentes y Sincronización", sources_manage_sub: "Añade, edita, elimina y sincroniza tus feeds RSS.", actions: "Acciones", expand_all: "Expandir Todo", collapse_all: "Contraer Todo", unread: "No leídos", sources_count: "Fuentes", last_sync: "Última Sincronización", success: "Éxito", sync_error: "Error", never: "Nunca" }
+                settings: { title: "Configuración", sub: "Gestiona tus preferencias e integraciones.", social_accounts: "Cuentas Sociales", connected: "Conectado", not_connected: "No conectado", connect: "Conectar", reconnect: "Reconectar", error: "Error al iniciar sesión OAuth.", news_sync: "Sincronizar Noticias", sync_now: "Sincronizar Ahora", syncing: "Sincronizando...", sources_manage: "Gestionar Fuentes y Sincronización", sources_manage_sub: "Añade, edita, elimina y sincroniza tus feeds RSS.", actions: "Acciones", expand_all: "Expandir Todo", collapse_all: "Contraer Todo", unread: "No leídos", sources_count: "Fuentes", last_sync: "Última Sincronización", success: "Éxito", sync_error: "Error", never: "Nunca", schedule_settings: "Preferencias de Programación Automática", schedule_settings_sub: "Configura límites diarios de publicación y ventanas horarias de engagement.", daily_limits: "Límites Diarios", twitter_limit: "Publicaciones Twitter / Día", linkedin_limit: "Publicaciones LinkedIn / Día", sweet_spots: "Ventanas Horarias (Sweet Spots)", add_spot: "Añadir Ventana", start_time: "Hora Inicio", end_time: "Hora Fin", save_schedule: "Guardar Preferencias", saving: "Guardando...", saved: "¡Guardado con éxito!", remove: "Eliminar" }
             }
         },
 
@@ -938,13 +948,61 @@ function app() {
             linkedin: false
         },
 
+        // Schedule settings state
+        scheduleSettings: {
+            twitterLimit: 5,
+            linkedinLimit: 2,
+            sweetSpots: [
+                { start: "07:30", end: "09:30" },
+                { start: "12:30", end: "14:00" },
+                { start: "17:30", end: "19:30" },
+                { start: "21:00", end: "22:30" }
+            ]
+        },
+        isSavingScheduleSettings: false,
+        scheduleSettingsSaved: false,
+
         async loadSettings() {
             try {
-                // Fetching OAuth status from Data Store via Backend
-                this.oauthStatus = await this.apiCall('/api/auth/status');
+                // Concurrently load OAuth status and scheduling preferences
+                const [oauthRes, schedRes] = await Promise.allSettled([
+                    this.apiCall('/api/auth/status'),
+                    this.apiCall('/api/settings/schedule')
+                ]);
+                if (oauthRes.status === 'fulfilled' && oauthRes.value) this.oauthStatus = oauthRes.value;
+                if (schedRes.status === 'fulfilled' && schedRes.value && schedRes.value.sweetSpots) {
+                    this.scheduleSettings = schedRes.value;
+                }
             } catch (e) {
-                console.warn("Failed to load OAuth status, using mock data.");
-                this.oauthStatus = { twitter: false, linkedin: false };
+                console.warn("Failed to load settings:", e);
+            }
+        },
+
+        async saveScheduleSettings() {
+            this.isSavingScheduleSettings = true;
+            this.scheduleSettingsSaved = false;
+            try {
+                const updated = await this.apiCall('/api/settings/schedule', 'PUT', this.scheduleSettings);
+                if (updated && updated.sweetSpots) {
+                    this.scheduleSettings = updated;
+                }
+                this.scheduleSettingsSaved = true;
+                setTimeout(() => { this.scheduleSettingsSaved = false; }, 3000);
+            } catch (e) {
+                console.error("Failed to save schedule settings:", e);
+                alert(this.t('settings.sync_error'));
+            } finally {
+                this.isSavingScheduleSettings = false;
+            }
+        },
+
+        addSweetSpot() {
+            this.scheduleSettings.sweetSpots.push({ start: "09:00", end: "11:00" });
+        },
+
+        removeSweetSpot(index) {
+            if (this.scheduleSettings.sweetSpots.length > 1) {
+                this.scheduleSettings.sweetSpots.splice(index, 1);
             }
         },
 

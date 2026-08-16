@@ -19,7 +19,7 @@ flowchart TD
     subgraph AI["2. AI Copy Generation"]
         USER["Client / User"] -->|POST /api/ai/generate| AIR["AiGenerateRoutes.kt"]
         AIR --> SCRAPE["Web Scraping & OpenGraph Extraction"]
-        SCRAPE --> GEMINI["VertexAI (Gemini 2.5 Flash Lite)"]
+        SCRAPE --> GEMINI["VertexAI (Gemini 3.5 Flash Lite)"]
         GEMINI -->|Structured JSON Copy| AIR
     end
 

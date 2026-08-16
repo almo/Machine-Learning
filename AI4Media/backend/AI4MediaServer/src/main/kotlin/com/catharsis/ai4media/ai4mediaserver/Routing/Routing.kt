@@ -21,14 +21,70 @@ import org.jsoup.Jsoup
 import kotlinx.serialization.Serializable
 import kotlinx.coroutines.*
 
+import com.google.cloud.datastore.*
+import java.util.concurrent.ConcurrentHashMap
+
 val publishingScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+@Serializable
+data class SweetSpotDTO(
+    val start: String,
+    val end: String
+)
+
+@Serializable
+data class ScheduleSettingsDTO(
+    val twitterLimit: Int = 5,
+    val linkedinLimit: Int = 2,
+    val sweetSpots: List<SweetSpotDTO> = listOf(
+        SweetSpotDTO("07:30", "09:30"),
+        SweetSpotDTO("12:30", "14:00"),
+        SweetSpotDTO("17:30", "19:30"),
+        SweetSpotDTO("21:00", "22:30")
+    )
+)
 
 data class UserScheduleSettings(
     val dailyLimits: Map<SocialNetwork, Int>,
     val sweetSpots: List<Pair<LocalTime, LocalTime>>
 )
 
+fun ScheduleSettingsDTO.toDomain(): UserScheduleSettings {
+    val spots = sweetSpots.mapNotNull { spot ->
+        try {
+            val start = LocalTime.parse(spot.start)
+            val end = LocalTime.parse(spot.end)
+            if (start.isBefore(end)) start to end else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+    return UserScheduleSettings(
+        dailyLimits = mapOf(
+            SocialNetwork.TWITTER to twitterLimit.coerceIn(1, 50),
+            SocialNetwork.LINKEDIN to linkedinLimit.coerceIn(1, 50)
+        ),
+        sweetSpots = if (spots.isNotEmpty()) spots else UserSettingsRegistry.defaultSettings.sweetSpots
+    )
+}
+
+fun UserScheduleSettings.toDTO(): ScheduleSettingsDTO {
+    return ScheduleSettingsDTO(
+        twitterLimit = dailyLimits[SocialNetwork.TWITTER] ?: 5,
+        linkedinLimit = dailyLimits[SocialNetwork.LINKEDIN] ?: 2,
+        sweetSpots = sweetSpots.map {
+            SweetSpotDTO(
+                start = it.first.toString(),
+                end = it.second.toString()
+            )
+        }
+    )
+}
+
 object UserSettingsRegistry {
+    private val datastore by lazy { DatastoreOptions.getDefaultInstance().service }
+    private const val KIND = "UserSettings"
+
     val defaultSettings = UserScheduleSettings(
         dailyLimits = mapOf(
             SocialNetwork.TWITTER to 5,
@@ -42,12 +98,65 @@ object UserSettingsRegistry {
         )
     )
 
-    // In-memory mapping for user-specific settings. 
-    // Defaults are used if a user hasn't configured custom settings.
-    private val userSettings = mutableMapOf<String, UserScheduleSettings>()
+    private val cache = ConcurrentHashMap<String, UserScheduleSettings>()
 
     fun getSettingsForUser(userId: String): UserScheduleSettings {
-        return userSettings[userId] ?: defaultSettings
+        return cache.computeIfAbsent(userId) { loadFromDatastore(userId) ?: defaultSettings }
+    }
+
+    fun saveSettingsForUser(userId: String, settings: UserScheduleSettings) {
+        val key = datastore.newKeyFactory().setKind(KIND).newKey(userId)
+        val spotsList = ListValue.newBuilder()
+        settings.sweetSpots.forEach { (start, end) ->
+            spotsList.addValue(StringValue.of("$start-$end"))
+        }
+
+        val entity = Entity.newBuilder(key)
+            .set("userId", userId)
+            .set("twitterLimit", (settings.dailyLimits[SocialNetwork.TWITTER] ?: 5).toLong())
+            .set("linkedinLimit", (settings.dailyLimits[SocialNetwork.LINKEDIN] ?: 2).toLong())
+            .set("sweetSpots", spotsList.build())
+            .set("updatedAt", Timestamp.now())
+            .build()
+
+        datastore.put(entity)
+        cache[userId] = settings
+    }
+
+    private fun loadFromDatastore(userId: String): UserScheduleSettings? {
+        return try {
+            val key = datastore.newKeyFactory().setKind(KIND).newKey(userId)
+            val entity = datastore.get(key) ?: return null
+
+            val twitterLimit = if (entity.contains("twitterLimit")) entity.getLong("twitterLimit").toInt() else 5
+            val linkedinLimit = if (entity.contains("linkedinLimit")) entity.getLong("linkedinLimit").toInt() else 2
+
+            val spots = if (entity.contains("sweetSpots")) {
+                entity.getList<com.google.cloud.datastore.Value<*>>("sweetSpots").mapNotNull { value ->
+                    try {
+                        val str = value.get().toString()
+                        val parts = str.split("-")
+                        if (parts.size == 2) {
+                            val start = LocalTime.parse(parts[0])
+                            val end = LocalTime.parse(parts[1])
+                            if (start.isBefore(end)) start to end else null
+                        } else null
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+            } else emptyList()
+
+            UserScheduleSettings(
+                dailyLimits = mapOf(
+                    SocialNetwork.TWITTER to twitterLimit,
+                    SocialNetwork.LINKEDIN to linkedinLimit
+                ),
+                sweetSpots = if (spots.isNotEmpty()) spots else defaultSettings.sweetSpots
+            )
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 
@@ -208,7 +317,7 @@ fun Application.configureRouting() {
                             }
                             DataStoreWrapper.updateStatus(contentID, PostStatus.PUBLISHING)
                         } else {
-                            CloudTasks.createHttpTask(
+                            val taskName = CloudTasks.createHttpTask(
                                 projectId = AppConfig.projectId,
                                 locationId = AppConfig.cloudLocationId,
                                 queueId = AppConfig.cloudTasksQueueId,
@@ -218,7 +327,7 @@ fun Application.configureRouting() {
                             )
 
                             val finalStatus = if (request.scheduledTime == "AUTOMATIC") PostStatus.AUTOSCHEDULED else PostStatus.SCHEDULED
-                            DataStoreWrapper.updateStatus(contentID, finalStatus)
+                            DataStoreWrapper.updateStatus(contentID, finalStatus, cloudTaskName = taskName)
                         }
 
                         scheduledIds.add(contentID)
@@ -230,6 +339,30 @@ fun Application.configureRouting() {
                     val errorText = e.stackTraceToString()
                     call.application.log.error("Error scheduling Post: $errorText")
                     call.respond(HttpStatusCode.InternalServerError, ErrorResponse(errorText))
+                }
+            }
+
+            get("/api/settings/schedule") {
+                val user = call.principal<User>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                try {
+                    val settings = UserSettingsRegistry.getSettingsForUser(user.userId)
+                    call.respond(settings.toDTO())
+                } catch (e: Exception) {
+                    call.application.log.error("Error fetching schedule settings for user ${user.userId}", e)
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Failed to fetch settings"))
+                }
+            }
+
+            put("/api/settings/schedule") {
+                val user = call.principal<User>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
+                try {
+                    val dto = call.receive<ScheduleSettingsDTO>()
+                    val domain = dto.toDomain()
+                    UserSettingsRegistry.saveSettingsForUser(user.userId, domain)
+                    call.respond(HttpStatusCode.OK, domain.toDTO())
+                } catch (e: Exception) {
+                    call.application.log.error("Error saving schedule settings for user ${user.userId}", e)
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid schedule settings payload"))
                 }
             }
         }
@@ -258,9 +391,23 @@ fun Application.configureRouting() {
                     return@post
                 }
 
-                if (entity.contains("status") && entity.getString("status") == PostStatus.PUBLISHED.name) {
+                val currentStatus = if (entity.contains("status")) entity.getString("status") else ""
+
+                if (currentStatus == PostStatus.PUBLISHED.name) {
                     call.application.log.info("Post already published (ID: $postId)")
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(HttpStatusCode.OK, "Post already published")
+                    return@post
+                }
+
+                if (currentStatus == PostStatus.DELETED.name || currentStatus == PostStatus.FAILED.name) {
+                    call.application.log.warn("Post $postId is in status '$currentStatus'; skipping publication.")
+                    call.respond(HttpStatusCode.OK, "Post is in status '$currentStatus', skipping publication")
+                    return@post
+                }
+
+                if (currentStatus != PostStatus.SCHEDULED.name && currentStatus != PostStatus.AUTOSCHEDULED.name) {
+                    call.application.log.warn("Post $postId is not in scheduled state (status='$currentStatus'); skipping.")
+                    call.respond(HttpStatusCode.OK, "Post is not in scheduled state")
                     return@post
                 }
 

@@ -96,6 +96,12 @@ object AppConfig {
      */
     val rssNewsRetentionDays: Long
 
+    /**
+     * The Vertex AI generative model identifier (e.g. "gemini-2.5-flash").
+     * Loaded from VERTEX_AI_MODEL env var or defaults to "gemini-2.5-flash".
+     */
+    val vertexAiModel: String
+
     init {
         projectId = System.getenv("GOOGLE_CLOUD_PROJECT") ?: throw IllegalStateException("GOOGLE_CLOUD_PROJECT env var not set")
         baseUrl = System.getenv("APPENGINE_BASE_URL")?.removeSuffix("/") ?: throw IllegalStateException("APPENGINE_BASE_URL env var not set")
@@ -116,5 +122,6 @@ object AppConfig {
         timeZone             =   ZoneId.of("Europe/Zurich")
         rssNewsBaselineCutoffDays = System.getenv("RSS_NEWS_BASELINE_CUTOFF_DAYS")?.toLongOrNull() ?: 45L
         rssNewsRetentionDays = System.getenv("RSS_NEWS_RETENTION_DAYS")?.toLongOrNull() ?: 30L
+        vertexAiModel        = System.getenv("VERTEX_AI_MODEL")?.ifBlank { null } ?: "gemini-2.5-flash-lite"
     }
 }

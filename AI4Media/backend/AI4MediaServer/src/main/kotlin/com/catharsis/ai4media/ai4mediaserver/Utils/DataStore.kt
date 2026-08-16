@@ -62,7 +62,7 @@ object DataStoreWrapper {
         return content?.id.toString()
     }
 
-    fun updateStatus(id: String, status: PostStatus, targetUrn: String? = null) {
+    fun updateStatus(id: String, status: PostStatus, targetUrn: String? = null, cloudTaskName: String? = null) {
         val key = datastore.newKeyFactory().setKind("SocialContent").newKey(id)
         val transaction = datastore.newTransaction()
 
@@ -75,6 +75,9 @@ object DataStoreWrapper {
 
                 if (targetUrn != null) {
                     updatedEntityBuilder.set("targetUrn", targetUrn)
+                }
+                if (cloudTaskName != null) {
+                    updatedEntityBuilder.set("cloudTaskName", cloudTaskName)
                 }
                 val updatedEntity = updatedEntityBuilder.build()
                 transaction.put(updatedEntity)

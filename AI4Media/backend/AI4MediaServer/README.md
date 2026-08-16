@@ -25,7 +25,7 @@ flowchart TD
     subgraph GCP["Google Cloud Platform Services"]
         SECRETS["Secret Manager<br/>(AI4MEDIA Secret)"]
         DATASTORE[("Cloud Datastore<br/>(News, Posts, Sources, Tokens)")]
-        VERTEX["Vertex AI<br/>(Gemini 2.5 Flash Lite)"]
+        VERTEX["Vertex AI<br/>(Gemini 3.5 Flash Lite)"]
         GCS["Cloud Storage<br/>(Signed Image URLs)"]
         TASKS["Cloud Tasks<br/>(Scheduled Job Queue)"]
     end
@@ -135,7 +135,7 @@ Detailed architectural documentation, file inventories, and API references are a
 - **Automated Lifecycle**: Scheduled daily news ingestion triggered via App Engine Cron ([`cron.yaml`](file:///home/almo/Engineering/Machine-Learning/AI4Media/backend/AI4MediaServer/src/main/appengine/cron.yaml)) and automated data purging governed by retention policies.
 
 ### 2. Generative AI Copywriting Engine
-- **Vertex AI Gemini Client**: Interfaces with `gemini-2.5-flash-lite` in [`VertexAI.kt`](file:///home/almo/Engineering/Machine-Learning/AI4Media/backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Utils/VertexAI.kt).
+- **Vertex AI Gemini Client**: Interfaces with `gemini-2.5-flash` (configurable via `VERTEX_AI_MODEL`) in [`VertexAI.kt`](file:///home/almo/Engineering/Machine-Learning/AI4Media/backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Utils/VertexAI.kt).
 - **Persona-Tailored Copy**: Generates formatted posts for LinkedIn Organization accounts, LinkedIn Personal thought-leadership bump posts, and concise Twitter/X tweets in [`AiGenerateRoutes.kt`](file:///home/almo/Engineering/Machine-Learning/AI4Media/backend/AI4MediaServer/src/main/kotlin/com/catharsis/ai4media/ai4mediaserver/Routing/AiGenerateRoutes.kt).
 - **Prompt Injection Defense & Cost Tracking**: Strict JSON schema responses and token/cost tracking metrics recorded per request.
 
@@ -162,7 +162,7 @@ Detailed architectural documentation, file inventories, and API references are a
 | **Backend Framework** | Ktor `3.4.1` (CIO Engine) | Non-blocking asynchronous web server and HTTP client |
 | **Cloud Hosting** | Google App Engine Standard | Microservice `backend` running Java 21 runtime with automatic scaling |
 | **Databases & Queues** | Cloud Datastore & Cloud Tasks | NoSQL entity persistence and asynchronous task distribution |
-| **AI / Machine Learning** | Google Cloud Vertex AI | Gemini LLM (`gemini-2.5-flash-lite`) copy synthesis |
+| **AI / Machine Learning** | Google Cloud Vertex AI | Gemini LLM (`gemini-2.5-flash`) copy synthesis |
 | **Security & Auth** | Firebase Auth & OAuth 2.0 PKCE | Firebase client authentication and RFC 7636 PKCE social authorization |
 | **Secrets & Storage** | Secret Manager & Cloud Storage | Secure credential injection and V4 signed URL asset delivery |
 | **Frontend Framework** | Alpine.js `3.x` & Tailwind CSS | Lightweight reactive UI embedded directly in server resources |

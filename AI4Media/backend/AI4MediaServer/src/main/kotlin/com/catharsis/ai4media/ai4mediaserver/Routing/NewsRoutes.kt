@@ -430,7 +430,8 @@ private fun createArticleEntity(
 ): Entity {
     // Create new RSSNews entity mapped with defaults
     val urlHash = article.url.toSha256()
-    val key = datastore.newKeyFactory().setKind("RSSNews").newKey(urlHash)
+    val compositeKeyName = "${userId}_${urlHash}"
+    val key = datastore.newKeyFactory().setKind("RSSNews").newKey(compositeKeyName)
 
     val timestamp = com.google.cloud.Timestamp.ofTimeSecondsAndNanos(
         article.publishedAt.epochSecond,

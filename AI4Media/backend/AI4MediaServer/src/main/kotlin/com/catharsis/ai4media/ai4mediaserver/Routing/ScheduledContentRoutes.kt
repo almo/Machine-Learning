@@ -191,6 +191,17 @@ fun Application.configureScheduledContentRouting() {
                     }
 
                     // Perform a soft delete instead of a hard delete to maintain history if needed
+                    if (entity.contains("cloudTaskName")) {
+                        val cloudTaskName = entity.getString("cloudTaskName")
+                        if (cloudTaskName.isNotBlank()) {
+                            try {
+                                CloudTasks.deleteTask(cloudTaskName)
+                            } catch (e: Exception) {
+                                call.application.log.warn("Could not delete Cloud Task $cloudTaskName: ${e.message}")
+                            }
+                        }
+                    }
+
                     val updatedEntity = Entity.newBuilder(entity)
                         .set("status", PostStatus.DELETED.name)
                         .build()

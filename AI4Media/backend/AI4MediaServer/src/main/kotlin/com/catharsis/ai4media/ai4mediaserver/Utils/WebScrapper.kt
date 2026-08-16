@@ -1,3 +1,5 @@
+package com.catharsis.ai4media.ai4mediaserver
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
